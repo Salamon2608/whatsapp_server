@@ -45,10 +45,12 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
-  sessions  Session[]
-  webhooks  Webhook[]
-  notifications Notification[]
+  sessions        Session[]
+  webhooks        Webhook[]
+  notifications   Notification[]
   sessionAccesses SessionAccess[]
+  automations     Automation[]
+  flows           Flow[]
 }
 
 model Session {
@@ -62,16 +64,21 @@ model Session {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  contacts    Contact[]
-  messages    Message[]
-  groups      Group[]
-  autoReplies AutoReply[]
-  stories     Story[]
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contacts          Contact[]
+  messages          Message[]
+  groups            Group[]
+  autoReplies       AutoReply[]
+  stories           Story[]
   scheduledMessages ScheduledMessage[]
-  webhooks    Webhook[]
-  botConfig   BotConfig?
-  sessionAccesses SessionAccess[]
+  webhooks          Webhook[]
+  botConfig         BotConfig?
+  sessionAccesses   SessionAccess[]
+  automations       Automation[]
+  flows             Flow[]
+  aiConfig          AiConfig?
+  aiKnowledge       AiKnowledge[]
+  chatbotConfig     ChatbotConfig?
 }
 
 model Contact {
@@ -389,4 +396,229 @@ model BroadcastRecipient {
   broadcastLog    BroadcastLog @relation(fields: [broadcastLogId], references: [id], onDelete: Cascade)
 
   @@index([broadcastLogId])
+}
+
+// ==========================================
+// AUTOMATIONS
+// ==========================================
+model Automation {
+  id              String           @id @default(cuid())
+  sessionId       String?
+  userId          String
+  name            String
+  description     String?          @db.Text
+  triggerType     String           // new_message_received, keyword_match, new_contact_created, first_inbound_message, interactive_reply
+  triggerConfig   Json?            // { keywords: ["hi"], matchType: "exact" | "contains" }
+  isActive        Boolean          @default(false)
+  executionCount  Int              @default(0)
+  lastExecutedAt  DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session         Session?         @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  steps           AutomationStep[]
+  logs            AutomationLog[]
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([triggerType, isActive])
+}
+
+model AutomationStep {
+  id             String          @id @default(cuid())
+  automationId   String
+  parentStepId   String?
+  branch         String?         // 'yes' or 'no'
+  stepType       String          // send_message, condition, delay, add_tag, remove_tag, update_field
+  stepConfig     Json?           // { message: "Hello {{name}}", delayMinutes: 5, tag: "Lead" }
+  position       Int
+  createdAt      DateTime        @default(now())
+
+  automation     Automation      @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  parentStep     AutomationStep? @relation("StepHierarchy", fields: [parentStepId], references: [id], onDelete: Cascade)
+  childSteps     AutomationStep[] @relation("StepHierarchy")
+
+  @@index([automationId, position])
+  @@index([parentStepId])
+}
+
+model AutomationLog {
+  id             String      @id @default(cuid())
+  automationId   String
+  contactJid     String?
+  triggerEvent   String
+  stepsExecuted  Json?
+  status         String      // success, partial, failed
+  errorMessage   String?     @db.Text
+  createdAt      DateTime    @default(now())
+
+  automation     Automation  @relation(fields: [automationId], references: [id], onDelete: Cascade)
+
+  @@index([automationId, createdAt])
+}
+
+// ==========================================
+// CONVERSATIONAL FLOWS
+// ==========================================
+model Flow {
+  id              String      @id @default(cuid())
+  sessionId       String?
+  userId          String
+  name            String
+  description     String?     @db.Text
+  status          String      @default("draft") // draft, active, archived
+  triggerType     String      // keyword, first_inbound_message, manual
+  triggerConfig   Json?       // { keywords: ["menu", "start"] }
+  entryNodeId     String?     // stable string nodeKey
+  fallbackPolicy  Json?       // { on_unknown_reply: "reprompt", max_reprompts: 2 }
+  executionCount  Int         @default(0)
+  lastExecutedAt  DateTime?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session         Session?    @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+  nodes           FlowNode[]
+  runs            FlowRun[]
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([status, triggerType])
+}
+
+model FlowNode {
+  id             String    @id @default(cuid())
+  flowId         String
+  nodeKey        String    // Stable string key e.g. "entry", "menu_opts"
+  nodeType       String    // message, question, send_buttons, send_list, condition, action
+  title          String?
+  config         Json?     // payload, buttons with next_node_key, condition rules
+  positionX      Float     @default(0)
+  positionY      Float     @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  flow           Flow      @relation(fields: [flowId], references: [id], onDelete: Cascade)
+
+  @@unique([flowId, nodeKey])
+  @@index([flowId])
+}
+
+model FlowRun {
+  id             String         @id @default(cuid())
+  flowId         String
+  sessionId      String?
+  userId         String?
+  contactId      String?
+  contactJid     String?
+  status         String         @default("active") // active, completed, timed_out, failed, exhausted, handed_off
+  currentNodeKey String
+  variables      Json?          // collected user input variables
+  vars           Json?
+  repromptCount  Int            @default(0)
+  stepCount      Int            @default(0)
+  startedAt      DateTime       @default(now())
+  lastAdvancedAt DateTime       @default(now())
+  completedAt    DateTime?
+  endedAt        DateTime?
+  expiresAt      DateTime?
+
+  flow           Flow           @relation(fields: [flowId], references: [id], onDelete: Cascade)
+  events         FlowRunEvent[]
+
+  @@index([flowId])
+  @@index([sessionId, contactJid, status])
+  @@index([userId])
+}
+
+model FlowRunEvent {
+  id         String   @id @default(cuid())
+  runId      String
+  nodeKey    String
+  nodeType   String?
+  eventType  String   // entered, completed, replied, timeout, fallback, started, node_entered
+  payload    Json?
+  createdAt  DateTime @default(now())
+
+  run        FlowRun  @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@index([runId])
+}
+
+// ==========================================
+// AI AGENTS & CHATBOT
+// ==========================================
+model AiConfig {
+  id                            String   @id @default(cuid())
+  userId                        String?
+  sessionId                     String?  @unique
+  provider                      String   @default("openai") // openai, anthropic, groq, gemini
+  model                         String   @default("gpt-4o-mini")
+  apiKey                        String   @db.Text
+  systemPrompt                  String?  @db.Text
+  isActive                      Boolean  @default(false)
+  autoReplyEnabled              Boolean  @default(false)
+  autoReplyMaxPerConversation   Int      @default(3)
+  handoffAgentId                String?
+  embeddingsApiKey              String?  @db.Text
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  session                       Session? @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AiKnowledge {
+  id         String   @id @default(cuid())
+  userId     String?
+  sessionId  String?
+  title      String
+  content    String   @db.Text
+  category   String?  @default("General")
+  tags       String?  @db.Text
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  session    Session? @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+}
+
+model AiUsage {
+  id               String   @id @default(cuid())
+  userId           String?
+  sessionId        String?
+  provider         String
+  model            String
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  totalTokens      Int      @default(0)
+  contactJid       String?
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([sessionId, createdAt])
+}
+
+model ChatbotConfig {
+  id               String   @id @default(cuid())
+  userId           String?
+  sessionId        String?  @unique
+  enabled          Boolean  @default(true)
+  isActive         Boolean  @default(true)
+  autoReplyAnyWord Boolean  @default(false)
+  fallbackMessage  String?  @db.Text
+  defaultFallback  String?  @db.Text
+  handoffKeywords  Json?
+  rules            Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  session          Session? @relation(fields: [sessionId], references: [sessionId], onDelete: Cascade)
+
+  @@index([userId])
 }

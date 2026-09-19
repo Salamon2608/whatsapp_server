@@ -1,0 +1,38 @@
+{
+  "enabled": true,
+  "autoReplyAnyWord": true,
+  "fallbackMessage": "👋 Hello! I'm SALAMON's Assistant.\n\nI'm here to help you with questions, requests, and anything you need assistance with.\n\nMy boss, SALAMON, is currently a little busy. Don't worry—I'll make sure your message reaches him and keep him informed.",
+  "rules": [
+    {
+      "id": "menu",
+      "title": "Main Navigation Menu",
+      "keywords": [
+        "menu",
+        "options",
+        "start",
+        "hi",
+        "hello",
+        "vanakkam",
+        "help",
+        "hii bro",
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "good night"
+      ],
+      "response": "👋 Hello! I'm SALAMON's Assistant.\n\nI'm here to help you with questions, requests, and anything you need assistance with.\n\nMy boss, SALAMON, is currently a little busy. Don't worry—I'll make sure your message reaches him and keep him informed.",
+      "action": "trigger_menu",
+      "triggerHandover": false
+    },
+    {
+      "id": "rule_1789638150974_pricing",
+      "title": "Pricing",
+      "keywords": [
+        "pricing"
+      ],
+      "action": "none",
+      "triggerHandover": false,
+      "response": "Solla mudiyathu"
+    }
+  ]
+}

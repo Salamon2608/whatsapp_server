@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
@@ -341,64 +340,6 @@ export default function BotSettingsPage() {
                                 <Button className="w-full sm:w-auto" onClick={handleSaveBot} disabled={botLoading || !sessionId}>
                                     {botLoading ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                                     Save Automation Settings
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Media & Stickers Section */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Media & Stickers</CardTitle>
-                            <CardDescription>Configure how the bot handles media and sticker conversion.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="grid sm:grid-cols-2 gap-4">
-                                <div className="flex items-center justify-between space-x-2 border p-3 rounded-lg">
-                                    <Label htmlFor="enable-sticker" className="flex flex-col space-y-1 cursor-pointer">
-                                        <span className="font-medium">Image to Sticker</span>
-                                        <span className="font-normal text-xs text-muted-foreground">Auto-convert images</span>
-                                    </Label>
-                                    <Switch id="enable-sticker" checked={botConfig.enableSticker}
-                                        onCheckedChange={c => setBotConfig(prev => ({ ...prev, enableSticker: c }))} />
-                                </div>
-                                <div className="flex items-center justify-between space-x-2 border p-3 rounded-lg">
-                                    <Label htmlFor="enable-video-sticker" className="flex flex-col space-y-1 cursor-pointer">
-                                        <span className="font-medium">Video to Sticker</span>
-                                        <span className="font-normal text-xs text-muted-foreground">Auto-convert short videos</span>
-                                    </Label>
-                                    <Switch id="enable-video-sticker" checked={botConfig.enableVideoSticker}
-                                        onCheckedChange={c => setBotConfig(prev => ({ ...prev, enableVideoSticker: c }))} />
-                                </div>
-                            </div>
-
-                            <div className="grid gap-2 border-t border-border/50 pt-4">
-                                <Label>Max Sticker Video Duration: <strong>{botConfig.maxStickerDuration}s</strong></Label>
-                                <Slider
-                                    value={[botConfig.maxStickerDuration]}
-                                    onValueChange={([v]) => setBotConfig(prev => ({ ...prev, maxStickerDuration: v }))}
-                                    min={3}
-                                    max={30}
-                                    step={1}
-                                />
-                                <p className="text-xs text-muted-foreground">Maximum video duration (in seconds) allowed for sticker conversion.</p>
-                            </div>
-
-                            <div className="grid gap-2 border-t border-border/50 pt-4">
-                                <Label>Remove.bg API Key (Optional)</Label>
-                                <Input
-                                    type="password"
-                                    placeholder="Enter your Remove.bg API Key"
-                                    value={botConfig.removeBgApiKey || ""}
-                                    onChange={(e) => setBotConfig(prev => ({ ...prev, removeBgApiKey: e.target.value }))}
-                                />
-                                <p className="text-xs text-muted-foreground">Enables background removal for stickers (use <code className="bg-muted px-1 rounded">nobg</code> caption).</p>
-                            </div>
-
-                            <div className="pt-2">
-                                <Button className="w-full sm:w-auto" onClick={handleSaveBot} disabled={botLoading || !sessionId}>
-                                    {botLoading ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                    Save Media Settings
                                 </Button>
                             </div>
                         </CardContent>

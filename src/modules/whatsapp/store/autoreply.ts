@@ -2,6 +2,10 @@ import { prisma } from "@/lib/prisma";
 import type { WASocket } from "@whiskeysockets/baileys";
 import { normalizeMessageContent } from "@whiskeysockets/baileys";
 import { logger } from "@/lib/logger";
+import { dispatchInboundToFlows } from "@/lib/flows/engine";
+import { runAutomationsForTrigger } from "@/lib/automations/engine";
+import { executeChatbotRule } from "@/lib/chatbot/rule-engine";
+import { runAiAutoReply } from "@/lib/ai/auto-reply";
 
 // Helper for permission check (Deduplicate from command-handler if possible, but keep simple here)
 function canAutoReply(config: any, fromMe: boolean, senderJid: string): boolean {
@@ -102,12 +106,73 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
             if (!canAutoReply(config, fromMe, senderJid)) continue;
 
             const content = normalizeMessageContent(msg.message);
-            const text = content?.conversation || content?.extendedTextMessage?.text || ""; // Caption?
+            const text = content?.conversation || content?.extendedTextMessage?.text || ""; 
+            const buttonReplyId = (content as any)?.buttonsResponseMessage?.selectedButtonId || (content as any)?.templateButtonReplyMessage?.selectedId;
+            const buttonReplyTitle = (content as any)?.buttonsResponseMessage?.selectedDisplayText;
+            const listReplyId = (content as any)?.listResponseMessage?.singleSelectReply?.selectedRowId;
+            const listReplyTitle = (content as any)?.listResponseMessage?.title;
+            const interactiveReplyId = buttonReplyId || listReplyId;
+            const interactiveReplyTitle = buttonReplyTitle || listReplyTitle;
 
-            if (!text) continue;
+            if (!text && !interactiveReplyId) continue;
 
             try {
-                // Fetch rules for this session
+                // 1. WhatsApp Flows State Machine Dispatch
+                const flowResult = await dispatchInboundToFlows({
+                    sock,
+                    sessionId,
+                    userId: session.userId,
+                    remoteJid,
+                    message: interactiveReplyId
+                        ? { kind: 'interactive_reply', reply_id: interactiveReplyId, reply_title: interactiveReplyTitle || '' }
+                        : { kind: 'text', text },
+                    msg,
+                });
+                if (flowResult.consumed) continue;
+
+                // 2. Automations Engine Dispatch (Keywords, Interactive, New Message)
+                const autoTrigger = interactiveReplyId
+                    ? 'interactive_reply'
+                    : 'keyword_match';
+                
+                const autoHandled = await runAutomationsForTrigger({
+                    sock,
+                    sessionId,
+                    userId: session.userId,
+                    remoteJid,
+                    triggerType: autoTrigger,
+                    context: {
+                        message_text: text,
+                        interactive_reply_id: interactiveReplyId,
+                    },
+                    msg,
+                });
+                if (autoHandled) continue;
+
+                // 3. Keyword Rule-Based Chatbot
+                const chatbotHandled = await executeChatbotRule(
+                    sock,
+                    session.userId,
+                    remoteJid,
+                    text,
+                    msg
+                );
+                if (chatbotHandled) continue;
+
+                // 4. BYO-Key AI Agent Auto-Reply with Knowledge Context
+                if (text) {
+                    const aiHandled = await runAiAutoReply({
+                        sock,
+                        sessionId,
+                        userId: session.userId,
+                        remoteJid,
+                        messageText: text,
+                        msg,
+                    });
+                    if (aiHandled) continue;
+                }
+
+                // 5. Legacy AutoReply Rules
                 const rules = await prisma.autoReply.findMany({
                     where: {
                         session: {

@@ -13,14 +13,25 @@ export async function POST(
         }
 
         const { sessionId, jid: rawJid } = await params;
-        const jid = decodeURIComponent(rawJid);
+        let jid = decodeURIComponent(rawJid);
         
-        const body = await request.json();
-        const { message, mentions, quotedMessageId } = body;
-
-        if (!message) {
-            return NextResponse.json({ status: false, message: "message is required", error: "message is required" }, { status: 400 });
+        // Normalize JID if raw number is passed (e.g. 62812345 or +62812345)
+        if (!jid.includes("@")) {
+            const clean = jid.replace(/\D/g, "");
+            jid = `${clean}@s.whatsapp.net`;
+        } else if (jid.endsWith("@c.us")) {
+            jid = jid.replace("@c.us", "@s.whatsapp.net");
         }
+
+        const body = await request.json();
+        const rawMessage = body.message ?? body.text;
+        const { mentions, quotedMessageId } = body;
+
+        if (!rawMessage) {
+            return NextResponse.json({ status: false, message: "message or text is required", error: "message or text is required" }, { status: 400 });
+        }
+
+        const messagePayload = typeof rawMessage === "string" ? { text: rawMessage } : rawMessage;
 
         // Check if user can access this session
         const canAccess = await canAccessSession(user.id, user.role, sessionId);
@@ -29,7 +40,7 @@ export async function POST(
         }
 
         // Send Message using ChatService
-        const result = await ChatService.sendTextMessage(sessionId, jid, message, mentions, quotedMessageId);
+        const result = await ChatService.sendTextMessage(sessionId, jid, messagePayload, mentions, quotedMessageId);
 
         return NextResponse.json({ status: true, message: "Message sent successfully", data: result });
     } catch (error: any) {

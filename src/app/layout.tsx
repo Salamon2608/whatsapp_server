@@ -1,9 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { TopLoader } from "@/components/ui/top-loader";
 import { prisma } from "@/lib/prisma";
+import {
+  DEFAULT_MODE,
+  DEFAULT_THEME,
+  MODE_STORAGE_KEY,
+  MODES,
+  STORAGE_KEY,
+  THEME_IDS,
+} from "@/lib/themes";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,10 +28,8 @@ const APP_DESCRIPTION = "Self-hosted WhatsApp Gateway with Multi-device support,
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://wa-akg.app";
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
-  ],
+  themeColor: "#020617",
+  colorScheme: "dark light",
   width: "device-width",
   initialScale: 1,
 };
@@ -91,6 +98,35 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const THEME_BOOT_SCRIPT = `
+(function(){
+  var d = document.documentElement;
+  try {
+    var THEME_KEY = ${JSON.stringify(STORAGE_KEY)};
+    var THEME_DEFAULT = ${JSON.stringify(DEFAULT_THEME)};
+    var THEMES = ${JSON.stringify(THEME_IDS)};
+    var savedTheme = localStorage.getItem(THEME_KEY);
+    d.dataset.theme = THEMES.indexOf(savedTheme) !== -1 ? savedTheme : THEME_DEFAULT;
+
+    var MODE_KEY = ${JSON.stringify(MODE_STORAGE_KEY)};
+    var MODE_DEFAULT = ${JSON.stringify(DEFAULT_MODE)};
+    var MODES = ${JSON.stringify(MODES)};
+    var savedMode = localStorage.getItem(MODE_KEY);
+    var appliedMode = MODES.indexOf(savedMode) !== -1 ? savedMode : MODE_DEFAULT;
+    d.dataset.mode = appliedMode;
+    if (appliedMode === "dark") {
+      d.classList.add("dark");
+    } else {
+      d.classList.remove("dark");
+    }
+  } catch (_e) {
+    d.dataset.theme = ${JSON.stringify(DEFAULT_THEME)};
+    d.dataset.mode = ${JSON.stringify(DEFAULT_MODE)};
+    d.classList.add("dark");
+  }
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -99,8 +135,19 @@ export default function RootLayout({
   const allowIndexing = process.env.NEXT_PUBLIC_ALLOW_INDEXING === "true";
 
   return (
-    <html lang="en" suppressHydrationWarning className="scroll-smooth">
+    <html
+      lang="en"
+      data-theme={DEFAULT_THEME}
+      data-mode={DEFAULT_MODE}
+      suppressHydrationWarning
+      className="dark scroll-smooth"
+    >
       <head>
+        <Script
+          id="theme-boot"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }}
+        />
         {/* Conditional robots meta (noindex for staging/dev) */}
         {!allowIndexing && <meta name="robots" content="noindex, nofollow" />}
         {/* DNS prefetch for performance */}
@@ -111,8 +158,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-foreground bg-background selection:bg-primary/30 selection:text-primary-foreground min-h-screen flex flex-col`}
         suppressHydrationWarning
       >
-        {/* Global ambient background glow for premium feel */}
-        <div className="fixed inset-0 -z-50 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-background to-background dark:from-primary/10 dark:via-background dark:to-background pointer-events-none" suppressHydrationWarning={true} />
         <Providers>
           <TopLoader />
           {children}

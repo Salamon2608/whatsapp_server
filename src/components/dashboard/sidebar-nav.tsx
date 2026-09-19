@@ -27,7 +27,10 @@ import {
     Tag,
     MessageCircleReply,
     Contact,
-    UserPlus
+    UserPlus,
+    Zap,
+    GitFork,
+    Sparkles
 } from "lucide-react";
 import { useSidebar } from "./sidebar-context";
 import {
@@ -78,11 +81,20 @@ const navGroups: NavGroup[] = [
     {
         label: "Automation",
         items: [
+            { href: "/dashboard/automations", label: "Automations", icon: Zap },
+            { href: "/dashboard/flows", label: "Flows", icon: GitFork },
+            { href: "/dashboard/agents", label: "AI Agents", icon: Sparkles },
             { href: "/dashboard/bot-settings", label: "Bot Settings", icon: Bot },
-            { href: "/dashboard/autoreply", label: "Auto Reply", icon: MessageCircleReply },
             { href: "/dashboard/profile", label: "Bot Profile", icon: UserCircle },
             { href: "/dashboard/scheduler", label: "Scheduler", icon: CalendarClock },
             { href: "/dashboard/webhooks", label: "Webhooks & API", icon: Webhook },
+        ],
+    },
+    {
+        label: "Reports & Logs",
+        items: [
+            { href: "/dashboard/reports/webhooks", label: "Webhook Logs", icon: Webhook },
+            { href: "/dashboard/reports/messages", label: "Message Logs", icon: FileText },
         ],
     },
     {
@@ -171,7 +183,7 @@ export function SidebarNav() {
 
                             {/* Collapsed sidebar: show a thin divider between groups */}
                             {isCollapsed && (
-                                <div className="mx-3 my-2 border-t border-border/30" />
+                                <div className="mx-3 my-2 border-t border-border" />
                             )}
 
                             {(!isGroupCollapsed || isCollapsed) && (
@@ -192,10 +204,10 @@ export function SidebarNav() {
             </nav>
 
             {/* Collapse Toggle Button */}
-            <div className="px-2 py-2 border-t border-border/30">
+            <div className="px-2 py-2 border-t border-border">
                 <button
                     onClick={toggleCollapse}
-                    className="flex items-center justify-center w-full gap-2 px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200"
+                    className="flex items-center justify-center w-full gap-2 px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
                 >
                     {isCollapsed ? (
                         <PanelLeft size={18} />

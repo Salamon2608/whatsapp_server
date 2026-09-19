@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RefreshCw, Save, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { AppearancePanel } from "@/components/settings/appearance-panel";
 
 export default function SettingsPage() {
     const { data: authSession } = useSession();
@@ -81,21 +82,32 @@ export default function SettingsPage() {
     const inputClass = "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-5xl">
             <div>
-                <h2 className="text-xl sm:text-3xl font-bold tracking-tight">Settings</h2>
-                <p className="text-muted-foreground text-sm mt-1">Global system configuration. Only SuperAdmins can make changes.</p>
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">Settings</h2>
+                <p className="text-muted-foreground text-sm mt-0.5">Customize your dashboard appearance and system configuration.</p>
             </div>
 
+            {/* Appearance & Theme (Available to all users) */}
+            <Card className="border-border bg-card">
+                <CardHeader>
+                    <CardTitle className="text-lg">Appearance</CardTitle>
+                    <CardDescription>Choose how WA-AKG looks to you. Select between Light and Dark mode, and choose an accent color.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <AppearancePanel />
+                </CardContent>
+            </Card>
+
             {!isSuperAdmin && (
-                <Card className="border-yellow-200 bg-yellow-50">
+                <Card className="border-amber-500/30 bg-amber-500/10">
                     <CardContent className="pt-6">
                         <div className="flex items-start gap-3">
-                            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
                             <div>
-                                <p className="text-sm font-medium text-yellow-900">View Only Mode</p>
-                                <p className="text-xs text-yellow-700 mt-1">
-                                    Only Superadmins can modify system settings. You can view current settings but cannot make changes.
+                                <p className="text-sm font-semibold text-foreground">System Settings View-Only</p>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                    Only Superadmins can modify global system settings below.
                                 </p>
                             </div>
                         </div>
@@ -104,9 +116,9 @@ export default function SettingsPage() {
             )}
 
             {/* System Configuration (Global) */}
-            <Card className="border-primary/20 bg-primary/5">
+            <Card className="border-border bg-card">
                 <CardHeader>
-                    <CardTitle className="text-xl">App Configuration</CardTitle>
+                    <CardTitle className="text-lg">App Configuration</CardTitle>
                     <CardDescription>Global settings for the application branding and access control.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

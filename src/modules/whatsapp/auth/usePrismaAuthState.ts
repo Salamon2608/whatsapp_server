@@ -23,8 +23,8 @@ export const usePrismaAuthState = async (sessionId: string): Promise<{ state: Au
 
     // Helper to write data
     const writeData = async (type: string, id: string, data: any) => {
+        const key = `${type}-${id}`;
         try {
-            const key = `${type}-${id}`;
             const value = JSON.parse(JSON.stringify(data, BufferJSON.replacer));
             
             await prisma.authState.upsert({
@@ -32,8 +32,22 @@ export const usePrismaAuthState = async (sessionId: string): Promise<{ state: Au
                 create: { sessionId, key, value },
                 update: { value }
             });
-        } catch (error) {
-             logger.error("Auth", 'Error writing auth state:', error);
+        } catch (error: any) {
+            // If concurrent upsert caused unique constraint collision (P2002), fallback to update
+            if (error?.code === 'P2002' || error?.message?.includes('Unique constraint failed')) {
+                try {
+                    const value = JSON.parse(JSON.stringify(data, BufferJSON.replacer));
+                    await prisma.authState.update({
+                        where: { sessionId_key: { sessionId, key } },
+                        data: { value }
+                    });
+                    return;
+                } catch (retryErr) {
+                    logger.error("Auth", 'Retry updating auth state failed:', retryErr);
+                }
+            } else {
+                logger.error("Auth", 'Error writing auth state:', error);
+            }
         }
     };
 

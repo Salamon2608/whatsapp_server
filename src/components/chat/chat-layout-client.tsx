@@ -19,6 +19,24 @@ export function ChatLayoutClient({ sessionId, initialJid }: ChatLayoutClientProp
     const [selectedChat, setSelectedChat] = useState<SelectedChat | null>(
         initialJid ? { jid: initialJid } : null
     );
+    const [autoRefresh, setAutoRefresh] = useState<boolean>(true);
+
+    // Sync overall autoRefresh preference with localStorage
+    useEffect(() => {
+        try {
+            const saved = localStorage.getItem("chat_auto_refresh");
+            if (saved !== null) {
+                setAutoRefresh(saved === "true");
+            }
+        } catch {}
+    }, []);
+
+    const handleToggleAutoRefresh = (checked: boolean) => {
+        setAutoRefresh(checked);
+        try {
+            localStorage.setItem("chat_auto_refresh", String(checked));
+        } catch {}
+    };
 
     // Sync selected chat to URL pathname
     useEffect(() => {
@@ -77,6 +95,8 @@ export function ChatLayoutClient({ sessionId, initialJid }: ChatLayoutClientProp
                     sessionId={sessionId}
                     onSelectChat={handleSelectChat}
                     selectedJid={selectedChat?.jid}
+                    autoRefresh={autoRefresh}
+                    onToggleAutoRefresh={handleToggleAutoRefresh}
                 />
             </div>
 
@@ -90,6 +110,8 @@ export function ChatLayoutClient({ sessionId, initialJid }: ChatLayoutClientProp
                         jid={selectedChat.jid}
                         name={selectedChat.name}
                         onBack={handleBack}
+                        autoRefresh={autoRefresh}
+                        onToggleAutoRefresh={handleToggleAutoRefresh}
                     />
                 ) : (
                     <div className="flex-1 flex items-center justify-center min-w-0 min-h-0">

@@ -197,6 +197,14 @@ export class ChatService {
             throw new Error("WhatsApp session is disconnected or not found");
         }
 
+        let targetJid = jid;
+        if (!targetJid.includes('@')) {
+            const clean = targetJid.replace(/\D/g, '');
+            targetJid = `${clean}@s.whatsapp.net`;
+        } else if (targetJid.endsWith('@c.us')) {
+            targetJid = targetJid.replace('@c.us', '@s.whatsapp.net');
+        }
+
         // Handle quoted/reply message
         let quotedOption: any = undefined;
         if (quotedMessageId) {
@@ -237,7 +245,7 @@ export class ChatService {
             }
         }
 
-        let msgPayload = { ...messagePayload };
+        let msgPayload = typeof messagePayload === 'string' ? { text: messagePayload } : { ...messagePayload };
 
         // Normalize "text" to "caption" if a media message is sent with "text"
         if (msgPayload.text && (msgPayload.image || msgPayload.video || msgPayload.document || msgPayload.audio)) {
@@ -318,7 +326,7 @@ export class ChatService {
             options.quoted = quotedOption;
         }
 
-        const sendResult = await instance.socket.sendMessage(jid, msgPayload, options);
+        const sendResult = await instance.socket.sendMessage(targetJid, msgPayload, options);
 
         // Fire webhook for sent message (non-blocking)
         try {

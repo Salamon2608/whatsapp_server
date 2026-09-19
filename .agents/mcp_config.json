@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "graphify": {
+      "command": "d:\\Whatsapp_Server\\venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "graphify.serve",
+        "d:\\Whatsapp_Server\\graphify-out\\graph.json"
+      ]
+    }
+  }
+}

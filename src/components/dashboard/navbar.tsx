@@ -13,6 +13,9 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { io, Socket } from "socket.io-client";
 
+import { ModeToggle } from "@/components/dashboard/mode-toggle";
+import { ThemePickerMenu } from "@/components/dashboard/theme-picker-menu";
+
 interface NavbarProps {
     appName?: string;
 }
@@ -138,39 +141,42 @@ export function Navbar({ appName }: NavbarProps) {
     };
 
     return (
-        <header className="bg-background/40 backdrop-blur-2xl border-b border-border/50 h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 w-full shadow-sm">
+        <header className="bg-background/80 backdrop-blur-md border-b border-border h-14 sm:h-16 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 w-full">
             <div className="flex items-center gap-3">
                 <MobileNav appName={appName} />
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
                 <span className="hidden sm:inline"><RealtimeClock /></span>
                 <SessionSelector />
-                <div className="h-6 w-px bg-border/50 hidden sm:block" />
+                <div className="h-5 w-px bg-border hidden sm:block" />
+
+                <ThemePickerMenu />
+                <ModeToggle />
 
                 <Popover open={isOpen} onOpenChange={setIsOpen}>
                     <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon" className="relative hover:bg-muted/50 rounded-full h-10 w-10">
-                            <Bell className={`h-5 w-5 transition-colors ${unreadCount > 0 ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`} />
+                        <Button variant="ghost" size="icon" className="relative hover:bg-muted rounded-lg h-9 w-9">
+                            <Bell className={`h-4 w-4 transition-colors ${unreadCount > 0 ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`} />
                             {unreadCount > 0 && (
-                                <span className="absolute top-1.5 right-2.5 h-2.5 w-2.5 bg-red-500 rounded-full animate-pulse border-2 border-background" />
+                                <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-primary rounded-full animate-pulse ring-2 ring-background" />
                             )}
                         </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-80 p-0 rounded-2xl border border-border/50 shadow-2xl glass-panel" align="end">
-                        <div className="p-4 border-b border-border/50 flex justify-between items-center bg-background/50">
+                    <PopoverContent className="w-80 p-0 rounded-xl border border-border bg-card shadow-xl" align="end">
+                        <div className="p-3.5 border-b border-border flex justify-between items-center bg-muted/30">
                             <div>
-                                <h4 className="font-semibold leading-none text-foreground">Notifications</h4>
-                                <p className="text-xs text-muted-foreground mt-1">
-                                    {unreadCount > 0 ? `You have ${unreadCount} unread updates.` : "No new notifications."}
+                                <h4 className="text-sm font-semibold text-foreground">Notifications</h4>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                    {unreadCount > 0 ? `You have ${unreadCount} unread update${unreadCount > 1 ? 's' : ''}.` : "No new notifications."}
                                 </p>
                             </div>
                             <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs" onClick={() => { router.push("/dashboard/inbox"); setIsOpen(false); }}>
+                                <Button variant="ghost" size="sm" className="h-7 py-1 px-2 text-xs" onClick={() => { router.push("/dashboard/inbox"); setIsOpen(false); }}>
                                     See all
                                 </Button>
                                 {unreadCount > 0 && (
-                                    <Button variant="ghost" size="sm" onClick={() => markAsRead()} className="h-auto py-1 px-2 text-xs">
+                                    <Button variant="ghost" size="sm" onClick={() => markAsRead()} className="h-7 py-1 px-2 text-xs">
                                         Mark all read
                                     </Button>
                                 )}
@@ -178,47 +184,47 @@ export function Navbar({ appName }: NavbarProps) {
                         </div>
                         <div className="max-h-[300px] overflow-y-auto">
                             {notifications.length === 0 ? (
-                                <div className="min-h-[150px] flex flex-col items-center justify-center text-center p-4">
-                                    <div className="bg-slate-100 p-3 rounded-full mb-3">
-                                        <Inbox className="h-6 w-6 text-slate-400" />
+                                <div className="min-h-[140px] flex flex-col items-center justify-center text-center p-4">
+                                    <div className="bg-muted p-2.5 rounded-full mb-2.5">
+                                        <Inbox className="h-5 w-5 text-muted-foreground" />
                                     </div>
-                                    <p className="text-sm font-medium">No new notifications</p>
-                                    <p className="text-xs text-muted-foreground max-w-[180px]">We'll notify you when something important arrives.</p>
+                                    <p className="text-xs font-medium text-foreground">No new notifications</p>
+                                    <p className="text-[11px] text-muted-foreground max-w-[180px] mt-0.5">We'll notify you when something important arrives.</p>
                                 </div>
                             ) : (
-                                <div className="divide-y">
+                                <div className="divide-y divide-border">
                                     {notifications.map(n => (
                                         <div
                                             key={n.id}
-                                            className={`p-4 hover:bg-slate-50 transition-colors ${!n.read ? 'bg-blue-50/50' : ''}`}
+                                            className={`p-3.5 hover:bg-muted/50 transition-colors ${!n.read ? 'bg-primary/5' : ''}`}
                                         >
                                             <div className="flex justify-between items-start gap-3">
                                                 <div
                                                     className="flex-1 space-y-1 cursor-pointer"
                                                     onClick={() => handleNotificationClick(n)}
                                                 >
-                                                    <p className={`text-sm font-medium leading-none ${!n.read ? 'text-blue-700' : 'text-slate-900'}`}>
+                                                    <p className={`text-xs font-semibold leading-snug ${!n.read ? 'text-primary' : 'text-foreground'}`}>
                                                         {n.title}
                                                     </p>
-                                                    <p className="text-xs text-muted-foreground whitespace-normal break-words">
+                                                    <p className="text-xs text-muted-foreground line-clamp-2">
                                                         {n.message}
                                                     </p>
-                                                    <p className="text-[10px] text-slate-400">
+                                                    <p className="text-[10px] text-muted-foreground/70">
                                                         {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                                                     </p>
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    {!n.read && <span className="h-2 w-2 bg-blue-500 rounded-full flex-shrink-0" />}
+                                                <div className="flex items-center gap-1.5">
+                                                    {!n.read && <span className="h-1.5 w-1.5 bg-primary rounded-full flex-shrink-0" />}
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8"
+                                                        className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             deleteNotification(n.id);
                                                         }}
                                                     >
-                                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                                        <Trash2 className="h-3.5 w-3.5" />
                                                     </Button>
                                                 </div>
                                             </div>

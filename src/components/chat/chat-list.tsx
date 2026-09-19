@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { MessageSquarePlus, Search, MessageCircle, X, Tag, MoreHorizontal, CornerUpLeft, Trash2, Info, Check } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { getChatsStatus } from "@/app/dashboard/chat/actions";
 import { useSocket } from "./socket-context";
@@ -37,6 +38,8 @@ interface ChatListProps {
     sessionId: string;
     onSelectChat: (jid: string, name?: string) => void;
     selectedJid?: string;
+    autoRefresh?: boolean;
+    onToggleAutoRefresh?: (checked: boolean) => void;
 }
 
 const PAGE_SIZE = parseInt(process.env.NEXT_PUBLIC_CHAT_PAGE_SIZE || "50", 10);
@@ -257,7 +260,7 @@ function SkeletonRow() {
 }
 
 // ─── Main ──────────────────────────
-export function ChatList({ sessionId, onSelectChat, selectedJid }: ChatListProps) {
+export function ChatList({ sessionId, onSelectChat, selectedJid, autoRefresh = true, onToggleAutoRefresh }: ChatListProps) {
     const [chats, setChats] = useState<ChatContact[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchInput, setSearchInput] = useState("");
@@ -275,11 +278,11 @@ export function ChatList({ sessionId, onSelectChat, selectedJid }: ChatListProps
     chatsRef.current = chats;
     const fetchingRef = useRef(false);
 
-    const fetchChats = useCallback(async (cursor?: string, append = false) => {
+    const fetchChats = useCallback(async (cursor?: string, append = false, silent = false) => {
         if (fetchingRef.current) return;
         fetchingRef.current = true;
         try {
-            if (!cursor) setLoading(true);
+            if (!cursor && !silent) setLoading(true);
             const rawChats: any = await getChatsStatus(sessionId, PAGE_SIZE, cursor || undefined, searchQuery || undefined);
             
             const processChats = (newChatsList: ChatContact[], existingChatsList: ChatContact[] = []) => {
@@ -302,13 +305,14 @@ export function ChatList({ sessionId, onSelectChat, selectedJid }: ChatListProps
         } catch (error) {
             console.error("Failed to load chats", error);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
             fetchingRef.current = false;
         }
     }, [sessionId, searchQuery]);
 
     useEffect(() => { setChats([]); setHasMore(true); fetchChats(); }, [fetchChats]);
 
+    // Socket real-time (messages are paused if autoRefresh is OFF)
     useEffect(() => {
         const socket = getSocket();
         if (!socket) return;
@@ -316,6 +320,7 @@ export function ChatList({ sessionId, onSelectChat, selectedJid }: ChatListProps
         if (socket.connected) joinSession(sessionId);
         socket.on("connect", onConnect);
         const handler = async (newMessages: any[]) => {
+            if (autoRefresh === false) return; // When off, new incoming messages are NOT coming!
             let needsReload = false;
             setChats(prev => {
                 const updated = [...prev];
@@ -333,11 +338,31 @@ export function ChatList({ sessionId, onSelectChat, selectedJid }: ChatListProps
                 });
                 return updated;
             });
-            if (needsReload) fetchChats();
+            if (needsReload) fetchChats(undefined, false, true);
         };
         socket.on("message.update", handler);
         return () => { socket.off("connect", onConnect); socket.off("message.update", handler); };
-    }, [sessionId, getSocket, joinSession, fetchChats]);
+    }, [sessionId, getSocket, joinSession, fetchChats, autoRefresh]);
+
+    // Background polling for overall chat list when autoRefresh is enabled
+    useEffect(() => {
+        if (autoRefresh === false) return;
+        const timer = setInterval(() => {
+            if (typeof document !== "undefined" && document.visibilityState === "visible" && !fetchingRef.current && !searchQuery.trim()) {
+                fetchChats(undefined, false, true);
+            }
+        }, 2000);
+        return () => clearInterval(timer);
+    }, [autoRefresh, fetchChats, searchQuery]);
+
+    // When autoRefresh transitions from OFF to ON, immediately refresh chat list
+    const prevAutoRefreshRef = useRef(autoRefresh);
+    useEffect(() => {
+        if (autoRefresh && prevAutoRefreshRef.current === false) {
+            fetchChats(undefined, false, true);
+        }
+        prevAutoRefreshRef.current = autoRefresh;
+    }, [autoRefresh, fetchChats]);
 
     // Fetch label assignments for all chats
     useEffect(() => {
@@ -417,14 +442,39 @@ export function ChatList({ sessionId, onSelectChat, selectedJid }: ChatListProps
             {/* Header */}
             <div className="shrink-0 px-3 pt-3 pb-2 space-y-2 border-b border-border/10">
                 <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-base text-foreground">
+                    <h3 className="font-semibold text-base text-foreground flex items-center">
                         Chats
                         {chats.length > 0 && <span className="ml-1.5 text-xs font-normal text-muted-foreground">({chats.length})</span>}
                     </h3>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"
-                        onClick={() => setIsNewChatOpen(!isNewChatOpen)}>
-                        {isNewChatOpen ? <X className="h-4 w-4" /> : <MessageSquarePlus className="h-4 w-4" />}
-                    </Button>
+                    <div className="flex items-center gap-1.5">
+                        {onToggleAutoRefresh && (
+                            <div
+                                className="flex items-center gap-1.5 bg-muted/40 hover:bg-muted/60 transition-colors px-2 py-1 rounded-full border border-border/40 text-xs cursor-pointer select-none"
+                                onClick={() => onToggleAutoRefresh(!autoRefresh)}
+                                title={autoRefresh ? "Overall Auto-refresh ON (messages live)" : "Overall Auto-refresh OFF (incoming messages paused)"}
+                            >
+                                <span className="relative flex h-2 w-2">
+                                    {autoRefresh && (
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                                    )}
+                                    <span className={cn("relative inline-flex rounded-full h-2 w-2", autoRefresh ? "bg-emerald-500" : "bg-muted-foreground/40")} />
+                                </span>
+                                <span className="text-[10px] font-medium text-muted-foreground select-none">
+                                    {autoRefresh ? "Live" : "Paused"}
+                                </span>
+                                <Switch
+                                    checked={!!autoRefresh}
+                                    onCheckedChange={onToggleAutoRefresh}
+                                    onClick={(e) => e.stopPropagation()}
+                                    aria-label="Toggle overall auto refresh"
+                                />
+                            </div>
+                        )}
+                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"
+                            onClick={() => setIsNewChatOpen(!isNewChatOpen)}>
+                            {isNewChatOpen ? <X className="h-4 w-4" /> : <MessageSquarePlus className="h-4 w-4" />}
+                        </Button>
+                    </div>
                 </div>
 
                 <div className="relative">

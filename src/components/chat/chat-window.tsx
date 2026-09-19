@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 import { getChatMessages, sendChatMessage, sendMediaMessage } from "@/app/dashboard/chat/actions";
 import { useSocket } from "./socket-context";
 
@@ -46,6 +47,8 @@ interface ChatWindowProps {
     jid: string;
     name?: string;
     onBack?: () => void;
+    autoRefresh?: boolean;
+    onToggleAutoRefresh?: (checked: boolean) => void;
 }
 
 const PAGE_LIMIT = 50;
@@ -160,7 +163,14 @@ function ContextMenu({ state, onClose, onReply, onDelete }: { state: ContextMenu
 }
 
 // ─── Main Component ─────────────────
-export function ChatWindow({ sessionId, jid, name, onBack }: ChatWindowProps) {
+export function ChatWindow({
+    sessionId,
+    jid,
+    name,
+    onBack,
+    autoRefresh: controlledAutoRefresh,
+    onToggleAutoRefresh: controlledOnToggleAutoRefresh
+}: ChatWindowProps) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -175,6 +185,32 @@ export function ChatWindow({ sessionId, jid, name, onBack }: ChatWindowProps) {
     const [oldestTimestamp, setOldestTimestamp] = useState<string | null>(null);
     const [autoScroll, setAutoScroll] = useState(true);
     const [newMsgBadge, setNewMsgBadge] = useState(false);
+    const [localAutoRefresh, setLocalAutoRefresh] = useState<boolean>(true);
+    const isPollingRef = useRef(false);
+
+    const autoRefresh = typeof controlledAutoRefresh === "boolean" ? controlledAutoRefresh : localAutoRefresh;
+
+    // Sync preference from localStorage if uncontrolled
+    useEffect(() => {
+        if (typeof controlledAutoRefresh === "boolean") return;
+        try {
+            const saved = localStorage.getItem("chat_auto_refresh");
+            if (saved !== null) {
+                setLocalAutoRefresh(saved === "true");
+            }
+        } catch {}
+    }, [controlledAutoRefresh]);
+
+    const handleToggleAutoRefresh = (checked: boolean) => {
+        if (controlledOnToggleAutoRefresh) {
+            controlledOnToggleAutoRefresh(checked);
+        } else {
+            setLocalAutoRefresh(checked);
+            try {
+                localStorage.setItem("chat_auto_refresh", String(checked));
+            } catch {}
+        }
+    };
 
     // Delete confirmation
     const [deleteConfirmMsg, setDeleteConfirmMsg] = useState<Message | null>(null);
@@ -205,6 +241,54 @@ export function ChatWindow({ sessionId, jid, name, onBack }: ChatWindowProps) {
         finally { setLoading(false); setLoadingMore(false); }
     }, [sessionId, jid]);
 
+    const pollLatestMessages = useCallback(async () => {
+        if (isPollingRef.current) return;
+        isPollingRef.current = true;
+        try {
+            const data: any = await getChatMessages(sessionId, jid, PAGE_LIMIT);
+            if (data?.messages?.length > 0) {
+                setMessages(prev => {
+                    const map = new Map<string, Message>();
+                    for (const m of prev) {
+                        map.set(m.keyId, m);
+                    }
+                    let changed = false;
+                    for (const m of data.messages) {
+                        const existing = map.get(m.keyId);
+                        if (!existing) {
+                            map.set(m.keyId, m);
+                            changed = true;
+                        } else if (
+                            existing.status !== m.status ||
+                            existing.content !== m.content ||
+                            existing.mediaUrl !== m.mediaUrl
+                        ) {
+                            map.set(m.keyId, m);
+                            changed = true;
+                        }
+                    }
+                    if (!changed) return prev;
+                    return Array.from(map.values()).sort(
+                        (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+                    );
+                });
+            }
+        } catch {
+            // Silently ignore polling errors to keep chat smooth
+        } finally {
+            isPollingRef.current = false;
+        }
+    }, [sessionId, jid]);
+
+    // Background polling every 1 second when autoRefresh is enabled
+    useEffect(() => {
+        if (!autoRefresh) return;
+        const timer = setInterval(() => {
+            pollLatestMessages();
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [autoRefresh, pollLatestMessages]);
+
     useEffect(() => { setMessages([]); setOldestTimestamp(null); setHasMore(false); fetchMessages(); }, [fetchMessages]);
 
     // Auto focus input when chat changes and finished loading
@@ -217,7 +301,7 @@ export function ChatWindow({ sessionId, jid, name, onBack }: ChatWindowProps) {
         }
     }, [jid, loading]);
 
-    // Socket real-time
+    // Socket real-time (only receives messages if autoRefresh is ON)
     useEffect(() => {
         const socket = getSocket();
         if (!socket) return;
@@ -226,6 +310,7 @@ export function ChatWindow({ sessionId, jid, name, onBack }: ChatWindowProps) {
         socket.on("connect", onConnect);
         const normalizedJid = jid.endsWith("@c.us") ? jid.replace("@c.us", "@s.whatsapp.net") : jid;
         const handler = (newMessages: Message[]) => {
+            if (!autoRefresh) return; // Messages are stopped when autoRefresh is OFF
             setMessages(prev => {
                 const relevant = newMessages.filter(m => m.remoteJid === normalizedJid || prev.some(p => p.remoteJid === m.remoteJid));
                 if (relevant.length === 0) return prev;
@@ -236,7 +321,16 @@ export function ChatWindow({ sessionId, jid, name, onBack }: ChatWindowProps) {
         };
         socket.on("message.update", handler);
         return () => { socket.off("connect", onConnect); socket.off("message.update", handler); };
-    }, [sessionId, jid, getSocket, joinSession]);
+    }, [sessionId, jid, getSocket, joinSession, autoRefresh]);
+
+    // When autoRefresh is re-enabled from OFF to ON, instantly poll latest messages
+    const prevAutoRefreshRef = useRef(autoRefresh);
+    useEffect(() => {
+        if (autoRefresh && !prevAutoRefreshRef.current) {
+            pollLatestMessages();
+        }
+        prevAutoRefreshRef.current = autoRefresh;
+    }, [autoRefresh, pollLatestMessages]);
 
     useEffect(() => { if (autoScroll) scrollToBottom(false); }, [messages, autoScroll, scrollToBottom]);
 
@@ -406,20 +500,48 @@ export function ChatWindow({ sessionId, jid, name, onBack }: ChatWindowProps) {
             )}
 
             {/* Header */}
-            <div className="shrink-0 px-3 py-2.5 border-b bg-background/80 backdrop-blur-sm flex items-center gap-3 z-10">
-                {onBack && (
-                    <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden shrink-0 text-muted-foreground hover:text-foreground" onClick={onBack}>
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                )}
-                <Avatar className="h-9 w-9 shrink-0">
-                    <AvatarFallback className="text-xs font-medium bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary">
-                        {displayName.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-foreground truncate">{displayName}</h3>
-                    <p className="text-[10px] text-muted-foreground truncate">{jid}</p>
+            <div className="shrink-0 px-3 py-2.5 border-b bg-background/80 backdrop-blur-sm flex items-center justify-between gap-3 z-10">
+                <div className="flex items-center gap-3 min-w-0">
+                    {onBack && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden shrink-0 text-muted-foreground hover:text-foreground" onClick={onBack}>
+                            <ArrowLeft className="h-4 w-4" />
+                        </Button>
+                    )}
+                    <Avatar className="h-9 w-9 shrink-0">
+                        <AvatarFallback className="text-xs font-medium bg-gradient-to-br from-primary/20 to-blue-500/20 text-primary">
+                            {displayName.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground truncate">{displayName}</h3>
+                        <p className="text-[10px] text-muted-foreground truncate">{jid}</p>
+                    </div>
+                </div>
+
+                {/* Auto Refresh 1s Toggle */}
+                <div
+                    className="flex items-center gap-2 shrink-0 bg-muted/40 hover:bg-muted/60 transition-colors px-2.5 py-1.5 rounded-full border border-border/40 text-xs cursor-pointer select-none"
+                    onClick={() => handleToggleAutoRefresh(!autoRefresh)}
+                    title={autoRefresh ? "Overall Auto-refresh ON (every 1s, messages live)" : "Overall Auto-refresh OFF (incoming messages paused)"}
+                >
+                    <span className="relative flex h-2 w-2">
+                        {autoRefresh && (
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                        )}
+                        <span className={cn("relative inline-flex rounded-full h-2 w-2", autoRefresh ? "bg-emerald-500" : "bg-muted-foreground/40")} />
+                    </span>
+                    <span className="text-[11px] font-medium text-muted-foreground hidden sm:inline">
+                        {autoRefresh ? "Auto-refresh: 1s" : "Auto-refresh: Off (Paused)"}
+                    </span>
+                    <span className="text-[11px] font-medium text-muted-foreground sm:hidden">
+                        {autoRefresh ? "1s" : "Off"}
+                    </span>
+                    <Switch
+                        checked={autoRefresh}
+                        onCheckedChange={handleToggleAutoRefresh}
+                        onClick={(e) => e.stopPropagation()}
+                        aria-label="Toggle auto refresh every second"
+                    />
                 </div>
             </div>
 

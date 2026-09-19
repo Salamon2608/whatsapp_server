@@ -27,6 +27,9 @@ import {
     Tag,
     MessageCircleReply,
     UserPlus,
+    Zap,
+    GitFork,
+    Sparkles,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
@@ -65,11 +68,20 @@ const navGroups: NavGroup[] = [
     {
         label: "Automation",
         items: [
+            { href: "/dashboard/automations", label: "Automations", icon: Zap },
+            { href: "/dashboard/flows", label: "Flows", icon: GitFork },
+            { href: "/dashboard/agents", label: "AI Agents", icon: Sparkles },
             { href: "/dashboard/bot-settings", label: "Bot Settings", icon: Bot },
-            { href: "/dashboard/autoreply", label: "Auto Reply", icon: MessageCircleReply },
             { href: "/dashboard/profile", label: "Bot Profile", icon: UserCircle },
             { href: "/dashboard/scheduler", label: "Scheduler", icon: CalendarClock },
             { href: "/dashboard/webhooks", label: "Webhooks & API", icon: Webhook },
+        ],
+    },
+    {
+        label: "Reports & Logs",
+        items: [
+            { href: "/dashboard/reports/webhooks", label: "Webhook Logs", icon: Webhook },
+            { href: "/dashboard/reports/messages", label: "Message Logs", icon: FileText },
         ],
     },
     {
@@ -111,10 +123,10 @@ export function MobileNav({ appName = "WA-AKG" }: { appName?: string }) {
                     <Menu className="h-5 w-5" />
                 </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[85vw] sm:w-[320px] p-0 flex flex-col">
-                <SheetHeader className="px-5 py-4 text-left border-b border-slate-100">
-                    <SheetTitle className="text-xl font-bold text-slate-800">{appName}</SheetTitle>
-                    <SheetDescription className="text-[11px] text-slate-400 -mt-1">WhatsApp Gateway</SheetDescription>
+            <SheetContent side="left" className="w-[85vw] sm:w-[300px] p-0 flex flex-col bg-card border-r border-border">
+                <SheetHeader className="px-5 py-4 text-left border-b border-border">
+                    <SheetTitle className="text-lg font-semibold text-foreground">{appName}</SheetTitle>
+                    <SheetDescription className="text-[11px] text-muted-foreground -mt-1">WhatsApp Gateway</SheetDescription>
                 </SheetHeader>
 
                 <nav className="flex-1 px-3 py-3 overflow-y-auto space-y-1">
@@ -127,7 +139,7 @@ export function MobileNav({ appName = "WA-AKG" }: { appName?: string }) {
                         return (
                             <div key={group.label} className="mb-1">
                                 {group.label !== "Main" && (
-                                    <p className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                                    <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
                                         {group.label}
                                     </p>
                                 )}
@@ -143,8 +155,8 @@ export function MobileNav({ appName = "WA-AKG" }: { appName?: string }) {
                                                 transition-all duration-200 group relative
                                                 gap-3 px-3 py-2
                                                 ${isActive(href)
-                                                    ? "text-primary bg-primary/10 shadow-sm"
-                                                    : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                                                    ? "text-primary bg-primary/10"
+                                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                                 }
                                             `}
                                         >
@@ -164,28 +176,28 @@ export function MobileNav({ appName = "WA-AKG" }: { appName?: string }) {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-slate-100 bg-slate-50/50">
-                    <div className="flex items-center gap-3 mb-3">
-                        <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-xs font-semibold text-slate-600">
+                <div className="p-4 border-t border-border bg-card">
+                    <div className="flex items-center gap-2.5 mb-3">
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
                             {session?.user?.name?.charAt(0)?.toUpperCase() || "U"}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-700 truncate">{session?.user?.name || "User"}</p>
-                            <p className="text-[11px] text-slate-400 truncate">{session?.user?.email}</p>
+                            <p className="text-xs font-semibold text-foreground truncate">{session?.user?.name || "User"}</p>
+                            <p className="text-[10px] text-muted-foreground truncate">{session?.user?.email}</p>
                         </div>
                     </div>
                     <Button
                         variant="outline"
                         size="sm"
-                        className="w-full flex items-center justify-center gap-2 text-xs h-8"
+                        className="w-full flex items-center justify-center gap-2 text-xs h-7 rounded-lg border-border hover:bg-muted hover:text-foreground"
                         onClick={async () => {
                             setOpen(false);
                             await signOut({ callbackUrl: "/auth/login" });
                         }}
                     >
-                        <LogOut size={14} /> Sign Out
+                        <LogOut size={13} /> Sign Out
                     </Button>
-                    <p className="text-[10px] text-slate-300 text-center mt-2 font-mono">v{pkg.version}</p>
+                    <p className="text-[9px] text-muted-foreground/60 text-center mt-1.5 font-mono">v{pkg.version}</p>
                 </div>
             </SheetContent>
         </Sheet>
