@@ -37,17 +37,26 @@ graph LR
 
 ---
 
-## 🔥 Key Features
+## 🔥 Key Features & Services
 
-- **📱 Multi-Session Management**: Connect and manage unlimited WhatsApp accounts simultaneously via simple QR code scans.
-- **📊 Real-Time Dashboard & Logs (NEW!)**: Track your API usage with the built-in Reports dashboard for Webhooks and Messages.
-- **⚡ Pro WhatsApp Engine**: Powered by `@whiskeysockets/baileys` for high-speed, stable, and secure WebSocket connections.
-- **📅 Advanced Scheduler**: Precise message planning with **Media Support** (Images, Video, Docs).
-- **📢 Safe Broadcast**: Built-in anti-ban mechanisms with randomized delays (10-30s) and batch processing.
-- **🤖 Smart Auto-Reply**: Keywords matching with **Context Support** (Group/Private/All) and **Media Attachments**.
-- **🔗 Enterprise Webhooks**: Robust real-time event forwarding for messages, connections, status changes, and group updates.
-- **🛡️ Granular Access Control**: Full **Whitelist** & **Blacklist** support for both Bot Commands and Auto Replies.
-- **📘 Open API Spec**: Fully documented via `swagger-ui-react` at `/docs`.
+WhatsApp Server is divided into two primary services: the **API Gateway** for programmatic access, and the **Dashboard** for visual management and analytics.
+
+### 1. 📊 Dashboard & Analytics Services (NEW)
+- **Interactive Reports Dashboard**: A dedicated interface to monitor your WhatsApp Gateway's health and usage.
+- **Message Logs Analytics**: View detailed tables of all outgoing and incoming messages, including delivery status, timestamps, and message types.
+- **Webhook Logs Monitoring**: Inspect real-time webhook payloads, success/failure rates, and destination URLs directly from the UI.
+- **Auto-Refreshing Metrics**: Live toggles on the dashboard to automatically refresh data, keeping your analytics up-to-the-second without manual reloads.
+- **Multi-Session Management**: Connect, manage, and delete multiple WhatsApp sessions (phone numbers) simultaneously via QR code scans.
+
+### 2. ⚡ Core API Gateway Services
+- **Pro WhatsApp Engine**: Powered by `@whiskeysockets/baileys` for high-speed, stable WebSocket connections to WhatsApp servers.
+- **Messaging API**: Send Text, Media (Images/Videos/Audio), Documents, and Stickers via simple REST API calls.
+- **Safe Broadcast System**: Built-in anti-ban mechanisms with randomized delays (10-30s) and batch processing for bulk messaging.
+- **Smart Auto-Reply Engine**: Configure keyword matching with Context Support (Group/Private/All) and Media Attachments to build automated customer support bots.
+- **Advanced Scheduler**: Plan messages and campaigns ahead of time with precise cron-based scheduling.
+- **Enterprise Webhooks**: Forward real-time events (messages received, connection changes, group updates) directly to your external CRM or backend systems.
+- **Granular Access Control**: Full Whitelist & Blacklist support for both Bot Commands and Auto Replies.
+- **Interactive API Docs**: Fully documented OpenAPI specification via `swagger-ui-react` available at `/docs`.
 
 <details>
 <summary>📂 <b>View Webhook Payload Example</b></summary>
