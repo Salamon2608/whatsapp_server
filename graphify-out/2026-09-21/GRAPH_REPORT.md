@@ -1,7 +1,7 @@
 # Graph Report - Whatsapp_Server  (2026-09-21)
 
 ## Corpus Check
-- 312 files · ~591,079 words
+- 312 files · ~591,085 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 14 file(s) not represented in the graph (top: (none) 7, .log 2, .example 1)
 

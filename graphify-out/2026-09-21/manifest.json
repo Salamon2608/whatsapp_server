@@ -522,10 +522,10 @@
     "semantic_hash": "b7ca52941f4dcd56db950767fced4848"
   },
   "src/app/api/system/check-updates/route.ts": {
-    "mtime": 1789534476.7060268,
-    "seen": 1789536476.65967,
-    "ast_hash": "efc324fa089225db280fb888da3cf080",
-    "semantic_hash": "efc324fa089225db280fb888da3cf080"
+    "mtime": 1789997599.003081,
+    "seen": 1789997613.6947737,
+    "ast_hash": "ecfd313741d9162c80d11ab69dade0ab",
+    "semantic_hash": ""
   },
   "src/app/api/system/monitor/[sessionId]/route.ts": {
     "mtime": 1789978086.7705655,
@@ -1944,21 +1944,21 @@
     "semantic_hash": ""
   },
   "src/components/reports/message-logs-view.tsx": {
-    "mtime": 1789717101.2915344,
-    "seen": 1789717291.302027,
-    "ast_hash": "a26608771e20af85ca2a4e9e7eb0b957",
+    "mtime": 1789983227.5667214,
+    "seen": 1789983282.8425245,
+    "ast_hash": "2b66bc991f494e80c1e13204c5673a12",
     "semantic_hash": ""
   },
   "src/components/reports/webhook-logs-view.tsx": {
-    "mtime": 1789717068.9081967,
-    "seen": 1789717291.302027,
-    "ast_hash": "c9fe816647430939d5c7ad2a72b6de38",
+    "mtime": 1789983246.232104,
+    "seen": 1789983282.842528,
+    "ast_hash": "a77e9ca55585f975ec6cc43a47914107",
     "semantic_hash": ""
   },
   "eslint.json": {
     "mtime": 1789534476.672289,
-    "seen": 1789800606.9445627,
-    "ast_hash": "",
+    "seen": 1789997613.6946049,
+    "ast_hash": "409c64d64d4cabd83fc7ee458bad0167",
     "semantic_hash": ""
   },
   "src/lib/anti-ban.ts": {
