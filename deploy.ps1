@@ -58,13 +58,14 @@ if ($Choice -eq "2") {
         exit 1
     }
 
+    $TempArchive = Join-Path $env:TEMP "next_build.tar.gz"
     Write-Host "[2/5] Compressing production build..." -ForegroundColor Cyan
-    if (Test-Path "next_build.tar.gz") { Remove-Item "next_build.tar.gz" -Force }
-    tar.exe --exclude="cache" -czf next_build.tar.gz -C .next .
+    if (Test-Path $TempArchive) { Remove-Item $TempArchive -Force }
+    tar.exe --exclude="cache" -czf $TempArchive -C .next .
 
     Write-Host "[3/5] Uploading build bundle to AWS..." -ForegroundColor Cyan
-    scp.exe -i $KeyPath -o BatchMode=yes -o StrictHostKeyChecking=no next_build.tar.gz "ubuntu@${ServerIP}:${RemoteDir}/"
-    Remove-Item "next_build.tar.gz" -Force -ErrorAction SilentlyContinue
+    scp.exe -i $KeyPath -o BatchMode=yes -o StrictHostKeyChecking=no $TempArchive "ubuntu@${ServerIP}:${RemoteDir}/next_build.tar.gz"
+    Remove-Item $TempArchive -Force -ErrorAction SilentlyContinue
 }
 
 # --- GIT PUSH ---
@@ -77,7 +78,7 @@ git push origin main
 Write-Host "`nUpdating AWS server and restarting PM2..." -ForegroundColor Cyan
 
 if ($Choice -eq "2") {
-    $RemoteCmd = "cd ~/whatsapp_server ; git fetch origin ; git reset --hard origin/main ; tar -xzf next_build.tar.gz -C .next/ ; rm -f next_build.tar.gz ; pm2 restart whatsapp-server ; pm2 status"
+    $RemoteCmd = "cd ~/whatsapp_server ; git fetch origin ; git reset --hard origin/main ; mkdir -p .next ; tar -xzf next_build.tar.gz -C .next/ ; rm -f next_build.tar.gz ; pm2 restart whatsapp-server ; pm2 status"
 } else {
     $RemoteCmd = "cd ~/whatsapp_server ; git fetch origin ; git reset --hard origin/main ; pm2 restart whatsapp-server ; pm2 status"
 }

@@ -47,3 +47,5 @@ next-env.d.ts
 /public/media/*
 server.log
 /logs/
+*.tar.gz
+graphify-out/cache/

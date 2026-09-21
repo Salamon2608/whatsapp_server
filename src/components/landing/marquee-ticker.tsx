@@ -26,10 +26,10 @@ const LANE_2 = [
 
 export function MarqueeTicker() {
   return (
-    <div className="relative w-full overflow-hidden py-10 bg-[#020b06] border-y border-[#25D366]/20">
+    <div className="relative w-full overflow-hidden py-10 bg-slate-50/80 border-y border-slate-200">
       {/* Side Fade Gradients for smooth infinite look */}
-      <div className="absolute top-0 bottom-0 left-0 w-24 sm:w-48 bg-gradient-to-r from-[#020b06] to-transparent z-10 pointer-events-none" />
-      <div className="absolute top-0 bottom-0 right-0 w-24 sm:w-48 bg-gradient-to-l from-[#020b06] to-transparent z-10 pointer-events-none" />
+      <div className="absolute top-0 bottom-0 left-0 w-24 sm:w-48 bg-gradient-to-r from-slate-50 to-transparent z-10 pointer-events-none" />
+      <div className="absolute top-0 bottom-0 right-0 w-24 sm:w-48 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
 
       {/* Marquee Row 1 */}
       <div className="flex whitespace-nowrap overflow-hidden mb-4">
@@ -37,7 +37,7 @@ export function MarqueeTicker() {
           {[...LANE_1, ...LANE_1].map((item, index) => (
             <div
               key={index}
-              className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-[#06180f]/80 border border-[#25D366]/30 text-sm font-mono text-[#c2dfd1] hover:text-white hover:border-[#4ade80] transition-all"
+              className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-mono text-slate-700 hover:text-slate-950 hover:border-[#25D366] shadow-xs transition-all"
             >
               <span className="h-1.5 w-1.5 rounded-full bg-[#25D366] shadow-[0_0_8px_#25D366]" />
               <span>{item}</span>
@@ -52,9 +52,9 @@ export function MarqueeTicker() {
           {[...LANE_2, ...LANE_2].map((item, index) => (
             <div
               key={index}
-              className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-[#06180f]/80 border border-[#06381e] text-sm font-mono text-[#4ade80] hover:text-white hover:border-[#25D366] transition-all"
+              className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-mono text-emerald-700 hover:text-emerald-950 hover:border-[#25D366] shadow-xs transition-all"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#25D366]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#25D366]" />
               <span>{item}</span>
             </div>
           ))}

@@ -163,7 +163,7 @@ export function CodePlayground() {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto rounded-2xl overflow-hidden border border-[#25D366]/30 bg-[#041209] shadow-2xl shadow-[#06381e]/40">
+    <div className="w-full max-w-5xl mx-auto rounded-2xl overflow-hidden border border-emerald-900/40 bg-[#041209] shadow-2xl shadow-slate-900/10">
       {/* Top Header / Tabs */}
       <div className="flex flex-wrap items-center justify-between border-b border-[#25D366]/20 bg-[#06180e] px-4 py-3 gap-3">
         <div className="flex items-center gap-2">

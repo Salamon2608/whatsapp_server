@@ -108,8 +108,8 @@ export function IsometricHeroPreview() {
       className="relative w-full max-w-5xl mx-auto py-8 sm:py-12 perspective-1000 select-none cursor-default"
     >
       {/* Background glowing radial lights (subtle) */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[26rem] h-[26rem] bg-[#25D366]/6 rounded-full blur-[150px] pointer-events-none -z-10" />
-      <div className="absolute top-1/3 left-1/4 -translate-x-1/2 w-[18rem] h-[18rem] bg-[#06381e]/15 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[26rem] h-[26rem] bg-emerald-400/10 rounded-full blur-[150px] pointer-events-none -z-10" />
+      <div className="absolute top-1/3 left-1/4 -translate-x-1/2 w-[18rem] h-[18rem] bg-emerald-500/8 rounded-full blur-[120px] pointer-events-none -z-10" />
 
       {/* Floating Inbound Message Toast */}
       <div className="absolute -top-4 right-4 sm:right-12 z-30 transition-all duration-500 animate-float-3 hidden sm:flex items-center gap-3 px-4 py-2 rounded-2xl bg-[#04190e]/95 backdrop-blur-xl border border-[#25D366]/40 shadow-lg shadow-black/40">
