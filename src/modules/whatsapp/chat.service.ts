@@ -194,6 +194,13 @@ export class ChatService {
     static async sendTextMessage(sessionId: string, jid: string, messagePayload: any, mentions?: string[], quotedMessageId?: string) {
         const instance = waManager.getInstance(sessionId);
         if (!instance || !instance.socket) {
+            const dbSession = await prisma.session.findUnique({
+                where: { sessionId },
+                select: { status: true }
+            });
+            if (dbSession?.status === "LOGGED_OUT") {
+                throw new Error("Device is logged out");
+            }
             throw new Error("WhatsApp session is disconnected or not found");
         }
 
@@ -383,6 +390,13 @@ export class ChatService {
     ) {
         const instance = waManager.getInstance(sessionId);
         if (!instance || !instance.socket) {
+            const dbSession = await prisma.session.findUnique({
+                where: { sessionId },
+                select: { status: true }
+            });
+            if (dbSession?.status === "LOGGED_OUT") {
+                throw new Error("Device is logged out");
+            }
             throw new Error("WhatsApp session is disconnected or not found");
         }
 

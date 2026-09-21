@@ -64,12 +64,18 @@ export async function GET(
 
         const uptime = instance.startTime ? Date.now() - instance.startTime.getTime() : 0;
 
-        let pingStatus = "Unknown";
+        let pingStatus = instance.status === "CONNECTED" ? "Online" : "Offline";
         try {
-            if (instance.socket && instance.socket.ws) {
-                const ws = instance.socket.ws as any;
-                if (ws.readyState === 1) { // OPEN
-                    pingStatus = "Online";
+            if (instance.socket) {
+                const ws = (instance.socket as any).ws;
+                if (ws && typeof ws.readyState === "number") {
+                    if (ws.readyState === 1) {
+                        pingStatus = "Online";
+                    } else if (ws.readyState === 0) {
+                        pingStatus = "Connecting";
+                    } else {
+                        pingStatus = "Offline";
+                    }
                 }
             }
         } catch (e) { }

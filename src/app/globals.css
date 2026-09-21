@@ -4,11 +4,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'Triakis';
+  src: url('/fonts/TriakisFont-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-triakis: var(--font-triakis), 'Triakis', sans-serif;
+  --font-sans: var(--font-geist-sans), var(--font-manrope), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
+  --font-manrope: var(--font-manrope);
   
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -210,6 +220,19 @@ html[data-theme="rose"] {
 
 /* Custom Utilities for Glassmorphism, Animations & Themes */
 @layer utilities {
+  .font-triakis {
+    font-family: var(--font-triakis), 'Triakis', sans-serif;
+  }
+  .landing-page {
+    font-family: var(--font-triakis), 'Triakis', var(--font-geist-sans), sans-serif;
+  }
+  .landing-page h1,
+  .landing-page h2,
+  .landing-page h3,
+  .landing-page h4 {
+    font-family: var(--font-triakis), 'Triakis', sans-serif;
+    letter-spacing: -0.02em;
+  }
   .glass {
     @apply bg-card/80 backdrop-blur-xl border border-border shadow-xl;
   }
@@ -225,4 +248,138 @@ html[data-theme="rose"] {
   .hover-lift {
     @apply transition-all duration-300 ease-out hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/10;
   }
+
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 28s linear infinite;
+  }
+
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+
+  .animate-marquee-reverse {
+    display: flex;
+    width: max-content;
+    animation: marquee-reverse 28s linear infinite;
+  }
+
+  .animate-marquee-reverse:hover {
+    animation-play-state: paused;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes float-card-1 {
+  0%, 100% {
+    transform: translateY(0px) rotateZ(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotateZ(-0.8deg);
+  }
+}
+
+@keyframes float-card-2 {
+  0%, 100% {
+    transform: translateY(0px) rotateZ(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotateZ(0.8deg);
+  }
+}
+
+@keyframes float-card-3 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+@keyframes laser-packet {
+  0% {
+    transform: translateX(0%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(380%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-neon {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(37, 211, 102, 0.1), inset 0 0 8px rgba(37, 211, 102, 0.05);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(37, 211, 102, 0.2), inset 0 0 12px rgba(37, 211, 102, 0.1);
+  }
+}
+
+.animate-float-1 {
+  animation: float-card-1 6s ease-in-out infinite;
+}
+
+.animate-float-2 {
+  animation: float-card-2 7s ease-in-out infinite 1s;
+}
+
+.animate-float-3 {
+  animation: float-card-3 8s ease-in-out infinite 2s;
+}
+
+.animate-shimmer {
+  animation: shimmer-sweep 4.5s ease-in-out infinite;
+}
+
+.animate-laser {
+  animation: laser-packet 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-neon {
+  animation: pulse-neon 3.5s ease-in-out infinite;
+}
+
+

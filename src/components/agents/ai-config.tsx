@@ -24,9 +24,16 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { toast } from 'sonner'
+import { useSession } from '@/components/dashboard/session-provider'
 import { AI_PROVIDER_DEFAULT_MODEL } from '@/lib/ai/defaults'
 
 export function AiConfigForm() {
+  const { sessions, sessionId } = useSession();
+  const currentSession = sessions.find((s) => s.sessionId === sessionId);
+  const isLoggedOut = currentSession?.status === "LOGGED_OUT" || (sessions.length > 0 && sessions.every(s => s.status === "LOGGED_OUT"));
+
   const [provider, setProvider] = useState<'openai' | 'anthropic'>('openai')
   const [model, setModel] = useState(AI_PROVIDER_DEFAULT_MODEL.openai)
   const [apiKey, setApiKey] = useState('')
@@ -103,6 +110,12 @@ export function AiConfigForm() {
   }
 
   const handleSave = async () => {
+    if (autoReplyEnabled && isLoggedOut) {
+      toast.error("Device is logged out", {
+        description: "Cannot enable AI auto-reply while the device is logged out. Please reconnect your account."
+      });
+      return;
+    }
     setSaving(true)
     setStatusMsg(null)
     try {
@@ -239,7 +252,18 @@ export function AiConfigForm() {
                 Automatically reply to customer messages using your configured model and Knowledge Base.
               </p>
             </div>
-            <Switch checked={autoReplyEnabled} onCheckedChange={setAutoReplyEnabled} />
+            <Switch
+              checked={autoReplyEnabled}
+              onCheckedChange={(val) => {
+                if (val && isLoggedOut) {
+                  toast.error("Device is logged out", {
+                    description: "Cannot enable AI auto-reply while the device is logged out. Please reconnect your account."
+                  });
+                  return;
+                }
+                setAutoReplyEnabled(val);
+              }}
+            />
           </div>
 
           <div className="space-y-1.5 max-w-xs">

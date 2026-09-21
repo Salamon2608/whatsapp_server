@@ -6,6 +6,7 @@ import { dispatchInboundToFlows } from "@/lib/flows/engine";
 import { runAutomationsForTrigger } from "@/lib/automations/engine";
 import { executeChatbotRule } from "@/lib/chatbot/rule-engine";
 import { runAiAutoReply } from "@/lib/ai/auto-reply";
+import { isCooldownActive, smartSendWithHumanBehavior } from "@/lib/anti-ban";
 
 // Helper for permission check (Deduplicate from command-handler if possible, but keep simple here)
 function canAutoReply(config: any, fromMe: boolean, senderJid: string): boolean {
@@ -104,6 +105,12 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
 
             // Check Permissions
             if (!canAutoReply(config, fromMe, senderJid)) continue;
+
+            // Anti-Ban Protection: Enforce rapid loop cooldown per contact
+            if (isCooldownActive(remoteJid)) {
+                logger.debug("AutoReply", `Skipping ${remoteJid} - Anti-ban cooldown active`);
+                continue;
+            }
 
             const content = normalizeMessageContent(msg.message);
             const text = content?.conversation || content?.extendedTextMessage?.text || ""; 
@@ -235,15 +242,15 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
                             }
                             
                             try {
-                                await sock.sendMessage(remoteJid, payload, { quoted: msg });
+                                await smartSendWithHumanBehavior(sock, remoteJid, payload, { quoted: msg });
                             } catch (err: any) {
                                 logger.error("AutoReply", `Failed to send media auto-reply from URL: ${err.message}. Falling back to text if response exists.`);
                                 if (rule.response) {
-                                    await sock.sendMessage(remoteJid, { text: rule.response }, { quoted: msg });
+                                    await smartSendWithHumanBehavior(sock, remoteJid, { text: rule.response }, { quoted: msg });
                                 }
                             }
                         } else if (rule.response) {
-                            await sock.sendMessage(remoteJid, { text: rule.response }, { quoted: msg });
+                            await smartSendWithHumanBehavior(sock, remoteJid, { text: rule.response }, { quoted: msg });
                         }
 
                         break;

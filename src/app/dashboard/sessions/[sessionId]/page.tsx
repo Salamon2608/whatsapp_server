@@ -202,7 +202,15 @@ export default function SessionDetailPage() {
     };
 
     if (loading) return <div className="p-8">Loading...</div>;
-    if (!session) return <div className="p-8">Session not found</div>;
+    if (!session) return <div className="p-8 text-muted-foreground">Session not found</div>;
+
+    const rawId = session.me?.id || "";
+    // WhatsApp JIDs are typically in format "918098502859:85@s.whatsapp.net" or "918098502859@s.whatsapp.net"
+    const cleanPhone = rawId ? rawId.split("@")[0].split(":")[0] : "";
+    const formattedPhone = cleanPhone ? (cleanPhone.startsWith("+") ? cleanPhone : `+${cleanPhone}`) : "";
+    const pingValue = systemMetrics?.ping;
+    const isOnline = session.status === 'CONNECTED' && (pingValue === 'Online' || pingValue === 'Unknown' || !pingValue);
+    const displayPing = isOnline ? 'Online' : (pingValue || 'Offline');
 
     return (
         <div className="max-w-4xl mx-auto space-y-6">
@@ -213,7 +221,7 @@ export default function SessionDetailPage() {
                     </Link>
                 </Button>
                 <h1 className="text-xl sm:text-2xl font-bold truncate">
-                    {session.name} <span className="text-gray-400 font-normal text-xs sm:text-sm block sm:inline mt-1 sm:mt-0">({session.sessionId})</span>
+                    {session.name} <span className="text-muted-foreground font-normal text-xs sm:text-sm block sm:inline mt-1 sm:mt-0">({session.sessionId})</span>
                 </h1>
             </div>
 
@@ -221,62 +229,114 @@ export default function SessionDetailPage() {
                 {/* Status Card */}
                 <Card className="md:col-span-2">
                     <CardHeader>
-                        <CardTitle className="flex items-center justify-between">
+                        <CardTitle className="flex items-center justify-between text-lg">
                             Session Status
-                            <div className={`px-3 py-1 rounded-full text-xs font-bold ${session.status === 'CONNECTED' ? 'bg-green-100 text-green-700' :
-                                session.status === 'STOPPED' ? 'bg-red-100 text-red-700' :
-                                    'bg-yellow-100 text-yellow-700'
-                                }`}>
+                            <div className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase border ${
+                                session.status === 'CONNECTED' ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20' :
+                                session.status === 'STOPPED' ? 'bg-destructive/10 text-destructive border-destructive/20' :
+                                'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+                            }`}>
                                 {session.status}
                             </div>
                         </CardTitle>
                         <CardDescription>Real-time connection status and uptime.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="p-4 bg-gray-50 rounded-lg">
-                                <span className="text-sm text-gray-500 block">Uptime</span>
-                                <span className="text-xl font-mono font-medium">{formatUptime(uptime)}</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="p-4 bg-muted/40 border border-border/60 rounded-xl min-w-0">
+                                <span className="text-xs sm:text-sm font-medium text-muted-foreground block mb-1">Uptime</span>
+                                <span className="text-lg sm:text-xl font-mono font-semibold tracking-tight text-foreground block truncate">
+                                    {formatUptime(uptime)}
+                                </span>
                             </div>
-                            <div className="p-4 bg-gray-50 rounded-lg">
-                                <span className="text-sm text-gray-500 block">Connected As</span>
-                                <span className="text-lg font-medium truncate">{session.me?.name || session.me?.id || "-"}</span>
+                            <div className="p-4 bg-muted/40 border border-border/60 rounded-xl min-w-0 overflow-hidden">
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                    <span className="text-xs sm:text-sm font-medium text-muted-foreground block">Connected As</span>
+                                    {rawId && (
+                                        <button
+                                            type="button"
+                                            onClick={() => copyToClipboard(formattedPhone || rawId)}
+                                            className="text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded"
+                                            title={`Copy ID: ${rawId}`}
+                                        >
+                                            <Copy className="h-3.5 w-3.5" />
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="min-w-0" title={rawId || "-"}>
+                                    {session.me?.name ? (
+                                        <div className="min-w-0">
+                                            <span className="text-base sm:text-lg font-semibold text-foreground block truncate">
+                                                {session.me.name}
+                                            </span>
+                                            {formattedPhone && (
+                                                <span className="text-xs font-mono text-muted-foreground block truncate">
+                                                    {formattedPhone}
+                                                </span>
+                                            )}
+                                        </div>
+                                    ) : formattedPhone ? (
+                                        <div className="min-w-0">
+                                            <span className="text-base sm:text-lg font-mono font-semibold text-foreground block truncate">
+                                                {formattedPhone}
+                                            </span>
+                                            <span className="text-[11px] text-muted-foreground/80 block truncate">
+                                                WhatsApp Active
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className="text-base sm:text-lg font-medium text-muted-foreground block">
+                                            -
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
                         {/* System Resource Extension */}
-                        {session.status === 'CONNECTED' && systemMetrics && (
-                            <div className="mt-4 pt-4 border-t">
-                                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2"><Activity className="h-4 w-4" /> System Health</h4>
+                        {session.status === 'CONNECTED' && (
+                            <div className="mt-4 pt-4 border-t border-border/60">
+                                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-foreground">
+                                    <Activity className="h-4 w-4 text-emerald-500" /> System Health
+                                </h4>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                    <div className="bg-slate-50 p-3 rounded border text-center relative overflow-hidden">
-                                        <Wifi className="h-4 w-4 text-slate-400 absolute top-2 right-2" />
-                                        <div className="text-xs text-slate-500">Ping state</div>
-                                        <div className="font-bold text-green-600 mt-1">{systemMetrics.ping}</div>
+                                    <div className="bg-muted/40 border border-border/60 p-3 rounded-xl text-center relative overflow-hidden">
+                                        <Wifi className="h-4 w-4 text-muted-foreground/60 absolute top-2 right-2" />
+                                        <div className="text-xs font-medium text-muted-foreground">Ping state</div>
+                                        <div className={`font-bold mt-1 text-sm sm:text-base flex items-center justify-center gap-1.5 ${
+                                            isOnline ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'
+                                        }`}>
+                                            <span className={`inline-block h-2 w-2 rounded-full ${
+                                                isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'
+                                            }`} />
+                                            {displayPing}
+                                        </div>
                                     </div>
-                                    <div className="bg-slate-50 p-3 rounded border text-center">
-                                        <div className="text-xs text-slate-500">Store Contacts</div>
-                                        <div className="font-bold text-slate-700 mt-1">{systemMetrics.store?.contacts || 0}</div>
+                                    <div className="bg-muted/40 border border-border/60 p-3 rounded-xl text-center">
+                                        <div className="text-xs font-medium text-muted-foreground">Store Contacts</div>
+                                        <div className="font-bold text-foreground mt-1 text-sm sm:text-base">{systemMetrics?.store?.contacts ?? 0}</div>
                                     </div>
-                                    <div className="bg-slate-50 p-3 rounded border text-center">
-                                        <div className="text-xs text-slate-500">Store Chats</div>
-                                        <div className="font-bold text-slate-700 mt-1">{systemMetrics.store?.chats || 0}</div>
+                                    <div className="bg-muted/40 border border-border/60 p-3 rounded-xl text-center">
+                                        <div className="text-xs font-medium text-muted-foreground">Store Chats</div>
+                                        <div className="font-bold text-foreground mt-1 text-sm sm:text-base">{systemMetrics?.store?.chats ?? 0}</div>
                                     </div>
-                                    <div className="bg-slate-50 p-3 rounded border text-center relative">
-                                        <MemoryStick className="h-4 w-4 text-slate-400 absolute top-2 right-2 opacity-50" />
-                                        <div className="text-xs text-slate-500">Store Msgs</div>
-                                        <div className="font-bold text-slate-700 mt-1">{systemMetrics.store?.messages || 0}</div>
+                                    <div className="bg-muted/40 border border-border/60 p-3 rounded-xl text-center relative">
+                                        <MemoryStick className="h-4 w-4 text-muted-foreground/60 absolute top-2 right-2" />
+                                        <div className="text-xs font-medium text-muted-foreground">Store Msgs</div>
+                                        <div className="font-bold text-foreground mt-1 text-sm sm:text-base">{systemMetrics?.store?.messages ?? 0}</div>
                                     </div>
                                 </div>
                             </div>
                         )}
 
                         {qrCode && (
-                            <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg bg-white relative group">
-                                <QRCodeSVG value={qrCode} size={256} />
-                                <p className="mt-4 text-sm text-gray-500 animate-pulse">Scan with WhatsApp to connect</p>
+                            <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-border/60 rounded-xl bg-card relative group">
+                                <div className="bg-white p-3 rounded-xl shadow-sm">
+                                    <QRCodeSVG value={qrCode} size={256} />
+                                </div>
+                                <p className="mt-4 text-sm text-muted-foreground animate-pulse">Scan with WhatsApp to connect</p>
 
-                                <div className="mt-6 pt-6 border-t w-full">
+                                <div className="mt-6 pt-6 border-t border-border/60 w-full">
                                     <div className="flex flex-col items-center gap-3">
                                         <div className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Or link with phone number</div>
                                         <div className="flex flex-col w-full max-w-sm gap-2 mt-1">
@@ -294,10 +354,10 @@ export default function SessionDetailPage() {
                                             <p className="text-[10px] text-muted-foreground text-center">Use country code without + or spaces (e.g., 628123456789)</p>
                                         </div>
                                         {pairingCode && (
-                                            <div className="mt-4 p-4 bg-slate-900 rounded-lg w-full max-w-[320px] text-center border-2 border-slate-700 shadow-xl relative group/code">
+                                            <div className="mt-4 p-4 bg-slate-900 dark:bg-slate-950 rounded-lg w-full max-w-[320px] text-center border-2 border-slate-700 shadow-xl relative group/code">
                                                 <div className="text-[10px] text-slate-400 uppercase tracking-[0.2em] mb-2 font-semibold">Your Pairing Code</div>
                                                 <div
-                                                    className="text-3xl font-mono font-bold text-white tracking-[0.3em] flex justify-center cursor-pointer hover:text-blue-400 transition-colors py-2"
+                                                    className="text-3xl font-mono font-bold text-white tracking-[0.3em] flex justify-center cursor-pointer hover:text-emerald-400 transition-colors py-2"
                                                     onClick={() => copyToClipboard(pairingCode)}
                                                     title="Click to copy"
                                                 >
@@ -335,7 +395,7 @@ export default function SessionDetailPage() {
                     <CardContent className="space-y-3">
                         <Button
                             variant="outline"
-                            className="w-full justify-start text-green-600 hover:text-green-700 hover:bg-green-50"
+                            className="w-full justify-start text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 hover:bg-emerald-500/10 border-border/60 transition-colors"
                             onClick={() => performAction('start')}
                             disabled={session.status === 'CONNECTED' || session.status === 'SCAN_QR'}
                         >
@@ -344,7 +404,7 @@ export default function SessionDetailPage() {
 
                         <Button
                             variant="outline"
-                            className="w-full justify-start text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                            className="w-full justify-start text-amber-600 dark:text-amber-400 hover:text-amber-700 hover:bg-amber-500/10 border-border/60 transition-colors"
                             onClick={() => performAction('restart')}
                             disabled={!session.hasInstance && session.status !== 'CONNECTED'}
                         >
@@ -353,17 +413,17 @@ export default function SessionDetailPage() {
 
                         <Button
                             variant="outline"
-                            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="w-full justify-start text-rose-600 dark:text-rose-400 hover:text-rose-700 hover:bg-rose-500/10 border-border/60 transition-colors"
                             onClick={() => performAction('stop')}
                             disabled={session.status === 'STOPPED'}
                         >
                             <Square className="mr-2 h-4 w-4" /> Stop Session
                         </Button>
 
-                        <div className="border-t my-4 pt-4 space-y-3">
+                        <div className="border-t border-border/60 my-4 pt-4 space-y-3">
                             <Button
                                 variant="outline"
-                                className="w-full justify-start"
+                                className="w-full justify-start border-border/60"
                                 onClick={() => performAction('logout')}
                                 disabled={session.status !== 'CONNECTED'}
                             >
@@ -374,7 +434,7 @@ export default function SessionDetailPage() {
                                 <AlertDialogTrigger asChild>
                                     <Button
                                         variant="destructive"
-                                        className="w-full justify-start"
+                                        className="w-full justify-start bg-rose-600 hover:bg-rose-700 text-white"
                                     >
                                         <Trash2 className="mr-2 h-4 w-4" /> Delete Session
                                     </Button>
@@ -389,7 +449,7 @@ export default function SessionDetailPage() {
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={deleteSession} className="bg-red-600 hover:bg-red-700">
+                                        <AlertDialogAction onClick={deleteSession} className="bg-rose-600 hover:bg-rose-700">
                                             Delete
                                         </AlertDialogAction>
                                     </AlertDialogFooter>

@@ -11,6 +11,7 @@ import type {
   WaitStepConfig,
 } from './types'
 import { logger } from '@/lib/logger'
+import { smartSendWithHumanBehavior } from '@/lib/anti-ban'
 
 export interface AutomationContext {
   message_text?: string
@@ -140,7 +141,7 @@ export async function runAutomationsForTrigger(input: RunAutomationsInput): Prom
           if (step.stepType === 'send_message') {
             const cfg = stepConfig as SendMessageStepConfig
             if (cfg.text) {
-              await sock.sendMessage(remoteJid, { text: cfg.text }, { quoted: msg as any })
+              await smartSendWithHumanBehavior(sock, remoteJid, { text: cfg.text }, { quoted: msg as any })
               executedSteps.push({
                 step_id: step.id,
                 step_type: 'send_message',
@@ -156,7 +157,7 @@ export async function runAutomationsForTrigger(input: RunAutomationsInput): Prom
             if (cfg.footer_text) buttonText += `\n\n_${cfg.footer_text}_`
             buttonText += '\n' + btnList.map((b, i) => `\n${i + 1}. ${b.title}`).join('')
 
-            await sock.sendMessage(remoteJid, { text: buttonText }, { quoted: msg as any })
+            await smartSendWithHumanBehavior(sock, remoteJid, { text: buttonText }, { quoted: msg as any })
             executedSteps.push({
               step_id: step.id,
               step_type: 'send_buttons',
@@ -174,7 +175,7 @@ export async function runAutomationsForTrigger(input: RunAutomationsInput): Prom
             }
             if (cfg.footer_text) listText += `\n\n_${cfg.footer_text}_`
 
-            await sock.sendMessage(remoteJid, { text: listText }, { quoted: msg as any })
+            await smartSendWithHumanBehavior(sock, remoteJid, { text: listText }, { quoted: msg as any })
             executedSteps.push({
               step_id: step.id,
               step_type: 'send_list',
@@ -201,7 +202,7 @@ export async function runAutomationsForTrigger(input: RunAutomationsInput): Prom
             for (const child of branchChildren) {
               const childCfg = (child.stepConfig as any) || {}
               if (child.stepType === 'send_message' && childCfg.text) {
-                await sock.sendMessage(remoteJid, { text: childCfg.text }, { quoted: msg as any })
+                await smartSendWithHumanBehavior(sock, remoteJid, { text: childCfg.text }, { quoted: msg as any })
                 executedSteps.push({
                   step_id: child.id,
                   step_type: 'send_message',

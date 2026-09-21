@@ -62,6 +62,39 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         fetchSessions();
+
+        // Connect socket for real-time connection status updates
+        let socket: any = null;
+        try {
+            const { io } = require("socket.io-client");
+            socket = io({
+                path: "/api/socket/io",
+                addTrailingSlash: false,
+            });
+
+            socket.on("connection.update", (data: { sessionId: string; status: string; qr?: string }) => {
+                setSessions((prev) =>
+                    prev.map((s) => {
+                        if (s.sessionId === data.sessionId) {
+                            return { ...s, status: data.status };
+                        }
+                        return s;
+                    })
+                );
+
+                if (data.status === "LOGGED_OUT") {
+                    toast.error("Device is logged out", {
+                        description: `Session ${data.sessionId} was logged out from WhatsApp.`,
+                    });
+                }
+            });
+        } catch (e) {
+            console.error("Failed to initialize session status socket:", e);
+        }
+
+        return () => {
+            if (socket) socket.disconnect();
+        };
     }, []);
 
     const setSessionId = (id: string) => {

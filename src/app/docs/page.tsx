@@ -3,20 +3,21 @@ import path from 'path';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
+import Image from 'next/image';
 import { DocsClient } from './docs-client';
 
 export const metadata = {
-    title: 'API Documentation - WA-AKG',
-    description: 'Complete API reference for WA-AKG WhatsApp Gateway. Includes endpoints for messaging, groups, contacts, media, and webhooks.',
+    title: 'API Documentation - WHATSAPP SERVER',
+    description: 'Complete API reference for WHATSAPP SERVER WhatsApp Gateway. Includes endpoints for messaging, groups, contacts, media, and webhooks.',
     openGraph: {
-        title: 'API Documentation - WA-AKG',
-        description: 'Complete API reference for WA-AKG WhatsApp Gateway.',
+        title: 'API Documentation - WHATSAPP SERVER',
+        description: 'Complete API reference for WHATSAPP SERVER WhatsApp Gateway.',
         type: 'website',
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'API Documentation - WA-AKG',
-        description: 'Complete API reference for WA-AKG WhatsApp Gateway.',
+        title: 'API Documentation - WHATSAPP SERVER',
+        description: 'Complete API reference for WHATSAPP SERVER WhatsApp Gateway.',
     },
 };
 
@@ -87,9 +88,10 @@ export default async function PublicDocsPage() {
             {/* Header */}
             <header className="bg-white border-b sticky top-0 z-30 shadow-sm/50">
                 <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2.5">
+                        <Image src="/logo.png" alt="Logo" width={28} height={28} className="h-7 w-7 object-contain rounded-md" />
                         <span className="text-xl font-extrabold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                            WA-AKG
+                            WHATSAPP SERVER
                         </span>
                         <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold tracking-wide border border-blue-200">
                             {version}

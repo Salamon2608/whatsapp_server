@@ -406,14 +406,14 @@ export async function downloadAndSaveMedia(message: WAMessage, sessionId: string
                 });
 
                 if (!res.ok) {
-                    logger.error("Media", `Newsletter media HTTP ${res.status} ${res.statusText} for URL: ${downloadUrl}`);
+                    logger.warn("Media", `Newsletter media link expired or unavailable (HTTP ${res.status}): ${downloadUrl.slice(0, 85)}...`);
                     return null;
                 }
 
                 buffer = Buffer.from(await res.arrayBuffer());
                 logger.success("Media", `Newsletter media downloaded: ${buffer.length} bytes`);
-            } catch (e) {
-                logger.error("Media", "Failed to download newsletter media:", e);
+            } catch (e: any) {
+                logger.warn("Media", `Failed to download newsletter media: ${e?.message || e}`);
                 return null;
             }
         } else {
@@ -424,8 +424,8 @@ export async function downloadAndSaveMedia(message: WAMessage, sessionId: string
                     "buffer",
                     {}
                 ) as Buffer;
-            } catch (e) {
-                logger.error("Media", "Failed to download encrypted media:", e);
+            } catch (e: any) {
+                logger.warn("Media", `Media expired or unavailable from WhatsApp CDN: ${e?.message || e}`);
                 return null;
             }
         }

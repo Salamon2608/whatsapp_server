@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Bot, ArrowRight, Loader2 } from "lucide-react";
+import Image from 'next/image';
 import Link from 'next/link';
 
 const formSchema = z.object({
@@ -70,11 +71,11 @@ function LoginForm() {
 
       <div className="relative z-10 w-full max-w-md p-4 animate-in fade-in zoom-in-95 duration-500">
         <div className="flex flex-col items-center mb-8">
-          <div className="relative flex h-16 w-16 mb-4 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 to-primary text-white shadow-lg shadow-primary/30">
-            <Bot className="h-8 w-8" />
+          <div className="relative flex h-16 w-16 mb-4 items-center justify-center rounded-2xl bg-white/5 p-2 shadow-lg shadow-primary/30 border border-white/10">
+            <Image src="/logo.png" alt="Logo" width={48} height={48} className="h-full w-full object-contain" priority />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2">Sign in to your WA-AKG account</p>
+          <p className="text-muted-foreground mt-2">Sign in to your whatsapp_Server account</p>
         </div>
 
         <div className="glass-panel rounded-3xl p-8 shadow-2xl shadow-black/5 dark:shadow-black/40">

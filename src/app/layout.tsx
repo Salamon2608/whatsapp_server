@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import "./globals.css";
 import { Providers } from "@/components/providers";
@@ -13,6 +14,18 @@ import {
   STORAGE_KEY,
   THEME_IDS,
 } from "@/lib/themes";
+
+const triakis = localFont({
+  src: "../../public/fonts/TriakisFont-Regular.otf",
+  variable: "--font-triakis",
+  display: "swap",
+});
+
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +48,7 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  let appName = "WA-AKG";
+  let appName = "whatsapp_Server";
   try {
     // @ts-ignore
     const config = await prisma.systemConfig.findUnique({ where: { id: "default" } });
@@ -155,7 +168,7 @@ export default function RootLayout({
         <link rel="preconnect" href={APP_URL} crossOrigin="anonymous" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased text-foreground bg-background selection:bg-primary/30 selection:text-primary-foreground min-h-screen flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} ${manrope.variable} ${triakis.variable} font-sans antialiased text-foreground bg-background selection:bg-primary/30 selection:text-primary-foreground min-h-screen flex flex-col`}
         suppressHydrationWarning
       >
         <Providers>

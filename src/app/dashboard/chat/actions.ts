@@ -71,6 +71,14 @@ export async function sendChatMessage(sessionId: string, jid: string, text: stri
     const canAccess = await canAccessSession(user.id, user.role, sessionId);
     if (!canAccess) throw new Error("Forbidden");
 
+    const sessionRecord = await prisma.session.findUnique({
+        where: { sessionId },
+        select: { status: true }
+    });
+    if (sessionRecord?.status === "LOGGED_OUT") {
+        throw new Error("Device is logged out");
+    }
+
     try {
         await ChatService.sendTextMessage(sessionId, jid, { text }, undefined, quotedMessageId);
         return { success: true };
@@ -96,6 +104,14 @@ export async function sendMediaMessage(formData: FormData) {
 
     const canAccess = await canAccessSession(user.id, user.role, sessionId);
     if (!canAccess) throw new Error("Forbidden");
+
+    const sessionRecord = await prisma.session.findUnique({
+        where: { sessionId },
+        select: { status: true }
+    });
+    if (sessionRecord?.status === "LOGGED_OUT") {
+        throw new Error("Device is logged out");
+    }
 
     try {
         const buffer = Buffer.from(await file.arrayBuffer());

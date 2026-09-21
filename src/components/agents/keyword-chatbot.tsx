@@ -28,6 +28,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
+import { useSession } from '@/components/dashboard/session-provider';
 import {
   DEFAULT_CHATBOT_CONFIG,
   DEFAULT_CHATBOT_RULES,
@@ -58,6 +59,10 @@ const INITIAL_FORM_DATA: RuleFormData = {
 };
 
 export function KeywordChatbot() {
+  const { sessions, sessionId } = useSession();
+  const currentSession = sessions.find((s) => s.sessionId === sessionId);
+  const isLoggedOut = currentSession?.status === "LOGGED_OUT" || (sessions.length > 0 && sessions.every(s => s.status === "LOGGED_OUT"));
+
   const [rules, setRules] = useState<ChatbotRule[]>(DEFAULT_CHATBOT_RULES);
   const [enabled, setEnabled] = useState(true);
   const [autoReplyAnyWord, setAutoReplyAnyWord] = useState(true);
@@ -121,6 +126,12 @@ export function KeywordChatbot() {
     newFallback = fallbackMessage,
     currentRules = rules
   ) {
+    if (newEnabled && isLoggedOut) {
+      toast.error("Device is logged out", {
+        description: "Cannot enable chatbot while the device is logged out. Please reconnect your account."
+      });
+      return;
+    }
     try {
       setIsSavingSettings(true);
       const res = await fetch('/api/chatbot/rules', {
@@ -372,6 +383,12 @@ export function KeywordChatbot() {
                   id="master-bot-switch"
                   checked={enabled}
                   onCheckedChange={(val) => {
+                    if (val && isLoggedOut) {
+                      toast.error("Device is logged out", {
+                        description: "Cannot enable chatbot while the device is logged out. Please reconnect your account."
+                      });
+                      return;
+                    }
                     setEnabled(val);
                     handleSaveSettings(val, autoReplyAnyWord, fallbackMessage, rules);
                   }}
@@ -383,6 +400,11 @@ export function KeywordChatbot() {
         </CardHeader>
 
         <CardContent className="pt-1 pb-4">
+          {isLoggedOut && (
+            <div className="mb-3 px-3 py-2 rounded-lg bg-destructive/10 border border-destructive/20 text-xs text-destructive flex items-center justify-between">
+              <span>⚠️ Device is logged out — WhatsApp chatbot cannot receive or respond to messages.</span>
+            </div>
+          )}
           <div className="grid md:grid-cols-2 gap-4 pt-2">
             {/* Setting: Auto-reply to any incoming word */}
             <div className="flex items-center justify-between gap-3 p-3.5 rounded-lg border bg-background/60">
@@ -400,6 +422,12 @@ export function KeywordChatbot() {
               <Switch
                 checked={autoReplyAnyWord}
                 onCheckedChange={(val) => {
+                  if (val && isLoggedOut) {
+                    toast.error("Device is logged out", {
+                      description: "Cannot enable auto-reply while the device is logged out."
+                    });
+                    return;
+                  }
                   setAutoReplyAnyWord(val);
                   handleSaveSettings(enabled, val, fallbackMessage, rules);
                 }}

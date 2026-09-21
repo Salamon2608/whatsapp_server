@@ -1,3 +1,5 @@
+import { smartSendWithHumanBehavior } from "@/lib/anti-ban";
+
 export interface ChatbotRule {
   id: string;
   keywords: string[];
@@ -255,10 +257,10 @@ export async function executeChatbotRule(
     if (result.matched && result.response) {
       console.log(`[chatbot] Sending auto-reply to ${remoteJid}...`);
       try {
-        await sock.sendMessage(remoteJid, { text: result.response }, { quoted: msg });
+        await smartSendWithHumanBehavior(sock, remoteJid, { text: result.response }, { quoted: msg });
       } catch (sendErr) {
         // Fallback without quoted message in case quoting fails
-        await sock.sendMessage(remoteJid, { text: result.response });
+        await smartSendWithHumanBehavior(sock, remoteJid, { text: result.response });
       }
       console.log(`[chatbot] Reply successfully sent to ${remoteJid}`);
       return true;

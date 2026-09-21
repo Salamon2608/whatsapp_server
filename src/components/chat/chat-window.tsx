@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { getChatMessages, sendChatMessage, sendMediaMessage } from "@/app/dashboard/chat/actions";
 import { useSocket } from "./socket-context";
+import { useSession } from "@/components/dashboard/session-provider";
 
 interface Message {
     id: string;
@@ -171,6 +172,10 @@ export function ChatWindow({
     autoRefresh: controlledAutoRefresh,
     onToggleAutoRefresh: controlledOnToggleAutoRefresh
 }: ChatWindowProps) {
+    const { sessions } = useSession();
+    const currentSession = sessions.find((s) => s.sessionId === sessionId);
+    const isLoggedOut = currentSession?.status === "LOGGED_OUT";
+
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -196,12 +201,18 @@ export function ChatWindow({
         try {
             const saved = localStorage.getItem("chat_auto_refresh");
             if (saved !== null) {
-                setLocalAutoRefresh(saved === "true");
+                setLocalAutoRefresh(saved === "true" && !isLoggedOut);
             }
         } catch {}
-    }, [controlledAutoRefresh]);
+    }, [controlledAutoRefresh, isLoggedOut]);
 
     const handleToggleAutoRefresh = (checked: boolean) => {
+        if (checked && isLoggedOut) {
+            toast.error("Device is logged out", {
+                description: "Cannot enable live chat while the device is logged out. Please reconnect your account.",
+            });
+            return;
+        }
         if (controlledOnToggleAutoRefresh) {
             controlledOnToggleAutoRefresh(checked);
         } else {
@@ -350,6 +361,12 @@ export function ChatWindow({
 
     const handleSend = async () => {
         if (!input.trim()) return;
+        if (isLoggedOut) {
+            toast.error("Device is logged out", {
+                description: "Please reconnect your WhatsApp account to send messages.",
+            });
+            return;
+        }
         try {
             await sendChatMessage(sessionId, jid, input, replyingTo?.keyId);
             setInput("");
@@ -390,6 +407,12 @@ export function ChatWindow({
     }, [replyingTo]);
 
     const processFileUpload = async (file: File, explicitType?: string) => {
+        if (isLoggedOut) {
+            toast.error("Device is logged out", {
+                description: "Please reconnect your WhatsApp account to send media.",
+            });
+            return;
+        }
         const formData = new FormData();
         formData.append("file", file);
         let type = explicitType;

@@ -3,6 +3,7 @@
 import { SidebarNav } from "./sidebar-nav";
 import { useSidebar } from "./sidebar-context";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { LogOut, MessageSquare } from "lucide-react";
 import { signOut } from "next-auth/react";
 
@@ -28,13 +29,13 @@ export function SidebarShell({ appName, userName, userEmail, version }: SidebarS
             {/* Logo / Brand Header */}
             <div className={`h-14 shrink-0 flex items-center border-b border-border transition-all duration-200 ${isCollapsed ? "justify-center px-2" : "justify-between px-4"}`}>
                 {isCollapsed ? (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                        <MessageSquare className="h-4 w-4" />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 p-1">
+                        <Image src="/logo.png" alt="Logo" width={24} height={24} className="h-6 w-6 object-contain" />
                     </div>
                 ) : (
                     <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm">
-                            <MessageSquare className="h-4 w-4" />
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 p-1 shadow-sm">
+                            <Image src="/logo.png" alt="Logo" width={24} height={24} className="h-6 w-6 object-contain" />
                         </div>
                         <div className="min-w-0 flex-1">
                             <h1 className="text-sm font-semibold text-foreground truncate leading-tight">

@@ -85,16 +85,15 @@ export function MessageLogsView() {
         <div className="space-y-6">
             {/* Top Breadcrumb Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
-                    <Link href="/dashboard" className="hover:underline flex items-center gap-1.5">
+                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Link href="/dashboard" className="hover:text-foreground transition-colors flex items-center gap-1.5">
                         <Home className="h-4 w-4" />
+                        <span>Dashboard</span>
                     </Link>
-                    <span className="text-muted-foreground">-</span>
-                    <span className="text-foreground">Messages log reports</span>
-                    <span className="text-muted-foreground">-</span>
-                    <span className="text-muted-foreground">user</span>
-                    <span className="text-muted-foreground">-</span>
-                    <span className="text-blue-600">logs</span>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    <span>Reports</span>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    <span className="text-foreground font-semibold">Messages Logs</span>
                 </div>
 
                 {/* Tab Switcher */}
@@ -127,7 +126,7 @@ export function MessageLogsView() {
                                 Total Messages
                             </p>
                         </div>
-                        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white flex items-center justify-center shadow-md shrink-0">
+                        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-md shadow-primary/20 shrink-0">
                             <Rocket className="h-6 w-6 sm:h-7 sm:w-7" />
                         </div>
                     </CardContent>
@@ -144,7 +143,7 @@ export function MessageLogsView() {
                                 Todays Messages
                             </p>
                         </div>
-                        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shrink-0">
+                        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-primary/15 text-primary border border-primary/20 flex items-center justify-center shadow-xs shrink-0">
                             <Calendar className="h-6 w-6 sm:h-7 sm:w-7" />
                         </div>
                     </CardContent>
@@ -161,7 +160,7 @@ export function MessageLogsView() {
                                 Last 30 days Messages
                             </p>
                         </div>
-                        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-gradient-to-tr from-purple-600 to-indigo-500 text-white flex items-center justify-center shadow-md shrink-0">
+                        <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-muted text-foreground border border-border/60 flex items-center justify-center shadow-xs shrink-0">
                             <Calendar className="h-6 w-6 sm:h-7 sm:w-7" />
                         </div>
                     </CardContent>

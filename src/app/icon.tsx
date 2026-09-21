@@ -1,7 +1,8 @@
 import { ImageResponse } from "next/og";
-import { prisma } from "@/lib/prisma";
+import fs from "fs";
+import path from "path";
 
-// Use nodejs runtime to allow Prisma access
+// Use nodejs runtime to allow file access
 export const runtime = "nodejs";
 
 // Image metadata
@@ -11,48 +12,65 @@ export const size = {
 };
 export const contentType = "image/png";
 
-// Image generation
+// Image generation using logo.png
 export default async function Icon() {
-    // Default config
-    let letter = "W";
-    let color = "#16a34a"; // green-600
-
     try {
-        // Fetch system config
-        // @ts-ignore
-        const config = await prisma.systemConfig.findUnique({
-            where: { id: "default" }
-        });
-
-        if (config?.appName) {
-            letter = config.appName.charAt(0).toUpperCase();
+        const logoPath = path.join(process.cwd(), "public", "logo.png");
+        if (fs.existsSync(logoPath)) {
+            const logoData = fs.readFileSync(logoPath);
+            const logoBase64 = `data:image/png;base64,${logoData.toString("base64")}`;
+            return new ImageResponse(
+                (
+                    <div
+                        style={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }}
+                    >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                            src={logoBase64}
+                            alt="Logo"
+                            style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "contain",
+                            }}
+                        />
+                    </div>
+                ),
+                {
+                    ...size,
+                }
+            );
         }
     } catch (e) {
-        console.error("Failed to fetch favicon config", e);
+        console.error("Failed to generate logo icon", e);
     }
 
     return new ImageResponse(
         (
-            // ImageResponse JSX element
             <div
                 style={{
                     fontSize: 20,
                     fontWeight: 800,
-                    background: color,
+                    background: "#16a34a",
                     width: "100%",
                     height: "100%",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     color: "white",
-                    borderRadius: "20%", // Rounded square looks more app-like
-                    fontFamily: 'sans-serif'
+                    borderRadius: "20%",
+                    fontFamily: "sans-serif",
                 }}
             >
-                {letter}
+                W
             </div>
         ),
-        // ImageResponse options
         {
             ...size,
         }

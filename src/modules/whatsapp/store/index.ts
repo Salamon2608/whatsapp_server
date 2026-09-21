@@ -493,8 +493,18 @@ async function processAndSaveMessage(
     }
 
     try {
-        const newMessage = await prisma.message.create({
-            data: {
+        const newMessage = await prisma.message.upsert({
+            where: {
+                sessionId_keyId: {
+                    sessionId: dbSessionId,
+                    keyId
+                }
+            },
+            update: {
+                ...(fileUrl ? { mediaUrl: fileUrl } : {}),
+                ...(fromMe ? { status: "SENT" } : {})
+            },
+            create: {
                 sessionId: dbSessionId,
                 remoteJid: normalizeJid(normalizedRemoteJid),
                 senderJid,

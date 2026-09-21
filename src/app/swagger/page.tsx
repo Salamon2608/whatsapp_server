@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import SwaggerUI from "swagger-ui-react";
 import "swagger-ui-react/swagger-ui.css";
 
@@ -71,8 +72,11 @@ export default function ApiDocsPage() {
             <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
                 <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
                     <div className="text-center mb-6">
+                        <div className="flex justify-center mb-3">
+                            <Image src="/logo.png" alt="Logo" width={48} height={48} className="h-12 w-12 object-contain" priority />
+                        </div>
                         <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                            WA-AKG API Documentation
+                            WHATSAPP SERVER API Documentation
                         </h1>
                         <p className="text-gray-600 text-sm">
                             Please authenticate to access Swagger UI
@@ -138,11 +142,14 @@ export default function ApiDocsPage() {
         <div className="min-h-screen bg-white">
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-4 shadow-lg">
                 <div className="container mx-auto flex justify-between items-center">
-                    <div>
-                        <h1 className="text-2xl font-bold">WA-AKG API Documentation</h1>
-                        <p className="text-blue-100 text-sm mt-1">
-                            Interactive API documentation with 58+ endpoints
-                        </p>
+                    <div className="flex items-center gap-3">
+                        <Image src="/logo.png" alt="Logo" width={36} height={36} className="h-9 w-9 object-contain bg-white/10 p-1 rounded-lg" />
+                        <div>
+                            <h1 className="text-2xl font-bold">WHATSAPP SERVER API Documentation</h1>
+                            <p className="text-blue-100 text-sm mt-1">
+                                Interactive API documentation with 58+ endpoints
+                            </p>
+                        </div>
                     </div>
                     <button
                         onClick={handleLogout}

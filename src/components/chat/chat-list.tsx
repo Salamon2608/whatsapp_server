@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { getChatsStatus } from "@/app/dashboard/chat/actions";
 import { useSocket } from "./socket-context";
 import { toast } from "sonner";
+import { useSession } from "@/components/dashboard/session-provider";
 
 interface ChatContact {
     jid: string;
@@ -261,6 +262,10 @@ function SkeletonRow() {
 
 // ─── Main ──────────────────────────
 export function ChatList({ sessionId, onSelectChat, selectedJid, autoRefresh = true, onToggleAutoRefresh }: ChatListProps) {
+    const { sessions } = useSession();
+    const currentSession = sessions.find((s) => s.sessionId === sessionId);
+    const isLoggedOut = currentSession?.status === "LOGGED_OUT";
+
     const [chats, setChats] = useState<ChatContact[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchInput, setSearchInput] = useState("");
@@ -450,7 +455,15 @@ export function ChatList({ sessionId, onSelectChat, selectedJid, autoRefresh = t
                         {onToggleAutoRefresh && (
                             <div
                                 className="flex items-center gap-1.5 bg-muted/40 hover:bg-muted/60 transition-colors px-2 py-1 rounded-full border border-border/40 text-xs cursor-pointer select-none"
-                                onClick={() => onToggleAutoRefresh(!autoRefresh)}
+                                onClick={() => {
+                                    if (!autoRefresh && isLoggedOut) {
+                                        toast.error("Device is logged out", {
+                                            description: "Cannot enable live chat while the device is logged out.",
+                                        });
+                                        return;
+                                    }
+                                    onToggleAutoRefresh(!autoRefresh);
+                                }}
                                 title={autoRefresh ? "Overall Auto-refresh ON (messages live)" : "Overall Auto-refresh OFF (incoming messages paused)"}
                             >
                                 <span className="relative flex h-2 w-2">
@@ -464,7 +477,15 @@ export function ChatList({ sessionId, onSelectChat, selectedJid, autoRefresh = t
                                 </span>
                                 <Switch
                                     checked={!!autoRefresh}
-                                    onCheckedChange={onToggleAutoRefresh}
+                                    onCheckedChange={(checked) => {
+                                        if (checked && isLoggedOut) {
+                                            toast.error("Device is logged out", {
+                                                description: "Cannot enable live chat while the device is logged out.",
+                                            });
+                                            return;
+                                        }
+                                        onToggleAutoRefresh(checked);
+                                    }}
                                     onClick={(e) => e.stopPropagation()}
                                     aria-label="Toggle overall auto refresh"
                                 />

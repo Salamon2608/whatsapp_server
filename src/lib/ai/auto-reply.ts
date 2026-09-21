@@ -5,6 +5,7 @@ import { buildSystemPrompt } from './defaults'
 import { retrieveKnowledge } from './knowledge'
 import type { AiConfigData, ChatMessage } from './types'
 import { logger } from '@/lib/logger'
+import { smartSendWithHumanBehavior } from '@/lib/anti-ban'
 
 export interface AiAutoReplyInput {
   sock: WASocket
@@ -87,8 +88,8 @@ export async function runAiAutoReply(input: AiAutoReplyInput): Promise<boolean> 
       return false
     }
 
-    // Send reply via Baileys
-    await sock.sendMessage(remoteJid, { text: result.text }, { quoted: msg as any })
+    // Send reply via Baileys with human typing simulation
+    await smartSendWithHumanBehavior(sock, remoteJid, { text: result.text }, { quoted: msg as any })
     logger.success('AiAutoReply', `AI reply sent to ${remoteJid}`)
     return true
   } catch (err: any) {
