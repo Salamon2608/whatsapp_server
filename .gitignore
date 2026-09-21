@@ -47,5 +47,21 @@ next-env.d.ts
 /public/media/*
 server.log
 /logs/
+*.log
+*-errors.txt
+lint_output.txt
+eslint.json
+
+# temporary, scratch, and test scripts
+*.tmp
+tmp-*
+test-*.js
+test-*.ts
+test_*.ts
+test_*.js
+*.dump
+*.bak
+
+# build archives and caches
 *.tar.gz
 graphify-out/cache/
