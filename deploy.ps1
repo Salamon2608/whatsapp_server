@@ -84,5 +84,5 @@ if ($Choice -eq "2") {
 
 ssh.exe -n -i $KeyPath -o StrictHostKeyChecking=no "ubuntu@$ServerIP" $RemoteCmd
 
-Write-Host "`nDEPLOYMENT COMPLETE! Site is live at: http://$ServerIP" -ForegroundColor Green
+Write-Host "`nDEPLOYMENT COMPLETE! Site is live at: https://salo26.duckdns.org" -ForegroundColor Green
 Write-Host "==========================================================" -ForegroundColor Cyan

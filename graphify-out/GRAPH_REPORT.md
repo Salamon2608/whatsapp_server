@@ -1,17 +1,17 @@
 # Graph Report - Whatsapp_Server  (2026-09-21)
 
 ## Corpus Check
-- 312 files · ~591,089 words
+- 313 files · ~591,510 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 14 file(s) not represented in the graph (top: (none) 7, .log 2, .example 1)
 
 ## Summary
-- 2198 nodes · 4647 edges · 153 communities (137 shown, 13 thin omitted)
+- 2199 nodes · 4647 edges · 154 communities (137 shown, 17 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6a078f12`
+- Built from commit: `2ae65b2d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -182,20 +182,20 @@
 ## Surprising Connections (you probably didn't know these)
 - `simulate()` --calls--> `normalizeJid()`  [EXTRACTED]
   test-message.ts → src/lib/jid-utils.ts
-- `GET()` --calls--> `getAuthenticatedUser()`  [EXTRACTED]
-  src/app/api/ai/config/route.ts → src/lib/api-auth.ts
-- `POST()` --calls--> `getAuthenticatedUser()`  [EXTRACTED]
-  src/app/api/auth/verify-password/route.ts → src/lib/api-auth.ts
-- `GET()` --calls--> `getAuthenticatedUser()`  [EXTRACTED]
-  src/app/api/automations/[id]/logs/route.ts → src/lib/api-auth.ts
-- `PATCH()` --calls--> `getAuthenticatedUser()`  [EXTRACTED]
-  src/app/api/automations/[id]/toggle/route.ts → src/lib/api-auth.ts
+- `ChatWithJidPage()` --calls--> `canAccessSession()`  [EXTRACTED]
+  src/app/dashboard/chat/[jid]/page.tsx → src/lib/api-auth.ts
+- `ChatPage()` --calls--> `canAccessSession()`  [EXTRACTED]
+  src/app/dashboard/chat/page.tsx → src/lib/api-auth.ts
+- `SheetFooter()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/sheet.tsx → src/lib/utils.ts
+- `SheetOverlay()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/sheet.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - 2-file cycle: `src/modules/whatsapp/instance.ts -> src/modules/whatsapp/manager.ts -> src/modules/whatsapp/instance.ts`
 - 4-file cycle: `src/lib/webhook.ts -> src/modules/whatsapp/manager.ts -> src/modules/whatsapp/instance.ts -> src/modules/whatsapp/store/index.ts -> src/lib/webhook.ts`
 
-## Communities (153 total, 13 thin omitted)
+## Communities (154 total, 17 thin omitted)
 
 ### Community 0 - "canAccessSession"
 Cohesion: 0.07
@@ -330,7 +330,7 @@ Cohesion: 0.22
 Nodes (8): ./tsconfig.json, compilerOptions, module, moduleResolution, noEmit, extends, ts-node, require
 
 ### Community 34 - "generate-docs.js"
-Cohesion: 0.33
+Cohesion: 0.31
 Nodes (7): fs, generateExample(), generateFieldsTable(), resolveRef(), resolveSchema(), swagger, tagMap
 
 ### Community 35 - "\[PUT\] /profile/{sessionId}/name"
@@ -474,7 +474,7 @@ Cohesion: 0.50
 Nodes (4): 📘 Essential Guides, 🚦 Getting Started (Programmatically), 🛠️ Infrastructure & Maintenance, 📂 Knowledge Base Index
 
 ### Community 81 - "builder-tree.ts"
-Cohesion: 0.27
+Cohesion: 0.24
 Nodes (9): atPath(), insertAt(), mapAtPath(), moveAt(), ParentScope, removeAt(), StepMarker, StepPath (+1 more)
 
 ### Community 82 - "autoreply.ts"
@@ -746,20 +746,20 @@ Cohesion: 0.40
 Nodes (3): contentType, runtime, size
 
 ## Knowledge Gaps
-- **1037 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+1032 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1143 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **1037 isolated node(s):** `NavGroup`, `LayoutEdge`, `LayoutNode`, `LayoutOptions`, `LayoutPosition` (+1032 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1144 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `WhatsApp AI Gateway — Complete API Reference` connect `WhatsApp AI Gateway — Complete API Reference` to `📂 Chat`, `📂 Labels`, `📂 Sessions`, `📂 Webhooks`, `📂 Scheduler`, `📂 Users`, `📂 Profile`, `\[POST\] /status/{sessionId}/update`, `\[GET\] /chats/by-label/{labelId}`, `📂 Notifications`, `Payload Examples`, `\[POST\] /autoreplies/{sessionId}`, `\[POST\] /auth/register`, `docs/README.md`, `📦 Schemas`, `\[DELETE\] /sessions/{sessionId}/access`, `📂 Messaging`, `Verify Examples`, `\[POST\] /contacts/{sessionId}/{jid}/block`, `📂 Groups`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
-- **Why does `cn()` connect `cn` to `scheduler/page.tsx`, `chat/actions.ts`, `lucide-react`, `sheet.tsx`, `dashboard/layout.tsx`, `dashboard/page.tsx`, `form.tsx`, `chat-list.tsx`, `navbar.tsx`, `button.tsx`, `react`, `agents/page.tsx`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
-- **Why does `react` connect `react` to `scheduler/page.tsx`, `cn`, `package.json`, `lucide-react`, `sheet.tsx`, `dashboard/layout.tsx`, `form.tsx`, `automations/templates.ts`, `chat-list.tsx`, `swagger/page.tsx`, `docs-client.tsx`, `auth.ts`, `navbar.tsx`, `button.tsx`, `app/page.tsx`, `agents/page.tsx`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **What connects `$schema`, `style`, `rsc` to the rest of the system?**
+  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+- **Why does `lucide-react` connect `lucide-react` to `scheduler/page.tsx`, `cn`, `package.json`, `sheet.tsx`, `dashboard/layout.tsx`, `dashboard/page.tsx`, `form.tsx`, `chat-list.tsx`, `privacy/page.tsx`, `terms/page.tsx`, `docs-client.tsx`, `auth.ts`, `navbar.tsx`, `button.tsx`, `app/page.tsx`, `react`, `agents/page.tsx`?**
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
+- **Why does `prisma` connect `prisma.ts` to `canAccessSession`, `chat/actions.ts`, `fireSentWebhook`, `dashboard/layout.tsx`, `auto-reply.ts`, `dashboard/page.tsx`, `api-auth.ts`, `automations/engine.ts`, `api/media/route.ts`, `flows/engine.ts`, `autoreply.ts`, `auth.ts`, `navbar.tsx`, `isAdmin`, `webhook.ts`, `getAuthenticatedUser`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **What connects `NavGroup`, `LayoutEdge`, `LayoutNode` to the rest of the system?**
   _1037 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `canAccessSession` be split into smaller, more focused modules?**
   _Cohesion score 0.07030527289546716 - nodes in this community are weakly interconnected._

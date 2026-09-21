@@ -1958,7 +1958,7 @@
   "eslint.json": {
     "mtime": 1789534476.672289,
     "seen": 1789997613.6946049,
-    "ast_hash": "409c64d64d4cabd83fc7ee458bad0167",
+    "ast_hash": "",
     "semantic_hash": ""
   },
   "src/lib/anti-ban.ts": {

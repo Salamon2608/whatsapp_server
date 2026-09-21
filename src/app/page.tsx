@@ -190,17 +190,17 @@ export default function Home() {
 
               {/* Bold High-Contrast Headline */}
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[62px] font-semibold text-white tracking-[-0.04em] leading-[1.15]">
-                Mission-Critical WhatsApp Infrastructure &{" "}
+                Next-Gen WhatsApp API &{" "}
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#86efac] to-[#25D366]">
-                  AI Gateway.
+                  Intelligent Automation Platform.
                 </span>
               </h1>
 
               {/* Subtitle */}
               <p className="max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-[#c2dfd1] leading-relaxed">
-                Connect multi-device WhatsApp sessions, orchestrate autonomous AI
-                agents with full conversation memory, and send millions of messages
-                safely with intelligent human-simulation anti-ban protection.
+                Scale customer conversations effortlessly. Connect multiple WhatsApp numbers,
+                deploy smart AI assistants with contextual memory, and broadcast high-volume messages
+                with automated smart throttling.
               </p>
 
               {/* Dual CTA Buttons */}

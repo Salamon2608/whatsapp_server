@@ -45,8 +45,10 @@ export async function GET(
             return NextResponse.redirect(message.mediaUrl);
         }
 
-        // For local files, read and return
-        const filePath = path.join(process.cwd(), message.mediaUrl);
+        // For local files, resolve safely within uploads directory
+        const uploadsDir = path.resolve(process.cwd(), "uploads");
+        const cleanPath = path.normalize(message.mediaUrl).replace(/^([\\/]*uploads[\\/]*|[\\/]+)/, "");
+        const filePath = path.join(uploadsDir, cleanPath);
         
         if (!fs.existsSync(filePath)) {
             return NextResponse.json({ status: false, message: "Media file not found on disk", error: "Media file not found on disk" }, { status: 404 });
