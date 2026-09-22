@@ -82,15 +82,16 @@ export function KeywordChatbot() {
   const [formError, setFormError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Fetch rules on mount
+  // Fetch rules on mount and when sessionId changes
   useEffect(() => {
     fetchRules();
-  }, []);
+  }, [sessionId]);
 
   async function fetchRules() {
     try {
       setIsLoadingRules(true);
-      const res = await fetch('/api/chatbot/rules');
+      const url = sessionId ? `/api/chatbot/rules?sessionId=${encodeURIComponent(sessionId)}` : '/api/chatbot/rules';
+      const res = await fetch(url);
       const data = await res.json();
       if (data.success) {
         const loadedRules: ChatbotRule[] = Array.isArray(data.rules) && data.rules.length > 0
@@ -99,10 +100,11 @@ export function KeywordChatbot() {
 
         setRules(loadedRules);
         setEnabled(data.enabled ?? true);
-        setAutoReplyAnyWord(data.autoReplyAnyWord ?? true);
-        setFallbackMessage(data.fallbackMessage || DEFAULT_CHATBOT_CONFIG.fallbackMessage);
+        setAutoReplyAnyWord(data.autoReplyAnyWord ?? false);
+        const resolvedFallback = data.fallbackMessage || DEFAULT_CHATBOT_CONFIG.fallbackMessage;
+        setFallbackMessage(resolvedFallback);
 
-        const initialWelcome = data.fallbackMessage || loadedRules.find((r: ChatbotRule) => r.action === 'trigger_menu')?.response || DEFAULT_CHATBOT_CONFIG.fallbackMessage;
+        const initialWelcome = resolvedFallback || loadedRules.find((r: ChatbotRule) => r.action === 'trigger_menu')?.response || DEFAULT_CHATBOT_CONFIG.fallbackMessage;
         setMessages([
           {
             id: 'welcome',
@@ -134,14 +136,24 @@ export function KeywordChatbot() {
     }
     try {
       setIsSavingSettings(true);
+
+      // Keep menu trigger rule response in sync with default welcome message
+      const updatedRules = currentRules.map((r) => {
+        if (r.action === 'trigger_menu' || r.id === 'menu') {
+          return { ...r, response: newFallback };
+        }
+        return r;
+      });
+
       const res = await fetch('/api/chatbot/rules', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          sessionId: sessionId || undefined,
           enabled: newEnabled,
           autoReplyAnyWord: newAutoReply,
           fallbackMessage: newFallback,
-          rules: currentRules,
+          rules: updatedRules,
         }),
       });
 
@@ -154,6 +166,16 @@ export function KeywordChatbot() {
       setAutoReplyAnyWord(data.autoReplyAnyWord);
       setFallbackMessage(data.fallbackMessage);
       setRules(data.rules);
+
+      // Update simulator welcome message to match new message
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === 'welcome' || m.id.startsWith('welcome-')
+            ? { ...m, text: data.fallbackMessage }
+            : m
+        )
+      );
+
       toast.success('Chatbot configuration saved successfully');
     } catch (err: any) {
       toast.error(err.message || 'Failed to update chatbot settings');

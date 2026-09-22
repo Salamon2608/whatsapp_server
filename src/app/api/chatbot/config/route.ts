@@ -11,9 +11,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ status: false, message: 'Unauthorized' }, { status: 401 })
     }
 
-    const config = await prisma.chatbotConfig.findFirst({
-      where: { userId: user.id },
-    })
+    const sessionId = request.nextUrl.searchParams.get('sessionId')
+
+    let config = null
+    if (sessionId) {
+      config = await prisma.chatbotConfig.findFirst({
+        where: { sessionId },
+      })
+    }
+
+    if (!config) {
+      config = await prisma.chatbotConfig.findFirst({
+        where: { userId: user.id },
+      })
+    }
 
     return NextResponse.json({ status: true, data: config })
   } catch (error: any) {
@@ -29,20 +40,37 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { isActive, rules, defaultFallback, handoffKeywords } = body
+    const { isActive, enabled, rules, defaultFallback, fallbackMessage, autoReplyAnyWord, handoffKeywords, sessionId } = body
 
-    const existing = await prisma.chatbotConfig.findFirst({
-      where: { userId: user.id },
-    })
+    let existing = null
+    if (sessionId) {
+      existing = await prisma.chatbotConfig.findFirst({
+        where: { sessionId },
+      })
+    }
+
+    if (!existing) {
+      existing = await prisma.chatbotConfig.findFirst({
+        where: { userId: user.id },
+      })
+    }
+
+    const resolvedActive = isActive !== undefined ? isActive : (enabled !== undefined ? enabled : true)
+    const resolvedFallback = defaultFallback !== undefined ? defaultFallback : (fallbackMessage !== undefined ? fallbackMessage : null)
 
     let config
     if (existing) {
       config = await prisma.chatbotConfig.update({
         where: { id: existing.id },
         data: {
-          isActive: isActive !== undefined ? isActive : existing.isActive,
+          userId: user.id,
+          sessionId: sessionId || existing.sessionId,
+          isActive: resolvedActive,
+          enabled: resolvedActive,
+          autoReplyAnyWord: autoReplyAnyWord !== undefined ? autoReplyAnyWord : existing.autoReplyAnyWord,
           rules: rules !== undefined ? rules : existing.rules,
-          defaultFallback: defaultFallback !== undefined ? defaultFallback : existing.defaultFallback,
+          defaultFallback: resolvedFallback !== null ? resolvedFallback : existing.defaultFallback,
+          fallbackMessage: resolvedFallback !== null ? resolvedFallback : existing.fallbackMessage,
           handoffKeywords: handoffKeywords !== undefined ? handoffKeywords : existing.handoffKeywords,
         },
       })
@@ -50,9 +78,13 @@ export async function POST(request: NextRequest) {
       config = await prisma.chatbotConfig.create({
         data: {
           userId: user.id,
-          isActive: isActive !== undefined ? isActive : true,
+          sessionId: sessionId || null,
+          isActive: resolvedActive,
+          enabled: resolvedActive,
+          autoReplyAnyWord: autoReplyAnyWord !== undefined ? autoReplyAnyWord : false,
           rules: rules || [],
-          defaultFallback: defaultFallback || null,
+          defaultFallback: resolvedFallback,
+          fallbackMessage: resolvedFallback,
           handoffKeywords: handoffKeywords || ['human', 'agent', 'support', 'help'],
         },
       })

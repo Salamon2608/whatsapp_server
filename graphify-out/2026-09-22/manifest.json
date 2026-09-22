@@ -1115,6 +1115,12 @@
     "ast_hash": "df2cbed548431c0d3d16b62ebc82f962",
     "semantic_hash": "df2cbed548431c0d3d16b62ebc82f962"
   },
+  "src/fix_test.js": {
+    "mtime": 1789534476.7223318,
+    "seen": 1789536476.6597507,
+    "ast_hash": "ac70e77d4c360292cf9ba2d951478d8a",
+    "semantic_hash": "ac70e77d4c360292cf9ba2d951478d8a"
+  },
   "src/lib/api-auth.ts": {
     "mtime": 1789534476.7223318,
     "seen": 1789536476.6597514,
@@ -1236,9 +1242,9 @@
     "semantic_hash": "f5a689fd5c38031536fe096e569a8cff"
   },
   "src/modules/whatsapp/store/autoreply.ts": {
-    "mtime": 1790052859.2065365,
-    "seen": 1790052937.0501168,
-    "ast_hash": "1516aaccda316cee8f3555a549c8284c",
+    "mtime": 1789801826.3430197,
+    "seen": 1789803274.6229558,
+    "ast_hash": "6f242bb50d332c031cb71ae84f4ad4a4",
     "semantic_hash": ""
   },
   "src/modules/whatsapp/store/contacts.ts": {
@@ -1300,6 +1306,30 @@
     "seen": 1789966907.701223,
     "ast_hash": "af869b8de365af789309f98905289dfa",
     "semantic_hash": ""
+  },
+  "test-media.js": {
+    "mtime": 1789534476.7393186,
+    "seen": 1789536476.659784,
+    "ast_hash": "c1ed05fb2377e0f8216532bb3e507ea1",
+    "semantic_hash": "c1ed05fb2377e0f8216532bb3e507ea1"
+  },
+  "test-message.ts": {
+    "mtime": 1789534476.7393186,
+    "seen": 1789536476.6597857,
+    "ast_hash": "0cd798281916992ae160388a6f2b0d30",
+    "semantic_hash": "0cd798281916992ae160388a6f2b0d30"
+  },
+  "test-prisma.js": {
+    "mtime": 1789534476.7393186,
+    "seen": 1789536476.659787,
+    "ast_hash": "37b645c5e4ce0633b5bb43d54cb2b1b6",
+    "semantic_hash": "37b645c5e4ce0633b5bb43d54cb2b1b6"
+  },
+  "test_db.ts": {
+    "mtime": 1789534476.7393186,
+    "seen": 1789536476.6597881,
+    "ast_hash": "f9873e14a5fc37beaa253cf4c177a772",
+    "semantic_hash": "f9873e14a5fc37beaa253cf4c177a772"
   },
   "tsconfig.json": {
     "mtime": 1789534476.7393186,
@@ -1427,6 +1457,12 @@
     "ast_hash": "1bd329124be71b104f9fcac7b2726a0b",
     "semantic_hash": ""
   },
+  "API_REFACTOR_TASK.txt": {
+    "mtime": 1789534476.6556833,
+    "seen": 1789628035.113379,
+    "ast_hash": "ff86faa2c2dd04bf9bc456a796ceb7b7",
+    "semantic_hash": ""
+  },
   "CHANGELOG.md": {
     "mtime": 1789534476.6714423,
     "seen": 1789628035.113379,
@@ -1437,6 +1473,18 @@
     "mtime": 1789800903.7216916,
     "seen": 1789800954.0624182,
     "ast_hash": "c23bec7c300ef9fce8c6ae1e946aaca5",
+    "semantic_hash": ""
+  },
+  "actual_routes.txt": {
+    "mtime": 1789534476.672289,
+    "seen": 1789628035.113379,
+    "ast_hash": "a74ebf15305d00a3b6a893bb653e4b04",
+    "semantic_hash": ""
+  },
+  "all_routes.txt": {
+    "mtime": 1789534476.672289,
+    "seen": 1789628035.113379,
+    "ast_hash": "a2bf4acade3e438da46f2296a0dd1754",
     "semantic_hash": ""
   },
   "docker-compose.yml": {
@@ -1499,10 +1547,34 @@
     "ast_hash": "eb7cb940a2081c8df0e73cb49860748e",
     "semantic_hash": ""
   },
+  "docs/api_test_output.txt": {
+    "mtime": 1789534476.672289,
+    "seen": 1789628035.113379,
+    "ast_hash": "7862d412da20150c6b7b64113f5d5e72",
+    "semantic_hash": ""
+  },
+  "eslint-errors.txt": {
+    "mtime": 1789534476.672289,
+    "seen": 1789628035.113379,
+    "ast_hash": "9e03e0246a7ca7a52df094de88f98676",
+    "semantic_hash": ""
+  },
+  "lint_output.txt": {
+    "mtime": 1789534476.672289,
+    "seen": 1789628035.113379,
+    "ast_hash": "aefd2fbb343135c5356c1038df436818",
+    "semantic_hash": ""
+  },
   "public/media/test.txt": {
     "mtime": 1789534476.6889725,
     "seen": 1789628035.113379,
     "ast_hash": "0b52a0821594818ee7487bb56f47faa0",
+    "semantic_hash": ""
+  },
+  "tmp-missing-APIs.txt": {
+    "mtime": 1789534476.7393186,
+    "seen": 1789628035.113379,
+    "ast_hash": "fc7537791fe51a90fd0bb1453c0b8e73",
     "semantic_hash": ""
   },
   "public/file.svg": {
@@ -1590,9 +1662,9 @@
     "semantic_hash": ""
   },
   "src/app/api/chatbot/config/route.ts": {
-    "mtime": 1790052893.370586,
-    "seen": 1790052937.0501168,
-    "ast_hash": "1fd5dd74a62b92b665d7eabd4626850f",
+    "mtime": 1789630424.7808363,
+    "seen": 1789630922.5344925,
+    "ast_hash": "495b690bf8595f1fc5d1a1c2a19bcc62",
     "semantic_hash": ""
   },
   "src/app/api/flows/[id]/route.ts": {
@@ -1692,9 +1764,9 @@
     "semantic_hash": ""
   },
   "src/components/agents/keyword-chatbot.tsx": {
-    "mtime": 1790052881.491304,
-    "seen": 1790052937.0501168,
-    "ast_hash": "fb3fafc1d8106dca7a97db7033a09b0e",
+    "mtime": 1789975206.523691,
+    "seen": 1789975375.8999093,
+    "ast_hash": "e7a0d92b53f95c046deb89130ed0d3f6",
     "semantic_hash": ""
   },
   "src/components/automations/automation-builder.tsx": {
@@ -1794,9 +1866,9 @@
     "semantic_hash": ""
   },
   "src/lib/chatbot/rule-engine.ts": {
-    "mtime": 1790052850.2828567,
-    "seen": 1790052937.0501168,
-    "ast_hash": "3cfffeb8e521ffdc15461d908778d560",
+    "mtime": 1789801861.6135347,
+    "seen": 1789803274.6229558,
+    "ast_hash": "e95d3f6080bdd4d23e32b46a2a236941",
     "semantic_hash": ""
   },
   "src/lib/flows/edges.ts": {
@@ -1830,15 +1902,15 @@
     "semantic_hash": ""
   },
   "src/app/api/chatbot/rules/route.ts": {
-    "mtime": 1790052838.505553,
-    "seen": 1790052937.0501168,
-    "ast_hash": "bae5357856b97c696b406d666063619a",
+    "mtime": 1789638937.8581686,
+    "seen": 1789638971.30317,
+    "ast_hash": "a3498aec04bd75192831dc5470dfe49c",
     "semantic_hash": ""
   },
   "src/lib/chatbot/rules.json": {
-    "mtime": 1790052905.189396,
-    "seen": 1790052937.0501168,
-    "ast_hash": "8aa7f5252fa8ce450f1fa8bc10de839c",
+    "mtime": 1789638689.1889088,
+    "seen": 1789638971.435082,
+    "ast_hash": "c6ed5db07d7dc73aca3ac044fff455dd",
     "semantic_hash": ""
   },
   "src/app/api/reports/messages/route.ts": {
@@ -1881,6 +1953,12 @@
     "mtime": 1789983246.232104,
     "seen": 1789983282.842528,
     "ast_hash": "a77e9ca55585f975ec6cc43a47914107",
+    "semantic_hash": ""
+  },
+  "eslint.json": {
+    "mtime": 1789534476.672289,
+    "seen": 1790007883.512345,
+    "ast_hash": "409c64d64d4cabd83fc7ee458bad0167",
     "semantic_hash": ""
   },
   "src/lib/anti-ban.ts": {
@@ -1938,9 +2016,9 @@
     "semantic_hash": ""
   },
   "deploy.ps1": {
-    "mtime": 1790008424.0448377,
-    "seen": 1790052937.0501168,
-    "ast_hash": "c43996408f380ecf98317777b8ac9d80",
+    "mtime": 1790007824.2990613,
+    "seen": 1790007883.51234,
+    "ast_hash": "a3e32db7b28a41a3e4cbedfa192b5f3a",
     "semantic_hash": ""
   }
 }

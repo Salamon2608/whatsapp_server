@@ -1,38 +1,82 @@
 {
   "enabled": true,
-  "autoReplyAnyWord": true,
-  "fallbackMessage": "👋 Hello! I'm SALAMON's Assistant.\n\nI'm here to help you with questions, requests, and anything you need assistance with.\n\nMy boss, SALAMON, is currently a little busy. Don't worry—I'll make sure your message reaches him and keep him informed.",
+  "autoReplyAnyWord": false,
+  "fallbackMessage": "👋 Hello! Welcome.\n\nHere are some options you can explore:\n\n1️⃣ Reply *1* or *PRICING* for Plans\n2️⃣ Reply *2* or *SUPPORT* for Help\n3️⃣ Reply *3* or *DEMO* for a Product Demo\n0️⃣ Reply *0* or *AGENT* to Speak Directly with Human",
   "rules": [
     {
       "id": "menu",
-      "title": "Main Navigation Menu",
       "keywords": [
-        "menu",
-        "options",
-        "start",
         "hi",
         "hello",
-        "vanakkam",
-        "help",
-        "hii bro",
-        "good morning",
-        "good afternoon",
-        "good evening",
-        "good night"
+        "hey",
+        "start",
+        "menu",
+        "options",
+        "info",
+        "help"
       ],
-      "response": "👋 Hello! I'm SALAMON's Assistant.\n\nI'm here to help you with questions, requests, and anything you need assistance with.\n\nMy boss, SALAMON, is currently a little busy. Don't worry—I'll make sure your message reaches him and keep him informed.",
-      "action": "trigger_menu",
-      "triggerHandover": false
+      "title": "Main Menu / Welcome",
+      "response": "👋 *Welcome to our WhatsApp Assistant!*\n\nHow can we help you today? Please reply with a number:\n\n1️⃣ *Pricing & Plans* - View pricing & packages\n2️⃣ *Support & FAQs* - Get help with common issues\n3️⃣ *Book a Demo* - Schedule a walkthrough\n0️⃣ *Speak to Agent* - Connect with a human agent\n\n_Tip: You can also type keywords like \"pricing\" or \"support\" anytime._",
+      "action": "trigger_menu"
     },
     {
-      "id": "rule_1789638150974_pricing",
-      "title": "Pricing",
+      "id": "pricing",
       "keywords": [
-        "pricing"
+        "1",
+        "pricing",
+        "price",
+        "plan",
+        "plans",
+        "cost",
+        "subscription"
       ],
-      "action": "none",
-      "triggerHandover": false,
-      "response": "Solla mudiyathu"
+      "title": "1. Pricing & Plans",
+      "response": "💰 *Our Subscription Plans:*\n\n🔹 *Starter Plan* - $29/month\n• Up to 1,000 active contacts\n• 1 WhatsApp number\n• Unlimited rule-based chatbot replies\n\n🔹 *Pro Business* - $79/month\n• Up to 10,000 active contacts\n• 3 WhatsApp numbers\n• AI Auto-Responder + Analytics\n\n🔹 *Enterprise* - Custom Pricing\n• Unlimited contacts & custom integrations\n\nReply *3* to book a demo or *0* to talk with sales.",
+      "action": "none"
+    },
+    {
+      "id": "support",
+      "keywords": [
+        "2",
+        "support",
+        "helpdesk",
+        "faq",
+        "issue",
+        "problem",
+        "ticket"
+      ],
+      "title": "2. Support & Help",
+      "response": "🛠️ *Customer Support & FAQs:*\n\n• *Business Hours:* Mon - Fri, 9:00 AM - 6:00 PM\n• *Email Support:* support@example.com\n• *Help Center:* https://docs.example.com\n\nIf your inquiry requires urgent assistance, please reply *0* to connect directly with an active agent.",
+      "action": "none"
+    },
+    {
+      "id": "demo",
+      "keywords": [
+        "3",
+        "demo",
+        "book",
+        "schedule",
+        "meeting",
+        "call"
+      ],
+      "title": "3. Book a Demo",
+      "response": "📅 *Schedule a Live Product Demo:*\n\nWe would love to show you how our WhatsApp automation tools work!\n\n👉 Pick a convenient time on our calendar:\nhttps://cal.com/demo-team/30min\n\nReply *0* if you'd like to ask a question right away!",
+      "action": "none"
+    },
+    {
+      "id": "human_handover",
+      "keywords": [
+        "0",
+        "agent",
+        "human",
+        "representative",
+        "support agent",
+        "talk to human",
+        "live agent"
+      ],
+      "title": "0. Handover to Human Agent",
+      "response": "👤 *Connecting you to a Human Agent...*\n\nWe've notified our team! An agent will join this conversation shortly.\n\nChatbot auto-replies have been paused for this conversation. You can message us freely.",
+      "action": "handover_human"
     }
   ]
 }

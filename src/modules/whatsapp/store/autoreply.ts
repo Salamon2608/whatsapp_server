@@ -162,7 +162,8 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
                     session.userId,
                     remoteJid,
                     text,
-                    msg
+                    msg,
+                    sessionId
                 );
                 if (chatbotHandled) continue;
 

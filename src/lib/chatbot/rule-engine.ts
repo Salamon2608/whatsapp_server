@@ -193,50 +193,42 @@ export async function executeChatbotRule(
   userId: string,
   remoteJid: string,
   text: string,
-  msg?: any
+  msg?: any,
+  sessionId?: string
 ): Promise<boolean> {
   try {
     const { prisma } = await import('@/lib/prisma');
-    let fallbackRulesJson: any = null;
-    try {
-      fallbackRulesJson = await import('@/lib/chatbot/rules.json');
-    } catch {}
 
-    let enabled = true;
-    let autoReplyAnyWord = true;
-    let fallbackMessage: string | undefined = undefined;
-    let customRules: ChatbotRule[] | undefined = undefined;
+    let enabled = DEFAULT_CHATBOT_CONFIG.enabled;
+    let autoReplyAnyWord = DEFAULT_CHATBOT_CONFIG.autoReplyAnyWord;
+    let fallbackMessage = DEFAULT_CHATBOT_CONFIG.fallbackMessage;
+    let customRules: ChatbotRule[] = DEFAULT_CHATBOT_RULES;
 
-    // 1. Try to load from database first
-    const dbConfig = await prisma.chatbotConfig.findFirst({
-      where: { userId },
-    });
+    // 1. Try to load from database prioritizing sessionId, then userId
+    let dbConfig = null;
+    if (sessionId) {
+      dbConfig = await prisma.chatbotConfig.findFirst({
+        where: { sessionId },
+      });
+    }
+
+    if (!dbConfig && userId) {
+      dbConfig = await prisma.chatbotConfig.findFirst({
+        where: { userId },
+      });
+    }
 
     if (dbConfig) {
-      if (!dbConfig.enabled) {
+      const isBotEnabled = dbConfig.enabled ?? dbConfig.isActive ?? true;
+      if (!isBotEnabled) {
         console.log(`[chatbot] Chatbot is disabled in DB for user ${userId}. Skipping.`);
         return false;
       }
-      enabled = dbConfig.enabled;
-      autoReplyAnyWord = dbConfig.autoReplyAnyWord;
-      fallbackMessage = dbConfig.defaultFallback || dbConfig.fallbackMessage || undefined;
-      customRules = Array.isArray(dbConfig.rules) && dbConfig.rules.length > 0 ? (dbConfig.rules as any[]) : undefined;
-    }
-
-    // 2. If DB has no rules, fallback to rules.json
-    if (!customRules || customRules.length === 0) {
-      if (fallbackRulesJson) {
-        const parsed = fallbackRulesJson.default || fallbackRulesJson;
-        if (parsed.enabled === false) {
-          console.log(`[chatbot] Chatbot is disabled in rules.json. Skipping.`);
-          return false;
-        }
-        enabled = parsed.enabled ?? true;
-        autoReplyAnyWord = parsed.autoReplyAnyWord ?? true;
-        fallbackMessage = parsed.fallbackMessage || fallbackMessage;
-        if (Array.isArray(parsed.rules) && parsed.rules.length > 0) {
-          customRules = parsed.rules;
-        }
+      enabled = isBotEnabled;
+      autoReplyAnyWord = dbConfig.autoReplyAnyWord ?? false;
+      fallbackMessage = dbConfig.defaultFallback || dbConfig.fallbackMessage || DEFAULT_CHATBOT_CONFIG.fallbackMessage;
+      if (Array.isArray(dbConfig.rules) && dbConfig.rules.length > 0) {
+        customRules = dbConfig.rules as any[];
       }
     }
 
