@@ -1,51 +1,51 @@
 # Graph Report - Whatsapp_Server  (2026-09-22)
 
 ## Corpus Check
-- 297 files · ~294,918 words
+- 297 files · ~295,171 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 7, .example 1, .patch 1)
 
 ## Summary
-- 2140 nodes · 4349 edges · 157 communities (141 shown, 13 thin omitted)
+- 2140 nodes · 4359 edges · 160 communities (142 shown, 15 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5aafcdc9`
+- Built from commit: `993780e3`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - canAccessSession
 - dependencies
-- users/page.tsx
+- dashboard/webhooks/page.tsx
 - cn
 - webhook.ts
 - 📂 Chat
 - package.json
-- message-logs-view.tsx
-- Button
+- messages/page.tsx
+- react
 - fireSentWebhook
 - sessions/route.ts
-- react
+- lucide-react
 - auto-reply.ts
 - @prisma/client
 - api-auth.ts
-- utils.ts
+- form.tsx
 - 📂 Labels
 - flows/engine.ts
 - devDependencies
 - compilerOptions
 - components.json
-- docs-client.tsx
+- docs/page.tsx
 - 📂 Sessions
 - navbar.tsx
 - isAdmin
-- flow-canvas.tsx
+- sheet.tsx
 - 📂 Webhooks
 - \[POST\] /autoreplies/{sessionId}
 - \[PATCH\] /users/{id}
-- \[DELETE\] /autoreplies/{sessionId}
+- flow-canvas.tsx
 - 📂 Scheduler
 - scripts
 - 📂 Users
@@ -76,7 +76,7 @@
 - flows/route.ts
 - Common Operations
 - \[PUT\] /autoreplies/{sessionId}/{replyId}
-- dashboard/webhooks/page.tsx
+- scheduler/page.tsx
 - 📖 WA-AKG User Manual
 - WhatsApp AI Gateway — Complete API Reference
 - 🗄️ Database Setup Guide
@@ -158,17 +158,20 @@
 - [v1.2.0] - 2026-01-18
 - [beta-v1.1.0.1] - 2026-01-15
 - [v1.6.1] - 2026-06-27
-- automations/templates.ts
+- logger.ts
 - prisma.ts
-- \[DELETE\] /users/{id}
+- WhatsAppManager
 - rules/graphify.md
 - SKILL.md
 - workflows/graphify.md
-- session-provider.tsx
+- dashboard/layout.tsx
 - cooldown.ts
-- 📂 Knowledge Base Index
+- API Quick Reference
 - app/page.tsx
 - [filename]/route.ts
+- agents/page.tsx
+- server/index.ts
+- reports/webhooks/page.tsx
 - icon.tsx
 
 ## God Nodes (most connected - your core abstractions)
@@ -199,7 +202,7 @@
 - 2-file cycle: `src/modules/whatsapp/instance.ts -> src/modules/whatsapp/manager.ts -> src/modules/whatsapp/instance.ts`
 - 4-file cycle: `src/lib/webhook.ts -> src/modules/whatsapp/manager.ts -> src/modules/whatsapp/instance.ts -> src/modules/whatsapp/store/index.ts -> src/lib/webhook.ts`
 
-## Communities (157 total, 13 thin omitted)
+## Communities (160 total, 15 thin omitted)
 
 ### Community 0 - "canAccessSession"
 Cohesion: 0.09
@@ -209,17 +212,17 @@ Nodes (26): DELETE(), PUT(), GET(), GET(), PUT(), GET(), PUT(), GET() (+18 more)
 Cohesion: 0.04
 Nodes (54): dependencies, bcryptjs, class-variance-authority, clsx, cron-parser, @dagrejs/dagre, date-fns, @hookform/resolvers (+46 more)
 
-### Community 2 - "users/page.tsx"
+### Community 2 - "dashboard/webhooks/page.tsx"
 Cohesion: 0.12
-Nodes (25): sonner, formatFileSize(), getSenderDisplay(), getTypeBg(), getTypeIcon(), MediaFile, MediaListResponse, MediaPage() (+17 more)
+Nodes (28): sonner, formatFileSize(), getSenderDisplay(), getTypeBg(), getTypeIcon(), MediaFile, MediaListResponse, MediaPage() (+20 more)
 
 ### Community 3 - "cn"
-Cohesion: 0.09
-Nodes (32): @radix-ui/react-slot, InboxPage(), DashboardPage(), dynamic, Session, AlertDialogOverlay(), ButtonProps, buttonVariants (+24 more)
+Cohesion: 0.08
+Nodes (38): InboxPage(), DashboardPage(), dynamic, ProfileData, Session, AlertDialogOverlay(), Avatar(), AvatarFallback() (+30 more)
 
 ### Community 4 - "webhook.ts"
-Cohesion: 0.06
-Nodes (47): pino, socket.io, @whiskeysockets/baileys, POST(), getLatestRelease(), batchResolveToPhoneJid(), isLidJid(), normalizeJid() (+39 more)
+Cohesion: 0.19
+Nodes (26): pino, batchResolveToPhoneJid(), isLidJid(), normalizeJid(), resolveToPhoneJid(), resolveToPhoneJidBySessionId(), cleanupOldLogs(), dispatchWebhook() (+18 more)
 
 ### Community 5 - "📂 Chat"
 Cohesion: 0.04
@@ -229,13 +232,9 @@ Nodes (49): 📂 Chat, cURL Example, cURL Example, cURL Example, cURL Example, c
 Cohesion: 0.04
 Nodes (47): license, name, private, version, clsx, cron-parser, eslint, eslint-config-next (+39 more)
 
-### Community 7 - "message-logs-view.tsx"
+### Community 8 - "react"
 Cohesion: 0.14
-Nodes (9): metadata, metadata, MessageLogItem, MessageLogsView(), MessageReportData, WebhookLogItem, WebhookLogsView(), WebhookReportData (+1 more)
-
-### Community 8 - "Button"
-Cohesion: 0.15
-Nodes (27): AutomationLogsPage(), AutomationsPage(), FlowRunsPage(), Notification, TYPE_STYLES, Message, Badge(), badgeVariants (+19 more)
+Nodes (24): react, AutomationLogsPage(), AutomationsPage(), FlowRunsPage(), Notification, TYPE_STYLES, KnowledgeItem, Message (+16 more)
 
 ### Community 9 - "fireSentWebhook"
 Cohesion: 0.27
@@ -245,9 +244,9 @@ Nodes (6): POST(), POST(), POST(), POST(), POST(), fireSentWebhook()
 Cohesion: 0.31
 Nodes (6): GET(), GET(), dynamic, GET(), POST(), getAccessibleSessions()
 
-### Community 11 - "react"
-Cohesion: 0.10
-Nodes (11): lucide-react, radix-ui, react, EditAutomationPage(), ScheduledMessage, ERROR_CONFIGS, ErrorConfig, AutomationBuilder() (+3 more)
+### Community 11 - "lucide-react"
+Cohesion: 0.17
+Nodes (3): lucide-react, ERROR_CONFIGS, ErrorConfig
 
 ### Community 12 - "auto-reply.ts"
 Cohesion: 0.13
@@ -261,9 +260,9 @@ Nodes (6): @prisma/client, prisma, { PrismaClient }, bcrypt, prisma, { PrismaCli
 Cohesion: 0.06
 Nodes (35): POST(), PUT(), PUT(), PUT(), POST(), POST(), PUT(), POST() (+27 more)
 
-### Community 15 - "utils.ts"
-Cohesion: 0.10
-Nodes (26): @radix-ui/react-label, react-hook-form, formSchema, LoginForm(), formSchema, RegisterPage(), ProfileData, ProfilePage() (+18 more)
+### Community 15 - "form.tsx"
+Cohesion: 0.14
+Nodes (18): @radix-ui/react-label, @radix-ui/react-slot, react-hook-form, formSchema, LoginForm(), formSchema, RegisterPage(), FormControl() (+10 more)
 
 ### Community 16 - "📂 Labels"
 Cohesion: 0.05
@@ -271,7 +270,7 @@ Nodes (43): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example
 
 ### Community 17 - "flows/engine.ts"
 Cohesion: 0.09
-Nodes (29): FlowsPage(), OutgoingSlot, advanceActiveRun(), DispatchFlowsInput, DispatchFlowsResult, dispatchInboundToFlows(), interpolateVars(), matchesTrigger() (+21 more)
+Nodes (30): FlowsPage(), simulateHumanTyping(), OutgoingSlot, advanceActiveRun(), DispatchFlowsInput, DispatchFlowsResult, dispatchInboundToFlows(), interpolateVars() (+22 more)
 
 ### Community 18 - "devDependencies"
 Cohesion: 0.10
@@ -285,9 +284,9 @@ Nodes (19): compilerOptions, allowJs, baseUrl, esModuleInterop, incremental, iso
 Cohesion: 0.11
 Nodes (18): aliases, components, hooks, lib, ui, utils, iconLibrary, registries (+10 more)
 
-### Community 21 - "docs-client.tsx"
-Cohesion: 0.19
-Nodes (9): react-markdown, remark-gfm, DocsClient(), DocsClientProps, TocItem, TocSection, metadata, TocItem (+1 more)
+### Community 21 - "docs/page.tsx"
+Cohesion: 0.25
+Nodes (6): react-markdown, remark-gfm, DocsClient(), metadata, TocItem, TocSection
 
 ### Community 22 - "📂 Sessions"
 Cohesion: 0.05
@@ -301,9 +300,9 @@ Nodes (46): nextConfig, date-fns, next, nextjs-toploader, @radix-ui/react-popove
 Cohesion: 0.17
 Nodes (10): bcryptjs, POST(), GET(), POST(), DELETE(), PATCH(), createUserSchema, GET() (+2 more)
 
-### Community 25 - "flow-canvas.tsx"
-Cohesion: 0.08
-Nodes (29): class-variance-authority, @radix-ui/react-dialog, FlowEditorPage(), AiConfigForm(), AiKnowledge(), AiPlayground(), AiUsage(), MobileNav() (+21 more)
+### Community 25 - "sheet.tsx"
+Cohesion: 0.14
+Nodes (15): @radix-ui/react-dialog, DocsClientProps, TocItem, TocSection, MobileNav(), NavGroup, navGroups, Sheet() (+7 more)
 
 ### Community 26 - "📂 Webhooks"
 Cohesion: 0.06
@@ -317,9 +316,9 @@ Nodes (6): cURL Example, Headers, Parameters, \[POST\] /autoreplies/{sessionId},
 Cohesion: 0.33
 Nodes (6): cURL Example, Headers, Parameters, \[PATCH\] /users/{id}, Request Body (`application/json`), Responses
 
-### Community 29 - "\[DELETE\] /autoreplies/{sessionId}"
-Cohesion: 0.40
-Nodes (5): 📂 Auto Replies, cURL Example, \[DELETE\] /autoreplies/{sessionId}, Parameters, Responses
+### Community 29 - "flow-canvas.tsx"
+Cohesion: 0.16
+Nodes (20): EditAutomationPage(), FlowEditorPage(), AutomationBuilder(), SearchFilterProps, FlowCanvasProps, NODE_COLORS, nodeTypes, FlowEditorShell() (+12 more)
 
 ### Community 30 - "📂 Scheduler"
 Cohesion: 0.07
@@ -330,8 +329,8 @@ Cohesion: 0.22
 Nodes (9): scripts, build, db:push, db:studio, dev, lint, make-admin, postinstall (+1 more)
 
 ### Community 32 - "📂 Users"
-Cohesion: 0.11
-Nodes (18): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, \[DELETE\] /user/api-key, \[GET\] /user/api-key, \[GET\] /users (+10 more)
+Cohesion: 0.09
+Nodes (22): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, \[DELETE\] /user/api-key, \[DELETE\] /users/{id} (+14 more)
 
 ### Community 33 - "tsconfig.server.json"
 Cohesion: 0.22
@@ -398,24 +397,24 @@ Cohesion: 0.50
 Nodes (4): dynamic, GET(), POST(), getFlowTemplate()
 
 ### Community 59 - "Common Operations"
-Cohesion: 0.06
-Nodes (31): 10. Get Messages from a Chat, 11. Get Contacts (Paginated), 12. Get Groups, 13. Create a Group, 14. Update Bot Configuration, 15. Post WhatsApp Status, 1. Create a WhatsApp Session, 2. Get All Sessions (+23 more)
+Cohesion: 0.12
+Nodes (16): 10. Get Messages from a Chat, 11. Get Contacts (Paginated), 12. Get Groups, 13. Create a Group, 14. Update Bot Configuration, 15. Post WhatsApp Status, 1. Create a WhatsApp Session, 2. Get All Sessions (+8 more)
 
 ### Community 60 - "\[PUT\] /autoreplies/{sessionId}/{replyId}"
 Cohesion: 0.13
 Nodes (15): 📂 Auto Reply, cURL Example, cURL Example, cURL Example, \[DELETE\] /autoreplies/{sessionId}/{replyId}, \[GET\] /autoreplies/{sessionId}, Headers, Parameters (+7 more)
 
-### Community 61 - "dashboard/webhooks/page.tsx"
-Cohesion: 0.10
-Nodes (32): BotSettingsPage(), BroadcastLog, BroadcastPage(), BroadcastProgress, BroadcastRecipient, SchedulerPage(), AVAILABLE_EVENTS, WebhookConfig (+24 more)
+### Community 61 - "scheduler/page.tsx"
+Cohesion: 0.08
+Nodes (38): radix-ui, BotSettingsPage(), BroadcastLog, BroadcastPage(), BroadcastProgress, BroadcastRecipient, ProfilePage(), ScheduledMessage (+30 more)
 
 ### Community 62 - "📖 WA-AKG User Manual"
 Cohesion: 0.14
 Nodes (14): 1. Broadcast Engine, 1. Contact Management, 1. Real-time Chat, 2. Group Management, 2. Smart Scheduler, 2. Sticker Maker, 3. Automated Responses, ⚙️ Configuration (+6 more)
 
 ### Community 63 - "WhatsApp AI Gateway — Complete API Reference"
-Cohesion: 0.17
-Nodes (12): 🔐 Authentication, 📋 Common Parameters, cURL Example, cURL Example, 📂 Documentation, \[GET\] /docs, \[GET\] /media/{filename}, 📂 Media (+4 more)
+Cohesion: 0.12
+Nodes (17): 🔐 Authentication, 📂 Auto Replies, 📋 Common Parameters, cURL Example, cURL Example, cURL Example, \[DELETE\] /autoreplies/{sessionId}, 📂 Documentation (+9 more)
 
 ### Community 64 - "🗄️ Database Setup Guide"
 Cohesion: 0.14
@@ -440,6 +439,10 @@ Nodes (11): 1. Pull Latest Changes, 2. Update Dependencies, 3. Sync Database Sch
 ### Community 69 - "[v1.6.0] - 2026-06-23"
 Cohesion: 0.18
 Nodes (11): Added, Added, Changed, Changed, Database, Database, Fixed, Fixed (+3 more)
+
+### Community 70 - "docs/README.md"
+Cohesion: 0.21
+Nodes (5): WHATSAPP SERVER API Documentation, 📘 Essential Guides, 🚦 Getting Started (Programmatically), 🛠️ Infrastructure & Maintenance, 📂 Knowledge Base Index
 
 ### Community 71 - "📦 Schemas"
 Cohesion: 0.18
@@ -474,8 +477,8 @@ Cohesion: 0.22
 Nodes (9): cURL Example, cURL Example, \[DELETE\] /groups/{sessionId}/{jid}/picture, \[GET\] /groups/{sessionId}/{jid}/invite, 📂 Groups, Parameters, Parameters, Responses (+1 more)
 
 ### Community 79 - "automations/engine.ts"
-Cohesion: 0.13
-Nodes (19): AutomationContext, evaluateCondition(), matchesWholeWord(), RunAutomationsInput, triggerMatches(), AssignConversationStepConfig, AutomationLogStepResult, ButtonItem (+11 more)
+Cohesion: 0.09
+Nodes (32): NewAutomationContent(), AutomationBuilderProps, StepItem, AutomationContext, evaluateCondition(), matchesWholeWord(), runAutomationsForTrigger(), RunAutomationsInput (+24 more)
 
 ### Community 80 - "api/media/route.ts"
 Cohesion: 0.60
@@ -486,8 +489,8 @@ Cohesion: 0.27
 Nodes (9): atPath(), insertAt(), mapAtPath(), moveAt(), ParentScope, removeAt(), StepMarker, StepPath (+1 more)
 
 ### Community 82 - "autoreply.ts"
-Cohesion: 0.22
-Nodes (15): runAiAutoReply(), isCooldownActive(), markReplySent(), replyCooldownMap, simulateHumanTyping(), smartSendWithHumanBehavior(), runAutomationsForTrigger(), ChatbotConfig (+7 more)
+Cohesion: 0.23
+Nodes (13): runAiAutoReply(), isCooldownActive(), markReplySent(), replyCooldownMap, smartSendWithHumanBehavior(), ChatbotConfig, ChatbotRule, DEFAULT_CHATBOT_CONFIG (+5 more)
 
 ### Community 83 - "Contributing to WA-AKG"
 Cohesion: 0.29
@@ -729,29 +732,25 @@ Nodes (3): Added, [beta-v1.1.0.1] - 2026-01-15, Fixed
 Cohesion: 0.67
 Nodes (3): Changed, Fixed, [v1.6.1] - 2026-06-27
 
-### Community 144 - "automations/templates.ts"
-Cohesion: 0.19
-Nodes (12): NewAutomationContent(), AutomationBuilderProps, StepItem, AUTOMATION_TEMPLATES, AutomationTemplateDefinition, getTemplate(), TemplateSlug, TemplateStepSeed (+4 more)
+### Community 144 - "logger.ts"
+Cohesion: 0.17
+Nodes (12): @whiskeysockets/baileys, c, logger, antispam, AntiSpamConfig, QueueItem, usePrismaAuthState(), DEFAULT_CONFIG (+4 more)
 
 ### Community 145 - "prisma.ts"
 Cohesion: 0.05
 Nodes (33): systeminformation, dynamic, GET(), dynamic, GET(), dynamic, PATCH(), GET() (+25 more)
 
-### Community 146 - "\[DELETE\] /users/{id}"
-Cohesion: 0.50
-Nodes (4): cURL Example, \[DELETE\] /users/{id}, Parameters, Responses
-
-### Community 150 - "session-provider.tsx"
-Cohesion: 0.09
-Nodes (22): @radix-ui/react-tooltip, Navbar(), RegistrationWarning(), RegistrationWarningProps, Session, SessionContext, SessionContextType, SessionProvider() (+14 more)
+### Community 150 - "dashboard/layout.tsx"
+Cohesion: 0.10
+Nodes (19): @radix-ui/react-tooltip, Navbar(), RegistrationWarning(), RegistrationWarningProps, SessionProvider(), SidebarContext, SidebarContextType, SidebarProvider() (+11 more)
 
 ### Community 152 - "cooldown.ts"
 Cohesion: 0.57
 Nodes (6): chatbotCooldownMap, getCleanPhone(), getCooldownKeys(), isChatbotCooldownActive(), recordChatbotReply(), resetChatbotCooldown()
 
-### Community 153 - "📂 Knowledge Base Index"
-Cohesion: 0.50
-Nodes (4): 📘 Essential Guides, 🚦 Getting Started (Programmatically), 🛠️ Infrastructure & Maintenance, 📂 Knowledge Base Index
+### Community 153 - "API Quick Reference"
+Cohesion: 0.13
+Nodes (15): API Key, API Quick Reference, Authentication, Auto-Reply Modes, Base URL, Bot Modes, JavaScript/TypeScript Example, JID Format (+7 more)
 
 ### Community 154 - "app/page.tsx"
 Cohesion: 0.18
@@ -761,6 +760,14 @@ Nodes (8): metadata, CodePlayground(), SNIPPETS, TabKey, IsometricHeroPreview(),
 Cohesion: 0.67
 Nodes (3): extractSessionId(), GET(), MEDIA_DIR
 
+### Community 156 - "agents/page.tsx"
+Cohesion: 0.22
+Nodes (9): class-variance-authority, AiConfigForm(), AiKnowledge(), AiPlayground(), Tabs(), TabsContent(), TabsList(), tabsListVariants (+1 more)
+
+### Community 157 - "server/index.ts"
+Cohesion: 0.24
+Nodes (7): socket.io, POST(), getLatestRelease(), app, handle, port, setupSocket()
+
 ### Community 161 - "icon.tsx"
 Cohesion: 0.40
 Nodes (3): contentType, runtime, size
@@ -768,16 +775,16 @@ Nodes (3): contentType, runtime, size
 ## Knowledge Gaps
 - **1018 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+1013 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1118 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **13 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **15 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `WhatsApp AI Gateway — Complete API Reference` connect `WhatsApp AI Gateway — Complete API Reference` to `📂 Chat`, `📂 Labels`, `📂 Sessions`, `📂 Webhooks`, `\[DELETE\] /autoreplies/{sessionId}`, `📂 Scheduler`, `📂 Users`, `\[GET\] /chats/by-label/{labelId}`, `📂 Profile`, `\[POST\] /status/{sessionId}/update`, `📂 Notifications`, `Payload Examples`, `\[PUT\] /autoreplies/{sessionId}/{replyId}`, `\[POST\] /auth/register`, `docs/README.md`, `📦 Schemas`, `\[DELETE\] /sessions/{sessionId}/access`, `📂 Messaging`, `Verify Examples`, `\[POST\] /contacts/{sessionId}/{jid}/block`, `📂 Groups`?**
+- **Why does `WhatsApp AI Gateway — Complete API Reference` connect `WhatsApp AI Gateway — Complete API Reference` to `📂 Chat`, `📂 Labels`, `📂 Sessions`, `📂 Webhooks`, `📂 Scheduler`, `📂 Users`, `\[GET\] /chats/by-label/{labelId}`, `📂 Profile`, `\[POST\] /status/{sessionId}/update`, `📂 Notifications`, `Payload Examples`, `\[PUT\] /autoreplies/{sessionId}/{replyId}`, `\[POST\] /auth/register`, `docs/README.md`, `📦 Schemas`, `\[DELETE\] /sessions/{sessionId}/access`, `📂 Messaging`, `Verify Examples`, `\[POST\] /contacts/{sessionId}/{jid}/block`, `📂 Groups`?**
   _High betweenness centrality (0.086) - this node is a cross-community bridge._
-- **Why does `prisma` connect `prisma.ts` to `canAccessSession`, `cn`, `webhook.ts`, `fireSentWebhook`, `sessions/route.ts`, `auto-reply.ts`, `api-auth.ts`, `flows/engine.ts`, `session-provider.tsx`, `navbar.tsx`, `isAdmin`, `cooldown.ts`, `getAuthenticatedUser`, `auth.ts`, `flows/route.ts`, `automations/engine.ts`, `api/media/route.ts`, `autoreply.ts`, `broadcast/route.ts`, `chat.service.ts`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
-- **Why does `cn()` connect `cn` to `users/page.tsx`, `message-logs-view.tsx`, `Button`, `react`, `utils.ts`, `session-provider.tsx`, `navbar.tsx`, `flow-canvas.tsx`, `dashboard/webhooks/page.tsx`?**
+- **Why does `prisma` connect `prisma.ts` to `canAccessSession`, `cn`, `webhook.ts`, `fireSentWebhook`, `sessions/route.ts`, `auto-reply.ts`, `api-auth.ts`, `logger.ts`, `flows/engine.ts`, `dashboard/layout.tsx`, `navbar.tsx`, `cooldown.ts`, `isAdmin`, `server/index.ts`, `getAuthenticatedUser`, `auth.ts`, `flows/route.ts`, `automations/engine.ts`, `api/media/route.ts`, `autoreply.ts`, `broadcast/route.ts`, `chat.service.ts`?**
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **Why does `cn()` connect `cn` to `dashboard/webhooks/page.tsx`, `messages/page.tsx`, `react`, `form.tsx`, `flow-canvas.tsx`, `dashboard/layout.tsx`, `navbar.tsx`, `sheet.tsx`, `agents/page.tsx`, `scheduler/page.tsx`, `reports/webhooks/page.tsx`?**
   _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
   _1018 weakly-connected nodes found - possible documentation gaps or missing edges._
@@ -785,5 +792,5 @@ _Questions this graph is uniquely positioned to answer:_
   _Cohesion score 0.08502024291497975 - nodes in this community are weakly interconnected._
 - **Should `dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.037037037037037035 - nodes in this community are weakly interconnected._
-- **Should `users/page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.12436974789915967 - nodes in this community are weakly interconnected._
+- **Should `dashboard/webhooks/page.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.11740890688259109 - nodes in this community are weakly interconnected._

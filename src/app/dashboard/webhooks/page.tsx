@@ -359,7 +359,7 @@ export default function WebhooksPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-                        <div className="flex-1 bg-slate-100 rounded-md p-2 sm:p-3 font-mono text-xs sm:text-sm overflow-x-auto">
+                        <div className="flex-1 bg-muted/50 dark:bg-card/60 border border-border rounded-md p-2 sm:p-3 font-mono text-xs sm:text-sm overflow-x-auto text-foreground">
                             {apiKey ? (
                                 showApiKey ? apiKey : "••••••••••••••••••••••••••••••••"
                             ) : (
@@ -386,7 +386,7 @@ export default function WebhooksPage() {
                     </div>
                     {apiKey && (
                         <p className="text-xs text-muted-foreground mt-2">
-                            Example: <code className="bg-slate-100 px-1 py-0.5 rounded">curl -H "X-API-Key: {apiKey?.slice(0, 10)}..." http://your-server/api/sessions</code>
+                            Example: <code className="bg-muted px-1.5 py-0.5 rounded border border-border/50 text-foreground font-mono">curl -H "X-API-Key: {apiKey?.slice(0, 10)}..." http://your-server/api/sessions</code>
                         </p>
                     )}
                 </CardContent>
@@ -433,7 +433,7 @@ export default function WebhooksPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         {showNewForm && (
-                            <Card className="border-dashed border-2">
+                            <Card className="border-dashed border-2 bg-muted/20 dark:bg-card/40">
                                 <CardHeader><CardTitle>New Webhook</CardTitle></CardHeader>
                                 <CardContent className="pt-4 space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
@@ -454,7 +454,7 @@ export default function WebhooksPage() {
                                         <Label>Events</Label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {AVAILABLE_EVENTS.map(event => (
-                                                <div key={event.id} className="flex items-center gap-2 p-2 rounded border">
+                                                <div key={event.id} className="flex items-center gap-2 p-2 rounded border border-border bg-card/40">
                                                     <Switch
                                                         checked={newEvents.includes(event.id)}
                                                         onCheckedChange={(checked) => {

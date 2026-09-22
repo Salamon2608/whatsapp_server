@@ -131,19 +131,19 @@ export default function NotificationAdminPage() {
                 </Card>
 
                 <div className="space-y-6">
-                    <Card className="bg-slate-50 border-dashed">
+                    <Card className="bg-muted/20 dark:bg-card/40 border-dashed">
                         <CardHeader>
                             <CardTitle className="text-base text-muted-foreground">Preview</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="bg-white p-4 rounded-lg shadow-sm border flex gap-3 items-start">
-                                <div className={`p-2 rounded-full ${type === 'WARNING' ? 'bg-yellow-100 text-yellow-600' : type === 'SUCCESS' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+                            <div className="bg-card p-4 rounded-lg shadow-xs border border-border flex gap-3 items-start">
+                                <div className={`p-2 rounded-full ${type === 'WARNING' ? 'bg-amber-500/10 text-amber-500' : type === 'SUCCESS' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-blue-500/10 text-blue-500'}`}>
                                     <Bell className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h4 className="font-semibold text-sm">{title || "Notification Title"}</h4>
+                                    <h4 className="font-semibold text-sm text-foreground">{title || "Notification Title"}</h4>
                                     <p className="text-xs text-muted-foreground mt-1">{message || "Notification message content will appear here."}</p>
-                                    <p className="text-[10px] text-slate-400 mt-2">Just now</p>
+                                    <p className="text-[10px] text-muted-foreground mt-2">Just now</p>
                                 </div>
                             </div>
                         </CardContent>

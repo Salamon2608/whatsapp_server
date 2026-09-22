@@ -222,11 +222,11 @@ export default function UsersPage() {
                             <div className="p-6">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500">
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center font-bold text-muted-foreground border border-border/50">
                                             {user.name?.charAt(0) || user.email.charAt(0)}
                                         </div>
                                         <div>
-                                            <h3 className="font-semibold">{user.name || "User"}</h3>
+                                            <h3 className="font-semibold text-foreground">{user.name || "User"}</h3>
                                             <p className="text-xs text-muted-foreground">{user.email}</p>
                                         </div>
                                     </div>
@@ -241,7 +241,7 @@ export default function UsersPage() {
                                     <span>Joined {new Date(user.createdAt).toLocaleDateString()}</span>
                                 </div>
                             </div>
-                            <div className="bg-slate-50 p-3 flex justify-end gap-2 border-t">
+                            <div className="bg-muted/20 dark:bg-card/40 p-3 flex justify-end gap-2 border-t border-border">
                                 <Button size="sm" variant="ghost" onClick={() => {
                                     setEditingUser(user);
                                     setFormData({
