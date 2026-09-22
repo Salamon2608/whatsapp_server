@@ -44,10 +44,16 @@ export async function GET(request: NextRequest) {
 
       const fallbackMsg = config.defaultFallback || config.fallbackMessage || DEFAULT_CHATBOT_CONFIG.fallbackMessage;
 
+      const meta = (config.handoffKeywords && typeof config.handoffKeywords === 'object' && !Array.isArray(config.handoffKeywords))
+        ? (config.handoffKeywords as any)
+        : {};
+
       return NextResponse.json({
         success: true,
         enabled: config.enabled ?? config.isActive ?? true,
         autoReplyAnyWord: config.autoReplyAnyWord ?? false,
+        replyOncePerDay: Boolean(meta.replyOncePerDay),
+        cooldownHours: typeof meta.cooldownHours === 'number' ? meta.cooldownHours : 24,
         fallbackMessage: fallbackMsg,
         rules: loadedRules,
       });
@@ -58,6 +64,8 @@ export async function GET(request: NextRequest) {
       success: true,
       enabled: DEFAULT_CHATBOT_CONFIG.enabled,
       autoReplyAnyWord: DEFAULT_CHATBOT_CONFIG.autoReplyAnyWord,
+      replyOncePerDay: false,
+      cooldownHours: 24,
       fallbackMessage: DEFAULT_CHATBOT_CONFIG.fallbackMessage,
       rules: DEFAULT_CHATBOT_RULES,
     });
@@ -75,7 +83,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { rules, enabled = true, autoReplyAnyWord = false, fallbackMessage, sessionId } = body;
+    const {
+      rules,
+      enabled = true,
+      autoReplyAnyWord = false,
+      fallbackMessage,
+      sessionId,
+      replyOncePerDay = false,
+      cooldownHours = 24
+    } = body;
 
     if (!Array.isArray(rules)) {
       return NextResponse.json({ success: false, error: 'Rules must be an array' }, { status: 400 });
@@ -106,6 +122,17 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    const existingMeta = (existing?.handoffKeywords && typeof existing.handoffKeywords === 'object' && !Array.isArray(existing.handoffKeywords))
+      ? (existing.handoffKeywords as any)
+      : {};
+
+    const updatedMeta = {
+      ...existingMeta,
+      keywords: existingMeta.keywords || ['human', 'agent', 'support', 'help'],
+      replyOncePerDay: Boolean(replyOncePerDay),
+      cooldownHours: Number(cooldownHours) || 24,
+    };
+
     let savedConfig;
     if (existing) {
       savedConfig = await prisma.chatbotConfig.update({
@@ -118,6 +145,7 @@ export async function POST(request: NextRequest) {
           autoReplyAnyWord: isAutoReplyAnyWord,
           fallbackMessage: fallbackMsg,
           defaultFallback: fallbackMsg,
+          handoffKeywords: updatedMeta as any,
           rules: rules as any,
         },
       });
@@ -131,6 +159,7 @@ export async function POST(request: NextRequest) {
           autoReplyAnyWord: isAutoReplyAnyWord,
           fallbackMessage: fallbackMsg,
           defaultFallback: fallbackMsg,
+          handoffKeywords: updatedMeta as any,
           rules: rules as any,
         },
       });
@@ -140,6 +169,8 @@ export async function POST(request: NextRequest) {
       success: true,
       enabled: savedConfig.enabled,
       autoReplyAnyWord: savedConfig.autoReplyAnyWord,
+      replyOncePerDay: updatedMeta.replyOncePerDay,
+      cooldownHours: updatedMeta.cooldownHours,
       fallbackMessage: savedConfig.defaultFallback || savedConfig.fallbackMessage || fallbackMsg,
       rules: Array.isArray(savedConfig.rules) ? savedConfig.rules : rules,
     });

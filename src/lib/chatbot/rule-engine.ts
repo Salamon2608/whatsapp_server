@@ -91,6 +91,8 @@ Chatbot auto-replies have been paused for this conversation. You can message us 
 export interface ChatbotConfig {
   enabled: boolean;
   autoReplyAnyWord: boolean;
+  replyOncePerDay?: boolean;
+  cooldownHours?: number;
   fallbackMessage: string;
   rules: ChatbotRule[];
 }
@@ -98,6 +100,8 @@ export interface ChatbotConfig {
 export const DEFAULT_CHATBOT_CONFIG: ChatbotConfig = {
   enabled: true,
   autoReplyAnyWord: false,
+  replyOncePerDay: false,
+  cooldownHours: 24,
   fallbackMessage: `👋 Hello! Welcome.\n\nHere are some options you can explore:\n\n1️⃣ Reply *1* or *PRICING* for Plans\n2️⃣ Reply *2* or *SUPPORT* for Help\n3️⃣ Reply *3* or *DEMO* for a Product Demo\n0️⃣ Reply *0* or *AGENT* to Speak Directly with Human`,
   rules: DEFAULT_CHATBOT_RULES,
 };
@@ -218,6 +222,9 @@ export async function executeChatbotRule(
       });
     }
 
+    let replyOncePerDay = false;
+    let cooldownHours = 24;
+
     if (dbConfig) {
       const isBotEnabled = dbConfig.enabled ?? dbConfig.isActive ?? true;
       if (!isBotEnabled) {
@@ -230,10 +237,40 @@ export async function executeChatbotRule(
       if (Array.isArray(dbConfig.rules) && dbConfig.rules.length > 0) {
         customRules = dbConfig.rules as any[];
       }
+
+      const meta = (dbConfig.handoffKeywords && typeof dbConfig.handoffKeywords === 'object' && !Array.isArray(dbConfig.handoffKeywords))
+        ? (dbConfig.handoffKeywords as any)
+        : {};
+      replyOncePerDay = Boolean(meta.replyOncePerDay);
+      cooldownHours = typeof meta.cooldownHours === 'number' ? meta.cooldownHours : 24;
     }
 
     if (!enabled) {
       return false;
+    }
+
+    // Cooldown check: If "Reply Once Per Day" is active, check if this contact already received an auto-reply recently
+    if (replyOncePerDay) {
+      const { isChatbotCooldownActive } = await import('@/lib/chatbot/cooldown');
+      const cooldownMs = (cooldownHours || 24) * 60 * 60 * 1000;
+      const inCooldown = await isChatbotCooldownActive(userId, sessionId, remoteJid, cooldownMs);
+
+      if (inCooldown) {
+        // Evaluate rule to check if user is triggering human handover
+        const prelimResult = evaluateChatbotRule(
+          text,
+          false,
+          customRules,
+          autoReplyAnyWord,
+          fallbackMessage
+        );
+
+        // If not a human handover trigger, skip sending repetitive auto-reply
+        if (!prelimResult.isHandover && prelimResult.action !== 'handover_human') {
+          console.log(`[chatbot] Skipping reply to ${remoteJid} - Reply Once Per Day is active (already replied within ${cooldownHours}h).`);
+          return false;
+        }
+      }
     }
 
     const result = evaluateChatbotRule(
@@ -255,6 +292,13 @@ export async function executeChatbotRule(
         await smartSendWithHumanBehavior(sock, remoteJid, { text: result.response });
       }
       console.log(`[chatbot] Reply successfully sent to ${remoteJid}`);
+
+      // Record reply timestamp for cooldown rate-limiting
+      if (replyOncePerDay) {
+        const { recordChatbotReply } = await import('@/lib/chatbot/cooldown');
+        recordChatbotReply(userId, sessionId, remoteJid).catch(() => {});
+      }
+
       return true;
     }
 

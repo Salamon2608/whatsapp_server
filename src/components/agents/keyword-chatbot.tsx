@@ -18,6 +18,7 @@ import {
   Power,
   Layers,
   Save,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -66,6 +67,8 @@ export function KeywordChatbot() {
   const [rules, setRules] = useState<ChatbotRule[]>(DEFAULT_CHATBOT_RULES);
   const [enabled, setEnabled] = useState(true);
   const [autoReplyAnyWord, setAutoReplyAnyWord] = useState(true);
+  const [replyOncePerDay, setReplyOncePerDay] = useState(false);
+  const [cooldownHours, setCooldownHours] = useState(24);
   const [fallbackMessage, setFallbackMessage] = useState(DEFAULT_CHATBOT_CONFIG.fallbackMessage);
 
   const [isLoadingRules, setIsLoadingRules] = useState(true);
@@ -101,6 +104,8 @@ export function KeywordChatbot() {
         setRules(loadedRules);
         setEnabled(data.enabled ?? true);
         setAutoReplyAnyWord(data.autoReplyAnyWord ?? false);
+        setReplyOncePerDay(data.replyOncePerDay ?? false);
+        setCooldownHours(data.cooldownHours ?? 24);
         const resolvedFallback = data.fallbackMessage || DEFAULT_CHATBOT_CONFIG.fallbackMessage;
         setFallbackMessage(resolvedFallback);
 
@@ -126,7 +131,9 @@ export function KeywordChatbot() {
     newEnabled = enabled,
     newAutoReply = autoReplyAnyWord,
     newFallback = fallbackMessage,
-    currentRules = rules
+    currentRules = rules,
+    newReplyOncePerDay = replyOncePerDay,
+    newCooldownHours = cooldownHours
   ) {
     if (newEnabled && isLoggedOut) {
       toast.error("Device is logged out", {
@@ -152,6 +159,8 @@ export function KeywordChatbot() {
           sessionId: sessionId || undefined,
           enabled: newEnabled,
           autoReplyAnyWord: newAutoReply,
+          replyOncePerDay: newReplyOncePerDay,
+          cooldownHours: newCooldownHours,
           fallbackMessage: newFallback,
           rules: updatedRules,
         }),
@@ -164,6 +173,8 @@ export function KeywordChatbot() {
 
       setEnabled(data.enabled);
       setAutoReplyAnyWord(data.autoReplyAnyWord);
+      setReplyOncePerDay(data.replyOncePerDay ?? newReplyOncePerDay);
+      setCooldownHours(data.cooldownHours ?? newCooldownHours);
       setFallbackMessage(data.fallbackMessage);
       setRules(data.rules);
 
@@ -412,7 +423,7 @@ export function KeywordChatbot() {
                       return;
                     }
                     setEnabled(val);
-                    handleSaveSettings(val, autoReplyAnyWord, fallbackMessage, rules);
+                    handleSaveSettings(val, autoReplyAnyWord, fallbackMessage, rules, replyOncePerDay, cooldownHours);
                   }}
                   disabled={isSavingSettings}
                 />
@@ -427,7 +438,7 @@ export function KeywordChatbot() {
               <span>⚠️ Device is logged out — WhatsApp chatbot cannot receive or respond to messages.</span>
             </div>
           )}
-          <div className="grid md:grid-cols-2 gap-4 pt-2">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
             {/* Setting: Auto-reply to any incoming word */}
             <div className="flex items-center justify-between gap-3 p-3.5 rounded-lg border bg-background/60">
               <div className="space-y-0.5">
@@ -451,7 +462,30 @@ export function KeywordChatbot() {
                     return;
                   }
                   setAutoReplyAnyWord(val);
-                  handleSaveSettings(enabled, val, fallbackMessage, rules);
+                  handleSaveSettings(enabled, val, fallbackMessage, rules, replyOncePerDay, cooldownHours);
+                }}
+                disabled={isSavingSettings || !enabled}
+              />
+            </div>
+
+            {/* Setting: Reply Once Per Day per Contact */}
+            <div className="flex items-center justify-between gap-3 p-3.5 rounded-lg border bg-background/60">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-blue-500" />
+                  <p className="text-xs font-semibold text-foreground">
+                    Reply Once Per Day per Contact
+                  </p>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  If a user sends 2 or more messages, send only one auto-reply today. Don&apos;t repeat replies until tomorrow (24h cooldown).
+                </p>
+              </div>
+              <Switch
+                checked={replyOncePerDay}
+                onCheckedChange={(val) => {
+                  setReplyOncePerDay(val);
+                  handleSaveSettings(enabled, autoReplyAnyWord, fallbackMessage, rules, val, cooldownHours);
                 }}
                 disabled={isSavingSettings || !enabled}
               />
