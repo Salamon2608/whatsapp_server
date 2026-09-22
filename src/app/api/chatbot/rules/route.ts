@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
         success: true,
         enabled: config.enabled ?? config.isActive ?? true,
         autoReplyAnyWord: config.autoReplyAnyWord ?? false,
-        replyOncePerDay: Boolean(meta.replyOncePerDay),
+        replyOncePerDay: meta.replyOncePerDay !== undefined ? Boolean(meta.replyOncePerDay) : true,
         cooldownHours: typeof meta.cooldownHours === 'number' ? meta.cooldownHours : 24,
         ignoreGroups: meta.ignoreGroups !== undefined ? Boolean(meta.ignoreGroups) : true,
         fallbackMessage: fallbackMsg,
@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
       success: true,
       enabled: DEFAULT_CHATBOT_CONFIG.enabled,
       autoReplyAnyWord: DEFAULT_CHATBOT_CONFIG.autoReplyAnyWord,
-      replyOncePerDay: false,
+      replyOncePerDay: true,
       cooldownHours: 24,
       ignoreGroups: true,
       fallbackMessage: DEFAULT_CHATBOT_CONFIG.fallbackMessage,
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       autoReplyAnyWord = false,
       fallbackMessage,
       sessionId,
-      replyOncePerDay = false,
+      replyOncePerDay = true,
       cooldownHours = 24,
       ignoreGroups = true
     } = body;

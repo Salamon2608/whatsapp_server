@@ -101,7 +101,7 @@ export interface ChatbotConfig {
 export const DEFAULT_CHATBOT_CONFIG: ChatbotConfig = {
   enabled: true,
   autoReplyAnyWord: false,
-  replyOncePerDay: false,
+  replyOncePerDay: true,
   cooldownHours: 24,
   ignoreGroups: true,
   fallbackMessage: `👋 Hello! Welcome.\n\nHere are some options you can explore:\n\n1️⃣ Reply *1* or *PRICING* for Plans\n2️⃣ Reply *2* or *SUPPORT* for Help\n3️⃣ Reply *3* or *DEMO* for a Product Demo\n0️⃣ Reply *0* or *AGENT* to Speak Directly with Human`,
@@ -224,7 +224,7 @@ export async function executeChatbotRule(
       });
     }
 
-    let replyOncePerDay = false;
+    let replyOncePerDay = DEFAULT_CHATBOT_CONFIG.replyOncePerDay ?? true;
     let cooldownHours = 24;
     let ignoreGroups = DEFAULT_CHATBOT_CONFIG.ignoreGroups ?? true;
 
@@ -244,7 +244,7 @@ export async function executeChatbotRule(
       const meta = (dbConfig.handoffKeywords && typeof dbConfig.handoffKeywords === 'object' && !Array.isArray(dbConfig.handoffKeywords))
         ? (dbConfig.handoffKeywords as any)
         : {};
-      replyOncePerDay = Boolean(meta.replyOncePerDay);
+      replyOncePerDay = meta.replyOncePerDay !== undefined ? Boolean(meta.replyOncePerDay) : true;
       cooldownHours = typeof meta.cooldownHours === 'number' ? meta.cooldownHours : 24;
       if (meta.ignoreGroups !== undefined) {
         ignoreGroups = Boolean(meta.ignoreGroups);
@@ -280,7 +280,7 @@ export async function executeChatbotRule(
 
         // If not a human handover trigger, skip sending repetitive auto-reply
         if (!prelimResult.isHandover && prelimResult.action !== 'handover_human') {
-          console.log(`[chatbot] Skipping reply to ${remoteJid} - Reply Once Per Day is active (already replied within ${cooldownHours}h).`);
+          console.log(`[chatbot] Skipping reply to ${remoteJid} - Cooldown active (already replied within ${cooldownHours}h). Only 1 reply sent.`);
           return false;
         }
       }
@@ -297,6 +297,14 @@ export async function executeChatbotRule(
     console.log(`[chatbot] Evaluated "${text}" from ${remoteJid}: matched=${result.matched}, rule="${result.rule?.title || 'None'}"`);
 
     if (result.matched && result.response) {
+      // 1. Immediately record and lock cooldown BEFORE async typing simulation or sending.
+      // This guarantees that rapid successive messages from the same user (e.g. 2+ messages in 1 second)
+      // are immediately blocked and only ONE auto-reply is ever sent.
+      if (replyOncePerDay) {
+        const { recordChatbotReply } = await import('@/lib/chatbot/cooldown');
+        await recordChatbotReply(userId, sessionId, remoteJid).catch(() => {});
+      }
+
       console.log(`[chatbot] Sending auto-reply to ${remoteJid}...`);
       try {
         await smartSendWithHumanBehavior(sock, remoteJid, { text: result.response }, { quoted: msg });
@@ -305,12 +313,6 @@ export async function executeChatbotRule(
         await smartSendWithHumanBehavior(sock, remoteJid, { text: result.response });
       }
       console.log(`[chatbot] Reply successfully sent to ${remoteJid}`);
-
-      // Record reply timestamp for cooldown rate-limiting
-      if (replyOncePerDay) {
-        const { recordChatbotReply } = await import('@/lib/chatbot/cooldown');
-        recordChatbotReply(userId, sessionId, remoteJid).catch(() => {});
-      }
 
       return true;
     }

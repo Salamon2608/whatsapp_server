@@ -68,7 +68,7 @@ export function KeywordChatbot() {
   const [rules, setRules] = useState<ChatbotRule[]>(DEFAULT_CHATBOT_RULES);
   const [enabled, setEnabled] = useState(true);
   const [autoReplyAnyWord, setAutoReplyAnyWord] = useState(true);
-  const [replyOncePerDay, setReplyOncePerDay] = useState(false);
+  const [replyOncePerDay, setReplyOncePerDay] = useState(true);
   const [cooldownHours, setCooldownHours] = useState(24);
   const [ignoreGroups, setIgnoreGroups] = useState(true);
   const [fallbackMessage, setFallbackMessage] = useState(DEFAULT_CHATBOT_CONFIG.fallbackMessage);
@@ -106,7 +106,7 @@ export function KeywordChatbot() {
         setRules(loadedRules);
         setEnabled(data.enabled ?? true);
         setAutoReplyAnyWord(data.autoReplyAnyWord ?? false);
-        setReplyOncePerDay(data.replyOncePerDay ?? false);
+        setReplyOncePerDay(data.replyOncePerDay ?? true);
         setCooldownHours(data.cooldownHours ?? 24);
         setIgnoreGroups(data.ignoreGroups ?? true);
         const resolvedFallback = data.fallbackMessage || DEFAULT_CHATBOT_CONFIG.fallbackMessage;
