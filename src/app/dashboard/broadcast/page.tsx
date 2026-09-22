@@ -12,7 +12,7 @@ import { RefreshCw, Send, CheckCircle2, XCircle, Radio, Clock, AlertTriangle, Hi
 import { toast } from "sonner";
 import { useSession } from "@/components/dashboard/session-provider";
 import { SessionGuard } from "@/components/dashboard/session-guard";
-import { useSocket } from "@/components/chat/socket-context";
+import { useSocket } from "@/components/dashboard/socket-context";
 
 interface BroadcastProgress {
     broadcastId: string;
