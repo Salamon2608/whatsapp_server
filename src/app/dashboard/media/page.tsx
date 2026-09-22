@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import {
     AlertDialog,
@@ -259,6 +260,28 @@ export default function MediaPage() {
         });
     };
 
+    const isAllSelected = filteredFiles.length > 0 && filteredFiles.every(f => selected.has(f.name));
+    const isSomeSelected = filteredFiles.some(f => selected.has(f.name)) && !isAllSelected;
+
+    const toggleSelectAll = () => {
+        if (filteredFiles.length === 0) return;
+        setSelected(prev => {
+            const next = new Set(prev);
+            if (isAllSelected) {
+                filteredFiles.forEach(f => next.delete(f.name));
+            } else {
+                filteredFiles.forEach(f => next.add(f.name));
+            }
+            return next;
+        });
+    };
+
+    const selectedSize = useMemo(() => {
+        return files
+            .filter(f => selected.has(f.name))
+            .reduce((sum, f) => sum + f.size, 0);
+    }, [files, selected]);
+
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     const handleDelete = async () => {
@@ -337,14 +360,91 @@ export default function MediaPage() {
                 </div>
             </div>
 
+            {/* Select All Action Bar */}
+            <div className="flex items-center justify-between flex-wrap gap-2 px-3 py-2 bg-card border border-border/60 rounded-lg shadow-2xs">
+                <div className="flex items-center gap-2.5">
+                    <Checkbox
+                        id="media-select-all"
+                        checked={isAllSelected ? true : isSomeSelected ? "indeterminate" : false}
+                        onCheckedChange={toggleSelectAll}
+                        disabled={loading || filteredFiles.length === 0}
+                        className="cursor-pointer"
+                    />
+                    <label
+                        htmlFor="media-select-all"
+                        className="text-xs font-semibold text-foreground cursor-pointer select-none flex items-center gap-1.5"
+                    >
+                        <span>Select All</span>
+                        <span className="text-[11px] font-normal text-muted-foreground">
+                            ({filteredFiles.length} {filteredFiles.length === 1 ? "file" : "files"})
+                        </span>
+                    </label>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant={isAllSelected ? "default" : "outline"}
+                        size="sm"
+                        className="h-7 text-xs px-2.5 gap-1.5 font-medium"
+                        onClick={toggleSelectAll}
+                        disabled={loading || filteredFiles.length === 0}
+                    >
+                        {isAllSelected ? <Square className="h-3.5 w-3.5" /> : <CheckSquare className="h-3.5 w-3.5" />}
+                        {isAllSelected ? "Deselect All" : "Select All"}
+                    </Button>
+                    {selected.size > 0 && (
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs px-2 text-muted-foreground hover:text-foreground"
+                            onClick={() => setSelected(new Set())}
+                        >
+                            <X className="h-3.5 w-3.5 mr-1" /> Clear Selection
+                        </Button>
+                    )}
+                </div>
+            </div>
+
             {/* Selection Bar */}
             {selected.size > 0 && (
-                <div className="flex items-center gap-3 p-2.5 bg-destructive/5 border border-destructive/20 rounded-lg">
-                    <span className="text-sm font-medium">{selected.size} selected</span>
-                    <Button variant="destructive" size="sm" className="gap-1.5 h-8" onClick={() => setShowDeleteConfirm(true)} disabled={deleting}>
-                        <Trash2 className="h-3.5 w-3.5" /> {deleting ? "Deleting..." : "Delete"}
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8" onClick={() => setSelected(new Set())}><X className="h-3.5 w-3.5 mr-1" /> Clear</Button>
+                <div className="flex items-center justify-between flex-wrap gap-3 p-3 bg-destructive/10 border border-destructive/25 rounded-lg shadow-2xs animate-in fade-in duration-200">
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                id="selection-bar-select-all"
+                                checked={isAllSelected ? true : isSomeSelected ? "indeterminate" : false}
+                                onCheckedChange={toggleSelectAll}
+                                className="cursor-pointer"
+                            />
+                            <label htmlFor="selection-bar-select-all" className="text-sm font-semibold text-foreground cursor-pointer select-none">
+                                {selected.size} of {filteredFiles.length} file{selected.size !== 1 ? "s" : ""} selected
+                            </label>
+                        </div>
+                        <span className="text-xs text-muted-foreground bg-background/80 px-2 py-0.5 rounded border border-border/40 font-mono">
+                            {formatFileSize(selectedSize)}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="destructive"
+                            size="sm"
+                            className="gap-1.5 h-8 text-xs font-semibold shadow-xs"
+                            onClick={() => setShowDeleteConfirm(true)}
+                            disabled={deleting}
+                        >
+                            <Trash2 className="h-3.5 w-3.5" />
+                            {deleting ? "Deleting..." : `Delete (${selected.size})`}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs bg-background hover:bg-muted"
+                            onClick={() => setSelected(new Set())}
+                        >
+                            <X className="h-3.5 w-3.5 mr-1" /> Clear
+                        </Button>
+                    </div>
                 </div>
             )}
 
@@ -374,7 +474,9 @@ export default function MediaPage() {
                     {grouped.map((userGroup) => {
                         const userId = `user:${userGroup.ownerId}`;
                         const isUserCollapsed = collapsed.has(userId);
-                        const userFileCount = userGroup.sessions.reduce((sum, s) => sum + s.senders.reduce((ss, sn) => ss + sn.files.length, 0), 0);
+                        const userFiles = userGroup.sessions.flatMap(s => s.senders.flatMap(sn => sn.files));
+                        const userFileCount = userFiles.length;
+                        const allUserSelected = userFiles.length > 0 && userFiles.every(f => selected.has(f.name));
 
                         return (
                             <div key={userGroup.ownerId} className="flex flex-col gap-3">
@@ -390,12 +492,25 @@ export default function MediaPage() {
                                             <p className="text-[10px] text-muted-foreground text-left">User Account</p>
                                         </div>
                                     </button>
-                                    <div className="flex items-center gap-3 text-xs text-muted-foreground bg-muted/30 px-3 py-1 rounded-full">
-                                        <span>{userGroup.sessions.length} Session{userGroup.sessions.length !== 1 ? "s" : ""}</span>
-                                        <span className="w-1 h-1 rounded-full bg-border"></span>
-                                        <span>{userFileCount} Media</span>
-                                        <span className="w-1 h-1 rounded-full bg-border"></span>
-                                        <span className="font-semibold">{formatFileSize(userGroup.totalSize)}</span>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                selectAllInGroup(userFiles);
+                                            }}
+                                            className="flex items-center gap-1 px-2 py-1 rounded hover:bg-muted/70 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border border-transparent hover:border-border"
+                                            title={allUserSelected ? "Deselect All User Files" : "Select All User Files"}
+                                        >
+                                            {allUserSelected ? <CheckSquare className="h-3.5 w-3.5 text-primary" /> : <Square className="h-3.5 w-3.5 text-muted-foreground/60" />}
+                                            <span className="hidden sm:inline text-[11px]">{allUserSelected ? "Deselect User" : "Select User"}</span>
+                                        </button>
+                                        <div className="flex items-center gap-3 text-xs text-muted-foreground bg-muted/30 px-3 py-1 rounded-full">
+                                            <span>{userGroup.sessions.length} Session{userGroup.sessions.length !== 1 ? "s" : ""}</span>
+                                            <span className="w-1 h-1 rounded-full bg-border"></span>
+                                            <span>{userFileCount} Media</span>
+                                            <span className="w-1 h-1 rounded-full bg-border"></span>
+                                            <span className="font-semibold">{formatFileSize(userGroup.totalSize)}</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -404,7 +519,9 @@ export default function MediaPage() {
                                         {userGroup.sessions.map((sessionGroup) => {
                                             const sessionKey = `session:${userGroup.ownerId}:${sessionGroup.sessionId}`;
                                             const isSessionCollapsed = collapsed.has(sessionKey);
-                                            const sessionFileCount = sessionGroup.senders.reduce((sum, s) => sum + s.files.length, 0);
+                                            const sessionFiles = sessionGroup.senders.flatMap(s => s.files);
+                                            const sessionFileCount = sessionFiles.length;
+                                            const allSessionSelected = sessionFiles.length > 0 && sessionFiles.every(f => selected.has(f.name));
 
                                             return (
                                                 <Card key={sessionGroup.sessionId} className="overflow-hidden border-border/50 shadow-sm">
@@ -420,10 +537,23 @@ export default function MediaPage() {
                                                                 <p className="text-[10px] text-muted-foreground truncate">{sessionGroup.sessionId}</p>
                                                             </div>
                                                         </button>
-                                                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                                            <span>{sessionFileCount} Media</span>
-                                                            <span className="w-1 h-1 rounded-full bg-border"></span>
-                                                            <span className="font-medium text-foreground">{formatFileSize(sessionGroup.totalSize)}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    selectAllInGroup(sessionFiles);
+                                                                }}
+                                                                className="flex items-center gap-1 px-2 py-1 rounded hover:bg-muted/70 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border border-transparent hover:border-border"
+                                                                title={allSessionSelected ? "Deselect Session Files" : "Select All Session Files"}
+                                                            >
+                                                                {allSessionSelected ? <CheckSquare className="h-3.5 w-3.5 text-primary" /> : <Square className="h-3.5 w-3.5 text-muted-foreground/60" />}
+                                                                <span className="hidden sm:inline text-[11px]">{allSessionSelected ? "Deselect Session" : "Select Session"}</span>
+                                                            </button>
+                                                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                                                <span>{sessionFileCount} Media</span>
+                                                                <span className="w-1 h-1 rounded-full bg-border"></span>
+                                                                <span className="font-medium text-foreground">{formatFileSize(sessionGroup.totalSize)}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
 
