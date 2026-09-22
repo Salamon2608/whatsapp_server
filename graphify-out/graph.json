@@ -1985,7 +1985,7 @@
       "file_type": "code",
       "norm_label": "post()",
       "source_file": "src/app/api/sessions/[sessionId]/bot-config/route.ts",
-      "source_location": "L66"
+      "source_location": "L73"
     },
     {
       "id": "src_app_api_sessions_sessionid_settings_route_delete",
@@ -27733,7 +27733,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/api/sessions/[sessionId]/bot-config/route.ts",
-      "source_location": "L73",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
@@ -27745,7 +27745,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/api/sessions/[sessionId]/bot-config/route.ts",
-      "source_location": "L76",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -31273,7 +31273,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/modules/whatsapp/store/autoreply.ts",
-      "source_location": "L107",
+      "source_location": "L117",
       "weight": 1.0
     },
     {
@@ -31285,7 +31285,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/modules/whatsapp/store/autoreply.ts",
-      "source_location": "L110",
+      "source_location": "L120",
       "weight": 1.0
     },
     {
@@ -31297,7 +31297,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/modules/whatsapp/store/autoreply.ts",
-      "source_location": "L128",
+      "source_location": "L138",
       "weight": 1.0
     },
     {
@@ -31309,7 +31309,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/modules/whatsapp/store/autoreply.ts",
-      "source_location": "L145",
+      "source_location": "L155",
       "weight": 1.0
     },
     {
@@ -31321,7 +31321,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/modules/whatsapp/store/autoreply.ts",
-      "source_location": "L160",
+      "source_location": "L170",
       "weight": 1.0
     },
     {
@@ -31333,7 +31333,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/modules/whatsapp/store/autoreply.ts",
-      "source_location": "L172",
+      "source_location": "L182",
       "weight": 1.0
     },
     {
@@ -31345,7 +31345,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/modules/whatsapp/store/autoreply.ts",
-      "source_location": "L246",
+      "source_location": "L256",
       "weight": 1.0
     },
     {
@@ -68664,7 +68664,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/app/api/sessions/[sessionId]/bot-config/route.ts",
-      "source_location": "L66",
+      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -75671,5 +75671,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "ca4f2087f9a787ef0891d60efa71b504ce1ed103"
+  "built_at_commit": "5aafcdc96aa14fc4aaa047d781972f154569d51c"
 }
