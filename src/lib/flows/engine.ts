@@ -11,6 +11,7 @@ import type {
   HandoffNodeConfig,
 } from './types'
 import { logger } from '@/lib/logger'
+import { simulateHumanTyping } from '@/lib/anti-ban'
 
 export interface DispatchFlowsInput {
   sock: WASocket
@@ -71,6 +72,10 @@ export async function dispatchInboundToFlows(
       where: {
         userId,
         status: 'active',
+        OR: [
+          { sessionId: null },
+          { sessionId: sessionId }
+        ],
       },
       include: {
         nodes: true,
@@ -99,17 +104,27 @@ export async function dispatchInboundToFlows(
 }
 
 function matchesTrigger(flow: any, message: ParsedInbound): boolean {
+  // 1. Any incoming message / any word
+  if (flow.triggerType === 'all_messages' || flow.triggerType === 'any_message') {
+    return true
+  }
+
+  // 2. First inbound message
+  if (flow.triggerType === 'first_inbound_message') {
+    return true
+  }
+
+  // 3. Specific keyword match
   if (flow.triggerType === 'keyword') {
     const cfg = (flow.triggerConfig as any) || {}
     const keywords: string[] = cfg.keywords || []
     if (keywords.length === 0) return false
 
-    const textToMatch = (message.text || message.reply_title || message.reply_id || '').toLowerCase()
-    return keywords.some((kw) => textToMatch.includes(kw.toLowerCase()))
-  }
+    // Wildcard '*' matches any incoming message
+    if (keywords.includes('*')) return true
 
-  if (flow.triggerType === 'first_inbound_message') {
-    return true
+    const textToMatch = (message.text || message.reply_title || message.reply_id || '').toLowerCase().trim()
+    return keywords.some((kw) => textToMatch.includes(kw.toLowerCase().trim()))
   }
 
   return false
@@ -227,6 +242,7 @@ async function advanceActiveRun(args: {
         where: { id: run.id },
         data: { status: 'handed_off', endedAt: new Date() },
       })
+      await simulateHumanTyping(sock, remoteJid, 40)
       await sock.sendMessage(
         remoteJid,
         { text: 'Transferring you to a human support agent...' },
@@ -240,6 +256,7 @@ async function advanceActiveRun(args: {
       data: { repromptCount: reprompts },
     })
 
+    await simulateHumanTyping(sock, remoteJid, 40)
     await sock.sendMessage(
       remoteJid,
       { text: "I didn't quite catch that. Please select one of the provided options or type its number." },
@@ -309,6 +326,7 @@ async function walkFlowGraph(args: {
     // 2. Send Message node
     if (node.nodeType === 'send_message') {
       const text = interpolateVars(cfg.text || '', currentVars)
+      await simulateHumanTyping(sock, remoteJid, text.length)
       await sock.sendMessage(remoteJid, { text }, { quoted: msg as any })
       currKey = cfg.next_node_key || null
       continue
@@ -337,6 +355,7 @@ async function walkFlowGraph(args: {
       if (btnCfg.footer_text) outText += `\n\n_${btnCfg.footer_text}_`
       outText += '\n' + (btnCfg.buttons || []).map((b, i) => `\n${i + 1}. ${b.title}`).join('')
 
+      await simulateHumanTyping(sock, remoteJid, outText.length)
       await sock.sendMessage(remoteJid, { text: outText }, { quoted: msg as any })
 
       await prisma.flowRun.update({
@@ -358,6 +377,7 @@ async function walkFlowGraph(args: {
       }
       if (listCfg.footer_text) outText += `\n\n_${listCfg.footer_text}_`
 
+      await simulateHumanTyping(sock, remoteJid, outText.length)
       await sock.sendMessage(remoteJid, { text: outText }, { quoted: msg as any })
 
       await prisma.flowRun.update({
@@ -371,6 +391,7 @@ async function walkFlowGraph(args: {
     if (node.nodeType === 'collect_input') {
       const inputCfg = cfg as CollectInputNodeConfig
       const prompt = interpolateVars(inputCfg.prompt_text || '', currentVars)
+      await simulateHumanTyping(sock, remoteJid, prompt.length)
       await sock.sendMessage(remoteJid, { text: prompt }, { quoted: msg as any })
 
       await prisma.flowRun.update({
@@ -386,6 +407,7 @@ async function walkFlowGraph(args: {
         where: { id: runId },
         data: { status: 'handed_off', endedAt: new Date() },
       })
+      await simulateHumanTyping(sock, remoteJid, 40)
       await sock.sendMessage(
         remoteJid,
         { text: 'An agent will be with you shortly. Thank you for your patience!' },

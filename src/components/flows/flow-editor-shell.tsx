@@ -22,6 +22,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { FlowCanvas } from './flow-canvas'
 import type { BuilderNode } from '@/lib/flows/types'
 
@@ -185,16 +192,49 @@ export function FlowEditorShell({ initialFlow }: FlowEditorShellProps) {
           <Zap className="h-4 w-4 text-primary" />
           <span className="text-xs font-semibold">Entry Trigger:</span>
         </div>
-        <div className="flex items-center gap-2 flex-1 max-w-sm">
-          <Label className="text-xs text-muted-foreground whitespace-nowrap">Keywords:</Label>
-          <Input
-            className="h-8 text-xs"
-            value={keywords}
-            onChange={(e) => setKeywords(e.target.value)}
-            placeholder="hi, hello, menu"
-          />
-        </div>
+
         <div className="flex items-center gap-2">
+          <Label className="text-xs text-muted-foreground whitespace-nowrap">Trigger Type:</Label>
+          <Select
+            value={triggerType}
+            onValueChange={(val) => setTriggerType(val)}
+          >
+            <SelectTrigger className="h-8 text-xs w-[190px]">
+              <SelectValue placeholder="Select Trigger" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all_messages">Any Message (All Words)</SelectItem>
+              <SelectItem value="keyword">Keyword Match</SelectItem>
+              <SelectItem value="first_inbound_message">First Message Only</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {triggerType === 'keyword' && (
+          <div className="flex items-center gap-2 flex-1 max-w-sm">
+            <Label className="text-xs text-muted-foreground whitespace-nowrap">Keywords:</Label>
+            <Input
+              className="h-8 text-xs"
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
+              placeholder="hi, hello, menu (or * for all)"
+            />
+          </div>
+        )}
+
+        {triggerType === 'all_messages' && (
+          <div className="text-xs text-primary font-medium flex items-center gap-1.5 bg-primary/10 px-2.5 py-1 rounded-md">
+            <span>✨ Triggers whenever anyone sends any message or words</span>
+          </div>
+        )}
+
+        {triggerType === 'first_inbound_message' && (
+          <div className="text-xs text-muted-foreground italic bg-muted/50 px-2.5 py-1 rounded-md">
+            Triggers once when a contact sends their very first message
+          </div>
+        )}
+
+        <div className="flex items-center gap-2 ml-auto">
           <Label className="text-xs text-muted-foreground whitespace-nowrap">Entry Node:</Label>
           <span className="font-mono text-xs bg-muted px-2 py-1 rounded">{entryNodeId}</span>
         </div>
