@@ -6,7 +6,7 @@ import {
     Wifi,
     WifiOff,
     Bot,
-    Send,
+    Megaphone,
     QrCode,
     ArrowRight,
     Activity,
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
 
     const quickActions = [
         { href: "/dashboard/sessions", label: "New Session", icon: Plus, description: "Connect a new device" },
-        { href: "/dashboard/chat", label: "Send Message", icon: Send, description: "Open chat interface" },
+        { href: "/dashboard/broadcast", label: "Broadcast", icon: Megaphone, description: "Send bulk messages" },
         { href: "/dashboard/bot-settings", label: "Bot Settings", icon: Bot, description: "Configure chatbot" },
         { href: "/dashboard/system-monitor", label: "System Monitor", icon: Activity, description: "View server metrics" },
     ];

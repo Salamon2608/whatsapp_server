@@ -1,50 +1,50 @@
 # Graph Report - Whatsapp_Server  (2026-09-22)
 
 ## Corpus Check
-- 307 files · ~303,857 words
+- 308 files · ~304,665 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 12 file(s) not represented in the graph (top: (none) 7, .example 1, .patch 1)
 
 ## Summary
-- 2188 nodes · 4640 edges · 153 communities (136 shown, 14 thin omitted)
+- 2194 nodes · 4652 edges · 156 communities (139 shown, 14 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.83)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7534dcf1`
+- Built from commit: `c546b584`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- [filename]/route.ts
+- chat-list.tsx
 - dependencies
-- dashboard/webhooks/page.tsx
+- scheduler/page.tsx
 - cn
 - prisma.ts
 - 📂 Chat
 - package.json
 - canAccessSession
-- lucide-react
+- card.tsx
 - fireSentWebhook
 - sheet.tsx
 - dashboard/layout.tsx
 - auto-reply.ts
 - WhatsAppManager
-- api-auth.ts
+- manager.ts
 - form.tsx
 - 📂 Labels
 - flows/engine.ts
 - devDependencies
 - compilerOptions
 - components.json
-- docs/page.tsx
+- docs-client.tsx
 - 📂 Sessions
 - navbar.tsx
 - isAdmin
 - react
 - 📂 Webhooks
 - flow-canvas.tsx
-- dashboard/page.tsx
+- api-auth.ts
 - AntiSpamManager
 - 📂 Scheduler
 - scripts
@@ -58,7 +58,7 @@
 - getAuthenticatedUser
 - new/page.tsx
 - inject-swagger.js
-- \[POST\] /users
+- \[PUT\] /autoreplies/{sessionId}/{replyId}
 - CHANGELOG.md
 - 📂 Notifications
 - check_port.js
@@ -73,10 +73,10 @@
 - postcss.config.mjs
 - start.sh
 - { GET, POST }
-- \[DELETE\] /autoreplies/{sessionId}
+- \[POST\] /labels/{sessionId}
 - Common Operations
 - \[POST\] /autoreplies/{sessionId}
-- scheduler/page.tsx
+- dashboard/webhooks/page.tsx
 - 📖 WA-AKG User Manual
 - WhatsApp AI Gateway — Complete API Reference
 - 🗄️ Database Setup Guide
@@ -127,6 +127,7 @@
 - \[PUT\] /groups/{sessionId}/{jid}/settings
 - \[PUT\] /groups/{sessionId}/{jid}/description
 - \[PUT\] /groups/{sessionId}/{jid}/ephemeral
+- \[PUT\] /labels/{sessionId}/{labelId}
 - [v1.5.2] - 2026-03-20
 - [v1.5.1-beta.2] - 2026-03-02
 - [v1.5.0] - 2026-02-26
@@ -159,11 +160,13 @@
 - [v1.6.1] - 2026-06-27
 - automations/templates.ts
 - api/media/route.ts
+- \[PUT\] /labels/{sessionId}/chat/{jid}/labels
 - rules/graphify.md
 - SKILL.md
 - workflows/graphify.md
 - auth.ts
-- reports/webhooks/page.tsx
+- cooldown.ts
+- monitor/[sessionId]/route.ts
 - app/page.tsx
 - icon.tsx
 
@@ -172,7 +175,7 @@
 2. `canAccessSession()` - 171 edges
 3. `cn()` - 125 edges
 4. `react` - 89 edges
-5. `prisma` - 87 edges
+5. `prisma` - 88 edges
 6. `lucide-react` - 71 edges
 7. `waManager` - 50 edges
 8. `Button()` - 49 edges
@@ -195,27 +198,27 @@
 - 2-file cycle: `src/modules/whatsapp/instance.ts -> src/modules/whatsapp/manager.ts -> src/modules/whatsapp/instance.ts`
 - 4-file cycle: `src/lib/webhook.ts -> src/modules/whatsapp/manager.ts -> src/modules/whatsapp/instance.ts -> src/modules/whatsapp/store/index.ts -> src/lib/webhook.ts`
 
-## Communities (153 total, 14 thin omitted)
+## Communities (156 total, 14 thin omitted)
 
-### Community 0 - "[filename]/route.ts"
-Cohesion: 0.67
-Nodes (3): extractSessionId(), GET(), MEDIA_DIR
+### Community 0 - "chat-list.tsx"
+Cohesion: 0.14
+Nodes (16): react-virtuoso, ProfileData, ProfilePage(), ChatContact, ChatListProps, ChatRow(), CtxMenuState, getDisplayName() (+8 more)
 
 ### Community 1 - "dependencies"
 Cohesion: 0.04
 Nodes (54): dependencies, bcryptjs, class-variance-authority, clsx, cron-parser, @dagrejs/dagre, date-fns, @hookform/resolvers (+46 more)
 
-### Community 2 - "dashboard/webhooks/page.tsx"
+### Community 2 - "scheduler/page.tsx"
 Cohesion: 0.09
-Nodes (36): sonner, ChatLabelEntry, Contact, LabelData, WAP_COLORS, formatFileSize(), getSenderDisplay(), getTypeBg() (+28 more)
+Nodes (34): radix-ui, sonner, formatFileSize(), getSenderDisplay(), getTypeBg(), getTypeIcon(), MediaFile, MediaListResponse (+26 more)
 
 ### Community 3 - "cn"
-Cohesion: 0.06
-Nodes (54): Contact, InboxPage(), metadata, ChatContact, ChatListProps, ChatRow(), CtxMenuState, getDisplayName() (+46 more)
+Cohesion: 0.09
+Nodes (36): @radix-ui/react-scroll-area, @radix-ui/react-slider, Contact, ContactListPage(), InboxPage(), ContextMenu(), Session, AlertDialogOverlay() (+28 more)
 
 ### Community 4 - "prisma.ts"
 Cohesion: 0.06
-Nodes (34): socket.io, systeminformation, @whiskeysockets/baileys, dynamic, GET(), dynamic, GET(), dynamic (+26 more)
+Nodes (36): socket.io, @whiskeysockets/baileys, dynamic, GET(), dynamic, GET(), dynamic, PATCH() (+28 more)
 
 ### Community 5 - "📂 Chat"
 Cohesion: 0.04
@@ -223,23 +226,23 @@ Nodes (49): 📂 Chat, cURL Example, cURL Example, cURL Example, cURL Example, c
 
 ### Community 6 - "package.json"
 Cohesion: 0.04
-Nodes (49): license, name, private, version, clsx, cron-parser, eslint, eslint-config-next (+41 more)
+Nodes (46): license, name, private, version, clsx, cron-parser, eslint, eslint-config-next (+38 more)
 
 ### Community 7 - "canAccessSession"
 Cohesion: 0.06
-Nodes (33): DELETE(), PUT(), GET(), GET(), dynamic, GET(), POST(), GET() (+25 more)
+Nodes (33): DELETE(), PUT(), dynamic, GET(), POST(), GET(), GET(), PUT() (+25 more)
 
-### Community 8 - "lucide-react"
-Cohesion: 0.14
-Nodes (22): lucide-react, AutomationLogsPage(), AutomationsPage(), FlowRunsPage(), Notification, TYPE_STYLES, ProfileData, Message (+14 more)
+### Community 8 - "card.tsx"
+Cohesion: 0.11
+Nodes (26): AutomationLogsPage(), AutomationsPage(), FlowRunsPage(), Notification, TYPE_STYLES, metadata, metadata, Message (+18 more)
 
 ### Community 9 - "fireSentWebhook"
 Cohesion: 0.27
 Nodes (6): POST(), POST(), POST(), POST(), POST(), fireSentWebhook()
 
 ### Community 10 - "sheet.tsx"
-Cohesion: 0.14
-Nodes (15): @radix-ui/react-dialog, DocsClientProps, TocItem, TocSection, MobileNav(), NavGroup, navGroups, Sheet() (+7 more)
+Cohesion: 0.17
+Nodes (12): @radix-ui/react-dialog, MobileNav(), NavGroup, navGroups, Sheet(), SheetContent(), SheetDescription(), SheetFooter() (+4 more)
 
 ### Community 11 - "dashboard/layout.tsx"
 Cohesion: 0.10
@@ -249,21 +252,21 @@ Nodes (19): @radix-ui/react-tooltip, Navbar(), RegistrationWarning(), Registrati
 Cohesion: 0.13
 Nodes (32): dynamic, GET(), POST(), dynamic, POST(), AiAutoReplyInput, AI_PROVIDER_DEFAULT_MODEL, aiRequestTimeoutMs() (+24 more)
 
-### Community 14 - "api-auth.ts"
+### Community 14 - "manager.ts"
 Cohesion: 0.05
-Nodes (37): POST(), PUT(), PUT(), PUT(), POST(), POST(), PUT(), POST() (+29 more)
+Nodes (32): POST(), PUT(), PUT(), PUT(), POST(), POST(), PUT(), POST() (+24 more)
 
 ### Community 15 - "form.tsx"
-Cohesion: 0.14
-Nodes (18): @radix-ui/react-label, @radix-ui/react-slot, react-hook-form, formSchema, LoginForm(), formSchema, RegisterPage(), FormControl() (+10 more)
+Cohesion: 0.11
+Nodes (22): @radix-ui/react-label, react-hook-form, zod, formSchema, LoginForm(), formSchema, RegisterPage(), FormControl() (+14 more)
 
 ### Community 16 - "📂 Labels"
-Cohesion: 0.05
-Nodes (43): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example (+35 more)
+Cohesion: 0.08
+Nodes (25): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, \[DELETE\] /labels/{sessionId}, \[DELETE\] /labels/{sessionId}/{labelId} (+17 more)
 
 ### Community 17 - "flows/engine.ts"
-Cohesion: 0.08
-Nodes (31): FlowsPage(), FlowCanvasProps, OutgoingSlot, advanceActiveRun(), DispatchFlowsInput, DispatchFlowsResult, dispatchInboundToFlows(), interpolateVars() (+23 more)
+Cohesion: 0.09
+Nodes (29): FlowsPage(), OutgoingSlot, advanceActiveRun(), DispatchFlowsInput, DispatchFlowsResult, dispatchInboundToFlows(), interpolateVars(), matchesTrigger() (+21 more)
 
 ### Community 18 - "devDependencies"
 Cohesion: 0.10
@@ -277,9 +280,9 @@ Nodes (19): compilerOptions, allowJs, baseUrl, esModuleInterop, incremental, iso
 Cohesion: 0.11
 Nodes (18): aliases, components, hooks, lib, ui, utils, iconLibrary, registries (+10 more)
 
-### Community 21 - "docs/page.tsx"
-Cohesion: 0.25
-Nodes (6): react-markdown, remark-gfm, DocsClient(), metadata, TocItem, TocSection
+### Community 21 - "docs-client.tsx"
+Cohesion: 0.19
+Nodes (9): react-markdown, remark-gfm, DocsClient(), DocsClientProps, TocItem, TocSection, metadata, TocItem (+1 more)
 
 ### Community 22 - "📂 Sessions"
 Cohesion: 0.05
@@ -287,27 +290,27 @@ Nodes (41): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example
 
 ### Community 23 - "navbar.tsx"
 Cohesion: 0.06
-Nodes (47): nextConfig, date-fns, next, nextjs-toploader, @radix-ui/react-popover, socket.io-client, geistMono, geistSans (+39 more)
+Nodes (47): nextConfig, date-fns, moment-timezone, next, nextjs-toploader, @radix-ui/react-popover, socket.io-client, geistMono (+39 more)
 
 ### Community 24 - "isAdmin"
-Cohesion: 0.08
-Nodes (24): bcryptjs, zod, registerSchema, GET(), POST(), POST(), broadcastBodySchema, POST() (+16 more)
+Cohesion: 0.11
+Nodes (16): bcryptjs, registerSchema, GET(), POST(), DELETE(), GET(), grantAccessSchema, POST() (+8 more)
 
 ### Community 25 - "react"
-Cohesion: 0.08
-Nodes (17): class-variance-authority, radix-ui, react, FlowEditorPage(), ERROR_CONFIGS, ErrorConfig, AiConfigForm(), AiKnowledge() (+9 more)
+Cohesion: 0.09
+Nodes (18): class-variance-authority, lucide-react, @radix-ui/react-slot, react, FlowEditorPage(), ERROR_CONFIGS, ErrorConfig, AiConfigForm() (+10 more)
 
 ### Community 26 - "📂 Webhooks"
 Cohesion: 0.06
 Nodes (33): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, \[DELETE\] /webhooks/{id} (+25 more)
 
 ### Community 27 - "flow-canvas.tsx"
-Cohesion: 0.28
-Nodes (10): SearchFilterProps, NODE_COLORS, nodeTypes, Input(), Select(), SelectContent(), SelectItem(), SelectTrigger() (+2 more)
+Cohesion: 0.20
+Nodes (18): Group, GroupsPage(), SearchFilter(), SearchFilterProps, FlowCanvasProps, NODE_COLORS, nodeTypes, Input() (+10 more)
 
-### Community 28 - "dashboard/page.tsx"
-Cohesion: 0.23
-Nodes (8): GET(), GET(), dynamic, GET(), POST(), DashboardPage(), dynamic, getAccessibleSessions()
+### Community 28 - "api-auth.ts"
+Cohesion: 0.10
+Nodes (18): systeminformation, extractSessionId(), GET(), MEDIA_DIR, GET(), GET(), dynamic, GET() (+10 more)
 
 ### Community 30 - "📂 Scheduler"
 Cohesion: 0.07
@@ -318,8 +321,8 @@ Cohesion: 0.22
 Nodes (9): scripts, build, db:push, db:studio, dev, lint, make-admin, postinstall (+1 more)
 
 ### Community 32 - "📂 Users"
-Cohesion: 0.09
-Nodes (23): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, \[DELETE\] /user/api-key, \[DELETE\] /users/{id} (+15 more)
+Cohesion: 0.07
+Nodes (28): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, cURL Example, \[DELETE\] /user/api-key (+20 more)
 
 ### Community 33 - "tsconfig.server.json"
 Cohesion: 0.22
@@ -347,7 +350,7 @@ Nodes (23): cURL Example, cURL Example, cURL Example, cURL Example, cURL Example
 
 ### Community 39 - "getAuthenticatedUser"
 Cohesion: 0.06
-Nodes (36): moment-timezone, DELETE(), dynamic, GET(), POST(), POST(), DELETE(), dynamic (+28 more)
+Nodes (35): DELETE(), dynamic, GET(), POST(), POST(), DELETE(), dynamic, GET() (+27 more)
 
 ### Community 40 - "new/page.tsx"
 Cohesion: 0.29
@@ -357,9 +360,9 @@ Nodes (4): EditAutomationPage(), NewAutomationContent(), AutomationBuilder(), ge
 Cohesion: 0.33
 Nodes (5): additionalPaths, fs, path, swaggerFile, swaggerPath
 
-### Community 42 - "\[POST\] /users"
-Cohesion: 0.40
-Nodes (5): cURL Example, Headers, \[POST\] /users, Request Body (`application/json`), Responses
+### Community 42 - "\[PUT\] /autoreplies/{sessionId}/{replyId}"
+Cohesion: 0.33
+Nodes (6): cURL Example, Headers, Parameters, \[PUT\] /autoreplies/{sessionId}/{replyId}, Request Body (`application/json`), Responses
 
 ### Community 43 - "CHANGELOG.md"
 Cohesion: 0.11
@@ -385,29 +388,29 @@ Nodes (19): connection.update — Session connection state, contact.update — C
 Cohesion: 0.67
 Nodes (3): overrides, wa-sticker-formatter, sharp
 
-### Community 58 - "\[DELETE\] /autoreplies/{sessionId}"
-Cohesion: 0.40
-Nodes (5): 📂 Auto Replies, cURL Example, \[DELETE\] /autoreplies/{sessionId}, Parameters, Responses
+### Community 58 - "\[POST\] /labels/{sessionId}"
+Cohesion: 0.33
+Nodes (6): cURL Example, Headers, Parameters, \[POST\] /labels/{sessionId}, Request Body (`application/json`), Responses
 
 ### Community 59 - "Common Operations"
 Cohesion: 0.12
 Nodes (16): 10. Get Messages from a Chat, 11. Get Contacts (Paginated), 12. Get Groups, 13. Create a Group, 14. Update Bot Configuration, 15. Post WhatsApp Status, 1. Create a WhatsApp Session, 2. Get All Sessions (+8 more)
 
 ### Community 60 - "\[POST\] /autoreplies/{sessionId}"
-Cohesion: 0.10
-Nodes (21): 📂 Auto Reply, cURL Example, cURL Example, cURL Example, cURL Example, \[DELETE\] /autoreplies/{sessionId}/{replyId}, \[GET\] /autoreplies/{sessionId}, Headers (+13 more)
+Cohesion: 0.13
+Nodes (15): 📂 Auto Reply, cURL Example, cURL Example, cURL Example, \[DELETE\] /autoreplies/{sessionId}/{replyId}, \[GET\] /autoreplies/{sessionId}, Headers, Parameters (+7 more)
 
-### Community 61 - "scheduler/page.tsx"
-Cohesion: 0.09
-Nodes (42): BotSettingsPage(), BroadcastLog, BroadcastPage(), BroadcastProgress, BroadcastRecipient, ContactListPage(), Group, GroupsPage() (+34 more)
+### Community 61 - "dashboard/webhooks/page.tsx"
+Cohesion: 0.08
+Nodes (42): BotSettingsPage(), BroadcastLog, BroadcastPage(), BroadcastProgress, BroadcastRecipient, ChatLabelEntry, Contact, LabelData (+34 more)
 
 ### Community 62 - "📖 WA-AKG User Manual"
 Cohesion: 0.14
 Nodes (14): 1. Broadcast Engine, 1. Contact Management, 1. Real-time Chat, 2. Group Management, 2. Smart Scheduler, 2. Sticker Maker, 3. Automated Responses, ⚙️ Configuration (+6 more)
 
 ### Community 63 - "WhatsApp AI Gateway — Complete API Reference"
-Cohesion: 0.12
-Nodes (17): 🔐 Authentication, 📂 Chats, 📋 Common Parameters, cURL Example, cURL Example, cURL Example, 📂 Documentation, \[GET\] /chats/by-label/{labelId} (+9 more)
+Cohesion: 0.09
+Nodes (22): 🔐 Authentication, 📂 Auto Replies, 📂 Chats, 📋 Common Parameters, cURL Example, cURL Example, cURL Example, cURL Example (+14 more)
 
 ### Community 64 - "🗄️ Database Setup Guide"
 Cohesion: 0.14
@@ -471,7 +474,7 @@ Nodes (9): cURL Example, cURL Example, \[DELETE\] /groups/{sessionId}/{jid}/pict
 
 ### Community 79 - "automations/engine.ts"
 Cohesion: 0.13
-Nodes (20): AutomationContext, evaluateCondition(), matchesWholeWord(), runAutomationsForTrigger(), RunAutomationsInput, triggerMatches(), AssignConversationStepConfig, AutomationLogStepResult (+12 more)
+Nodes (19): AutomationContext, evaluateCondition(), matchesWholeWord(), RunAutomationsInput, triggerMatches(), AssignConversationStepConfig, AutomationLogStepResult, ButtonItem (+11 more)
 
 ### Community 80 - "flows/route.ts"
 Cohesion: 0.50
@@ -483,7 +486,7 @@ Nodes (9): atPath(), insertAt(), mapAtPath(), moveAt(), ParentScope, removeAt(),
 
 ### Community 82 - "autoreply.ts"
 Cohesion: 0.22
-Nodes (14): runAiAutoReply(), isCooldownActive(), markReplySent(), replyCooldownMap, simulateHumanTyping(), smartSendWithHumanBehavior(), ChatbotConfig, ChatbotRule (+6 more)
+Nodes (15): runAiAutoReply(), isCooldownActive(), markReplySent(), replyCooldownMap, simulateHumanTyping(), smartSendWithHumanBehavior(), runAutomationsForTrigger(), ChatbotConfig (+7 more)
 
 ### Community 83 - "Contributing to WA-AKG"
 Cohesion: 0.29
@@ -601,6 +604,10 @@ Nodes (6): cURL Example, Headers, Parameters, \[PUT\] /groups/{sessionId}/{jid}/
 Cohesion: 0.33
 Nodes (6): cURL Example, Headers, Parameters, \[PUT\] /groups/{sessionId}/{jid}/ephemeral, Request Body (`application/json`), Responses
 
+### Community 112 - "\[PUT\] /labels/{sessionId}/{labelId}"
+Cohesion: 0.33
+Nodes (6): cURL Example, Headers, Parameters, \[PUT\] /labels/{sessionId}/{labelId}, Request Body (`application/json`), Responses
+
 ### Community 113 - "[v1.5.2] - 2026-03-20"
 Cohesion: 0.40
 Nodes (5): Added, Changed, Database, Fixed, [v1.5.2] - 2026-03-20
@@ -619,7 +626,7 @@ Nodes (7): Colors, Components present, CSS variables exposed by the source, Nopa
 
 ### Community 118 - "webhook.ts"
 Cohesion: 0.07
-Nodes (49): @prisma/client, prisma, { PrismaClient }, bcrypt, prisma, { PrismaClient }, POST(), createAutoReply() (+41 more)
+Nodes (47): @prisma/client, prisma, { PrismaClient }, bcrypt, prisma, { PrismaClient }, POST(), createAutoReply() (+39 more)
 
 ### Community 119 - "[1.0.6] - 2026-01-13"
 Cohesion: 0.50
@@ -729,9 +736,17 @@ Nodes (10): AutomationBuilderProps, StepItem, AUTOMATION_TEMPLATES, AutomationTe
 Cohesion: 0.60
 Nodes (4): DELETE(), GET(), MEDIA_DIR, parseFilename()
 
+### Community 146 - "\[PUT\] /labels/{sessionId}/chat/{jid}/labels"
+Cohesion: 0.33
+Nodes (6): cURL Example, Headers, Parameters, \[PUT\] /labels/{sessionId}/chat/{jid}/labels, Request Body (`application/json`), Responses
+
 ### Community 150 - "auth.ts"
 Cohesion: 0.07
 Nodes (20): config, next-auth, POST(), ChatWithJidPage(), ChatPage(), authConfig, ChatInterface(), ChatInterfaceProps (+12 more)
+
+### Community 152 - "cooldown.ts"
+Cohesion: 0.53
+Nodes (5): chatbotCooldownMap, getCooldownKey(), isChatbotCooldownActive(), recordChatbotReply(), resetChatbotCooldown()
 
 ### Community 154 - "app/page.tsx"
 Cohesion: 0.18
@@ -742,24 +757,24 @@ Cohesion: 0.40
 Nodes (3): contentType, runtime, size
 
 ## Knowledge Gaps
-- **1034 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+1029 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1137 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **1035 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+1030 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 1138 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `WhatsApp AI Gateway — Complete API Reference` connect `WhatsApp AI Gateway — Complete API Reference` to `📂 Chat`, `📂 Labels`, `📂 Sessions`, `📂 Webhooks`, `📂 Scheduler`, `📂 Users`, `📂 Profile`, `\[POST\] /status/{sessionId}/update`, `📂 Notifications`, `Payload Examples`, `\[DELETE\] /autoreplies/{sessionId}`, `\[POST\] /autoreplies/{sessionId}`, `\[POST\] /auth/register`, `docs/README.md`, `📦 Schemas`, `\[DELETE\] /sessions/{sessionId}/access`, `📂 Messaging`, `Verify Examples`, `\[POST\] /contacts/{sessionId}/{jid}/block`, `📂 Groups`?**
-  _High betweenness centrality (0.081) - this node is a cross-community bridge._
-- **Why does `react` connect `react` to `dashboard/webhooks/page.tsx`, `cn`, `package.json`, `new/page.tsx`, `lucide-react`, `sheet.tsx`, `dashboard/layout.tsx`, `form.tsx`, `swagger/page.tsx`, `auth.ts`, `navbar.tsx`, `app/page.tsx`, `flow-canvas.tsx`, `scheduler/page.tsx`?**
+- **Why does `WhatsApp AI Gateway — Complete API Reference` connect `WhatsApp AI Gateway — Complete API Reference` to `📂 Chat`, `📂 Labels`, `📂 Sessions`, `📂 Webhooks`, `📂 Scheduler`, `📂 Users`, `📂 Profile`, `\[POST\] /status/{sessionId}/update`, `📂 Notifications`, `Payload Examples`, `\[POST\] /autoreplies/{sessionId}`, `\[POST\] /auth/register`, `docs/README.md`, `📦 Schemas`, `\[DELETE\] /sessions/{sessionId}/access`, `📂 Messaging`, `Verify Examples`, `\[POST\] /contacts/{sessionId}/{jid}/block`, `📂 Groups`?**
+  _High betweenness centrality (0.077) - this node is a cross-community bridge._
+- **Why does `react` connect `react` to `chat-list.tsx`, `scheduler/page.tsx`, `cn`, `package.json`, `new/page.tsx`, `card.tsx`, `sheet.tsx`, `dashboard/layout.tsx`, `form.tsx`, `swagger/page.tsx`, `docs-client.tsx`, `auth.ts`, `navbar.tsx`, `app/page.tsx`, `flow-canvas.tsx`, `dashboard/webhooks/page.tsx`?**
   _High betweenness centrality (0.043) - this node is a cross-community bridge._
-- **Why does `lucide-react` connect `lucide-react` to `dashboard/webhooks/page.tsx`, `cn`, `package.json`, `sheet.tsx`, `dashboard/layout.tsx`, `form.tsx`, `privacy/page.tsx`, `terms/page.tsx`, `auth.ts`, `navbar.tsx`, `react`, `app/page.tsx`, `flow-canvas.tsx`, `dashboard/page.tsx`, `scheduler/page.tsx`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `cn()` connect `cn` to `chat-list.tsx`, `scheduler/page.tsx`, `card.tsx`, `sheet.tsx`, `dashboard/layout.tsx`, `form.tsx`, `webhook.ts`, `navbar.tsx`, `react`, `flow-canvas.tsx`, `api-auth.ts`, `dashboard/webhooks/page.tsx`?**
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _1034 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1035 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `chat-list.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.1380952380952381 - nodes in this community are weakly interconnected._
 - **Should `dependencies` be split into smaller, more focused modules?**
   _Cohesion score 0.037037037037037035 - nodes in this community are weakly interconnected._
-- **Should `dashboard/webhooks/page.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.09254901960784313 - nodes in this community are weakly interconnected._
-- **Should `cn` be split into smaller, more focused modules?**
-  _Cohesion score 0.06025039123630673 - nodes in this community are weakly interconnected._
+- **Should `scheduler/page.tsx` be split into smaller, more focused modules?**
+  _Cohesion score 0.09387755102040816 - nodes in this community are weakly interconnected._

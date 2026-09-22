@@ -7,25 +7,20 @@ import { Menu, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import {
     LayoutDashboard,
-    MessageSquare,
     Users,
     Settings,
     LogOut,
     QrCode,
-    ImageIcon,
     Webhook,
     CalendarClock,
     Bot,
     Bell,
     FileText,
     Code,
-    UserCheck,
     Megaphone,
     HardDrive,
     Activity,
     UserCircle,
-    Tag,
-    MessageCircleReply,
     UserPlus,
     Zap,
     GitFork,
@@ -52,17 +47,7 @@ const navGroups: NavGroup[] = [
     {
         label: "Messaging",
         items: [
-            { href: "/dashboard/chat", label: "Chat", icon: MessageSquare },
             { href: "/dashboard/broadcast", label: "Broadcast", icon: Megaphone },
-            { href: "/dashboard/sticker", label: "Sticker Maker", icon: ImageIcon },
-        ],
-    },
-    {
-        label: "Contacts",
-        items: [
-            { href: "/dashboard/contacts", label: "Contacts", icon: UserCheck },
-            { href: "/dashboard/groups", label: "Groups", icon: Users },
-            { href: "/dashboard/labels", label: "Labels", icon: Tag },
         ],
     },
     {
