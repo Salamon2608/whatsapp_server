@@ -15,7 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { RefreshCw, Save, AlertCircle, Bot, X, Plus, ShieldCheck, Zap, UserCheck, MessageSquarePlus } from "lucide-react";
+import { RefreshCw, Save, AlertCircle, Bot, X, Plus, ShieldCheck, Zap, UserCheck, MessageSquarePlus, Users } from "lucide-react";
 import { toast } from "sonner";
 import { SessionGuard } from "@/components/dashboard/session-guard";
 
@@ -33,6 +33,7 @@ export default function BotSettingsPage() {
         removeBgApiKey: "",
         botMode: "OWNER",
         autoReplyMode: "ALL",
+        ignoreGroups: true,
         antiSpamEnabled: false,
         spamLimit: 5,
         spamInterval: 10,
@@ -70,6 +71,7 @@ export default function BotSettingsPage() {
                     setBotConfig(prev => ({
                         ...prev,
                         ...data,
+                        ignoreGroups: data.ignoreGroups ?? true,
                         removeBgApiKey: data.removeBgApiKey || "",
                         prefix: data.prefix || "#",
                         welcomeMessage: data.welcomeMessage || "",
@@ -264,6 +266,23 @@ export default function BotSettingsPage() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Group Interaction Setting */}
+                            <div className="flex items-center justify-between space-x-3 border border-purple-500/30 bg-purple-500/5 p-4 rounded-xl">
+                                <Label htmlFor="ignore-groups" className="flex flex-col space-y-1 cursor-pointer">
+                                    <span className="font-semibold text-purple-700 dark:text-purple-400 flex items-center gap-1.5 text-sm">
+                                        <Users className="h-4 w-4" /> Ignore WhatsApp Groups (Private Chats Only)
+                                    </span>
+                                    <span className="font-normal text-xs text-muted-foreground">
+                                        When enabled, the bot, command handler, and auto-replies will completely ignore messages from WhatsApp groups and never reply to group members.
+                                    </span>
+                                </Label>
+                                <Switch
+                                    id="ignore-groups"
+                                    checked={botConfig.ignoreGroups}
+                                    onCheckedChange={c => setBotConfig(prev => ({ ...prev, ignoreGroups: c }))}
+                                />
+                            </div>
 
                             <div className="grid sm:grid-cols-2 gap-4 pt-4 border-t border-border/50">
                                 <div className="flex items-center justify-between space-x-2 border p-3 rounded-lg">

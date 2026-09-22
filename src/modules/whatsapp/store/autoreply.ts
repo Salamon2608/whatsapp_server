@@ -88,12 +88,22 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
 
         if (!config || !config.enabled) return;
 
+        const sessionConfig = (session.config && typeof session.config === 'object') ? (session.config as any) : {};
+        const ignoreGroups = sessionConfig.ignoreGroups !== false;
+
         for (const msg of messages) {
             const fromMe = msg.key.fromMe || false;
             const remoteJid = msg.key.remoteJid;
 
             // Standardized Sender Logic
             const isGroup = remoteJid?.endsWith("@g.us") || false;
+
+            // Completely skip WhatsApp groups if ignoreGroups is active (default: true)
+            if (isGroup && ignoreGroups) {
+                logger.debug("AutoReply", `Skipping group message ${remoteJid} - ignoreGroups is active`);
+                continue;
+            }
+
             const remoteJidAlt = msg.key.remoteJidAlt;
             let senderJid = (isGroup ? (msg.key.participant || msg.participant) : remoteJid);
 

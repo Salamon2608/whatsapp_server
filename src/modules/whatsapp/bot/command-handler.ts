@@ -59,10 +59,16 @@ export async function handleBotCommand(
     // Fetch session first
     const session = await prisma.session.findUnique({
         where: { sessionId },
-        select: { id: true }
+        select: { id: true, config: true }
     });
 
     if (!session) return;
+
+    const isGroup = remoteJid.endsWith("@g.us");
+    const sessionConfig = (session.config && typeof session.config === 'object') ? (session.config as any) : {};
+    const ignoreGroups = sessionConfig.ignoreGroups !== false;
+
+    if (isGroup && ignoreGroups) return;
 
     // Fetch BotConfig separately
     // @ts-ignore - Prisma Client types might lag in IDE

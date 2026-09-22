@@ -22,15 +22,18 @@ export async function GET(
         // @ts-ignore
         const session = await (prisma as any).session.findUnique({
             where: { sessionId },
-            select: { id: true, botConfig: true }
+            select: { id: true, config: true, botConfig: true }
         });
 
         if (!session) {
             return NextResponse.json({ status: false, message: "Session not found", error: "Session not found" }, { status: 404 });
         }
 
+        const sessionConfig = (session.config && typeof session.config === 'object') ? (session.config as any) : {};
+        const ignoreGroups = sessionConfig.ignoreGroups !== false;
+
         // Return config or default if null
-        session.botConfig = session.botConfig || {
+        const botConfigData = session.botConfig || {
             enabled: true,
             botMode: 'OWNER',
             botAllowedJids: [],
@@ -56,7 +59,11 @@ export async function GET(
             alwaysOnline: false
         };
 
-        return NextResponse.json({ status: true, message: "Bot config fetched successfully", data: session.botConfig });
+        return NextResponse.json({
+            status: true,
+            message: "Bot config fetched successfully",
+            data: { ...botConfigData, ignoreGroups }
+        });
     } catch (error) {
         console.error("Get Bot Config Error:", error);
         return NextResponse.json({ status: false, message: "Internal Server Error", error: "Internal Server Error" }, { status: 500 });
@@ -78,13 +85,26 @@ export async function POST(
 
         const body = await request.json();
 
-        // Find session DB ID
+        // Find session DB ID and existing config
         const session = await prisma.session.findUnique({
             where: { sessionId },
-            select: { id: true }
+            select: { id: true, config: true }
         });
 
         if (!session) return NextResponse.json({ status: false, message: "Session not found", error: "Session not found" }, { status: 404 });
+
+        const ignoreGroups = body.ignoreGroups !== false;
+        const existingSessionConfig = (session.config && typeof session.config === 'object') ? (session.config as any) : {};
+
+        await prisma.session.update({
+            where: { sessionId },
+            data: {
+                config: {
+                    ...existingSessionConfig,
+                    ignoreGroups
+                }
+            }
+        });
 
         // Upsert Config
         // @ts-ignore
@@ -142,7 +162,7 @@ export async function POST(
             }
         });
 
-        return NextResponse.json({ status: true, message: "Bot config updated successfully", data: config });
+        return NextResponse.json({ status: true, message: "Bot config updated successfully", data: { ...config, ignoreGroups } });
     } catch (error) {
         console.error("Update Bot Config Error:", error);
         return NextResponse.json({ status: false, message: "Failed to update config", error: "Failed to update config" }, { status: 500 });
