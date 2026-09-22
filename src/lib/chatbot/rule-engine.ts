@@ -93,6 +93,7 @@ export interface ChatbotConfig {
   autoReplyAnyWord: boolean;
   replyOncePerDay?: boolean;
   cooldownHours?: number;
+  ignoreGroups?: boolean;
   fallbackMessage: string;
   rules: ChatbotRule[];
 }
@@ -102,6 +103,7 @@ export const DEFAULT_CHATBOT_CONFIG: ChatbotConfig = {
   autoReplyAnyWord: false,
   replyOncePerDay: false,
   cooldownHours: 24,
+  ignoreGroups: true,
   fallbackMessage: `👋 Hello! Welcome.\n\nHere are some options you can explore:\n\n1️⃣ Reply *1* or *PRICING* for Plans\n2️⃣ Reply *2* or *SUPPORT* for Help\n3️⃣ Reply *3* or *DEMO* for a Product Demo\n0️⃣ Reply *0* or *AGENT* to Speak Directly with Human`,
   rules: DEFAULT_CHATBOT_RULES,
 };
@@ -224,6 +226,7 @@ export async function executeChatbotRule(
 
     let replyOncePerDay = false;
     let cooldownHours = 24;
+    let ignoreGroups = DEFAULT_CHATBOT_CONFIG.ignoreGroups ?? true;
 
     if (dbConfig) {
       const isBotEnabled = dbConfig.enabled ?? dbConfig.isActive ?? true;
@@ -243,9 +246,19 @@ export async function executeChatbotRule(
         : {};
       replyOncePerDay = Boolean(meta.replyOncePerDay);
       cooldownHours = typeof meta.cooldownHours === 'number' ? meta.cooldownHours : 24;
+      if (meta.ignoreGroups !== undefined) {
+        ignoreGroups = Boolean(meta.ignoreGroups);
+      }
     }
 
     if (!enabled) {
+      return false;
+    }
+
+    // Ignore WhatsApp Groups (@g.us) if ignoreGroups is active
+    const isGroup = remoteJid.endsWith('@g.us');
+    if (isGroup && ignoreGroups) {
+      console.log(`[chatbot] Skipping reply to group ${remoteJid} (ignoreGroups=true).`);
       return false;
     }
 

@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
         autoReplyAnyWord: config.autoReplyAnyWord ?? false,
         replyOncePerDay: Boolean(meta.replyOncePerDay),
         cooldownHours: typeof meta.cooldownHours === 'number' ? meta.cooldownHours : 24,
+        ignoreGroups: meta.ignoreGroups !== undefined ? Boolean(meta.ignoreGroups) : true,
         fallbackMessage: fallbackMsg,
         rules: loadedRules,
       });
@@ -66,6 +67,7 @@ export async function GET(request: NextRequest) {
       autoReplyAnyWord: DEFAULT_CHATBOT_CONFIG.autoReplyAnyWord,
       replyOncePerDay: false,
       cooldownHours: 24,
+      ignoreGroups: true,
       fallbackMessage: DEFAULT_CHATBOT_CONFIG.fallbackMessage,
       rules: DEFAULT_CHATBOT_RULES,
     });
@@ -90,7 +92,8 @@ export async function POST(request: NextRequest) {
       fallbackMessage,
       sessionId,
       replyOncePerDay = false,
-      cooldownHours = 24
+      cooldownHours = 24,
+      ignoreGroups = true
     } = body;
 
     if (!Array.isArray(rules)) {
@@ -131,6 +134,7 @@ export async function POST(request: NextRequest) {
       keywords: existingMeta.keywords || ['human', 'agent', 'support', 'help'],
       replyOncePerDay: Boolean(replyOncePerDay),
       cooldownHours: Number(cooldownHours) || 24,
+      ignoreGroups: Boolean(ignoreGroups),
     };
 
     let savedConfig;
@@ -171,6 +175,7 @@ export async function POST(request: NextRequest) {
       autoReplyAnyWord: savedConfig.autoReplyAnyWord,
       replyOncePerDay: updatedMeta.replyOncePerDay,
       cooldownHours: updatedMeta.cooldownHours,
+      ignoreGroups: updatedMeta.ignoreGroups,
       fallbackMessage: savedConfig.defaultFallback || savedConfig.fallbackMessage || fallbackMsg,
       rules: Array.isArray(savedConfig.rules) ? savedConfig.rules : rules,
     });

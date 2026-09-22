@@ -19,6 +19,7 @@ import {
   Layers,
   Save,
   Clock,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -69,6 +70,7 @@ export function KeywordChatbot() {
   const [autoReplyAnyWord, setAutoReplyAnyWord] = useState(true);
   const [replyOncePerDay, setReplyOncePerDay] = useState(false);
   const [cooldownHours, setCooldownHours] = useState(24);
+  const [ignoreGroups, setIgnoreGroups] = useState(true);
   const [fallbackMessage, setFallbackMessage] = useState(DEFAULT_CHATBOT_CONFIG.fallbackMessage);
 
   const [isLoadingRules, setIsLoadingRules] = useState(true);
@@ -106,6 +108,7 @@ export function KeywordChatbot() {
         setAutoReplyAnyWord(data.autoReplyAnyWord ?? false);
         setReplyOncePerDay(data.replyOncePerDay ?? false);
         setCooldownHours(data.cooldownHours ?? 24);
+        setIgnoreGroups(data.ignoreGroups ?? true);
         const resolvedFallback = data.fallbackMessage || DEFAULT_CHATBOT_CONFIG.fallbackMessage;
         setFallbackMessage(resolvedFallback);
 
@@ -133,7 +136,8 @@ export function KeywordChatbot() {
     newFallback = fallbackMessage,
     currentRules = rules,
     newReplyOncePerDay = replyOncePerDay,
-    newCooldownHours = cooldownHours
+    newCooldownHours = cooldownHours,
+    newIgnoreGroups = ignoreGroups
   ) {
     if (newEnabled && isLoggedOut) {
       toast.error("Device is logged out", {
@@ -161,6 +165,7 @@ export function KeywordChatbot() {
           autoReplyAnyWord: newAutoReply,
           replyOncePerDay: newReplyOncePerDay,
           cooldownHours: newCooldownHours,
+          ignoreGroups: newIgnoreGroups,
           fallbackMessage: newFallback,
           rules: updatedRules,
         }),
@@ -175,6 +180,7 @@ export function KeywordChatbot() {
       setAutoReplyAnyWord(data.autoReplyAnyWord);
       setReplyOncePerDay(data.replyOncePerDay ?? newReplyOncePerDay);
       setCooldownHours(data.cooldownHours ?? newCooldownHours);
+      setIgnoreGroups(data.ignoreGroups ?? newIgnoreGroups);
       setFallbackMessage(data.fallbackMessage);
       setRules(data.rules);
 
@@ -438,18 +444,18 @@ export function KeywordChatbot() {
               <span>⚠️ Device is logged out — WhatsApp chatbot cannot receive or respond to messages.</span>
             </div>
           )}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
             {/* Setting: Auto-reply to any incoming word */}
             <div className="flex items-center justify-between gap-3 p-3.5 rounded-lg border bg-background/60">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-500" />
                   <p className="text-xs font-semibold text-foreground">
-                    Auto-Start on ANY Incoming Message
+                    Auto-Start on ANY Message
                   </p>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  If someone texts any word or greeting (e.g. &quot;hi&quot;, &quot;vanakkam&quot;, &quot;details&quot;), immediately start the bot and show the menu.
+                  If someone texts any word, immediately start the bot and show menu.
                 </p>
               </div>
               <Switch
@@ -462,7 +468,7 @@ export function KeywordChatbot() {
                     return;
                   }
                   setAutoReplyAnyWord(val);
-                  handleSaveSettings(enabled, val, fallbackMessage, rules, replyOncePerDay, cooldownHours);
+                  handleSaveSettings(enabled, val, fallbackMessage, rules, replyOncePerDay, cooldownHours, ignoreGroups);
                 }}
                 disabled={isSavingSettings || !enabled}
               />
@@ -474,24 +480,47 @@ export function KeywordChatbot() {
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4 text-blue-500" />
                   <p className="text-xs font-semibold text-foreground">
-                    Reply Once Per Day per Contact
+                    Reply Once Per Day
                   </p>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  If a user sends 2 or more messages, send only one auto-reply today. Don&apos;t repeat replies until tomorrow (24h cooldown).
+                  Send only one auto-reply per day. Don&apos;t spam same user repeatedly.
                 </p>
               </div>
               <Switch
                 checked={replyOncePerDay}
                 onCheckedChange={(val) => {
                   setReplyOncePerDay(val);
-                  handleSaveSettings(enabled, autoReplyAnyWord, fallbackMessage, rules, val, cooldownHours);
+                  handleSaveSettings(enabled, autoReplyAnyWord, fallbackMessage, rules, val, cooldownHours, ignoreGroups);
                 }}
                 disabled={isSavingSettings || !enabled}
               />
             </div>
 
-            {/* Custom Welcome Message Quick Trigger */}
+            {/* Setting: Ignore WhatsApp Groups */}
+            <div className="flex items-center justify-between gap-3 p-3.5 rounded-lg border bg-background/60">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-purple-500" />
+                  <p className="text-xs font-semibold text-foreground">
+                    Ignore WhatsApp Groups
+                  </p>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Only reply in private 1-on-1 DMs. Never send bot replies inside groups.
+                </p>
+              </div>
+              <Switch
+                checked={ignoreGroups}
+                onCheckedChange={(val) => {
+                  setIgnoreGroups(val);
+                  handleSaveSettings(enabled, autoReplyAnyWord, fallbackMessage, rules, replyOncePerDay, cooldownHours, val);
+                }}
+                disabled={isSavingSettings || !enabled}
+              />
+            </div>
+
+            {/* Zero-Token Rule Engine info */}
             <div className="flex items-center justify-between gap-3 p-3.5 rounded-lg border bg-background/60">
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
@@ -501,7 +530,7 @@ export function KeywordChatbot() {
                   </p>
                 </div>
                 <p className="text-[11px] text-muted-foreground">
-                  Instant deterministic replies. Operates with 100% free multi-device WhatsApp gateway without AI costs.
+                  Instant deterministic replies. Operates with 100% free multi-device gateway.
                 </p>
               </div>
               <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 bg-emerald-500/10 font-mono text-[10px]">

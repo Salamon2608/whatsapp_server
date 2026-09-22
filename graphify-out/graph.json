@@ -1288,7 +1288,7 @@
       "file_type": "code",
       "norm_label": "ruleformdata",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L48"
+      "source_location": "L49"
     },
     {
       "id": "src_components_agents_keyword_chatbot_simmessage",
@@ -1301,7 +1301,7 @@
       "file_type": "code",
       "norm_label": "simmessage",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L40"
+      "source_location": "L41"
     },
     {
       "id": "src_components_dashboard_session_provider_session",
@@ -1769,7 +1769,7 @@
       "file_type": "code",
       "norm_label": "ruleevaluationresult",
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L109"
+      "source_location": "L111"
     },
     {
       "id": "src_components_dashboard_session_provider_sessionprovider",
@@ -5885,7 +5885,7 @@
       "file_type": "code",
       "norm_label": "post()",
       "source_file": "src/app/api/chatbot/rules/route.ts",
-      "source_location": "L78"
+      "source_location": "L80"
     },
     {
       "id": "src_app_api_flows_id_route_delete",
@@ -7421,7 +7421,7 @@
       "file_type": "code",
       "norm_label": "executechatbotrule()",
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L195"
+      "source_location": "L197"
     },
     {
       "id": "src_modules_whatsapp_store_autoreply_bindautoreply",
@@ -7457,7 +7457,7 @@
       "file_type": "code",
       "norm_label": "keywordchatbot()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L62"
+      "source_location": "L63"
     },
     {
       "id": "src_components_agents_keyword_chatbot_keywordchatbot_fetchrules",
@@ -7469,7 +7469,7 @@
       "file_type": "code",
       "norm_label": "fetchrules()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L93"
+      "source_location": "L95"
     },
     {
       "id": "src_components_agents_keyword_chatbot_keywordchatbot_handledeleterule",
@@ -7481,7 +7481,7 @@
       "file_type": "code",
       "norm_label": "handledeleterule()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L282"
+      "source_location": "L288"
     },
     {
       "id": "src_components_agents_keyword_chatbot_keywordchatbot_handleopenaddrule",
@@ -7493,7 +7493,7 @@
       "file_type": "code",
       "norm_label": "handleopenaddrule()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L198"
+      "source_location": "L204"
     },
     {
       "id": "src_components_agents_keyword_chatbot_keywordchatbot_handleopeneditrule",
@@ -7505,7 +7505,7 @@
       "file_type": "code",
       "norm_label": "handleopeneditrule()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L205"
+      "source_location": "L211"
     },
     {
       "id": "src_components_agents_keyword_chatbot_keywordchatbot_handlereset",
@@ -7517,7 +7517,7 @@
       "file_type": "code",
       "norm_label": "handlereset()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L367"
+      "source_location": "L373"
     },
     {
       "id": "src_components_agents_keyword_chatbot_keywordchatbot_handlesaverule",
@@ -7529,7 +7529,7 @@
       "file_type": "code",
       "norm_label": "handlesaverule()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L217"
+      "source_location": "L223"
     },
     {
       "id": "src_components_agents_keyword_chatbot_keywordchatbot_handlesavesettings",
@@ -7541,7 +7541,7 @@
       "file_type": "code",
       "norm_label": "handlesavesettings()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L130"
+      "source_location": "L133"
     },
     {
       "id": "src_components_agents_keyword_chatbot_keywordchatbot_handlesend",
@@ -7553,7 +7553,7 @@
       "file_type": "code",
       "norm_label": "handlesend()",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L304"
+      "source_location": "L310"
     },
     {
       "id": "src_lib_chatbot_rule_engine_evaluatechatbotrule",
@@ -7565,7 +7565,7 @@
       "file_type": "code",
       "norm_label": "evaluatechatbotrule()",
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L120"
+      "source_location": "L122"
     },
     {
       "id": "src_app_api_messages_sessionid_jid_contact_route_post",
@@ -20937,7 +20937,7 @@
       "file_type": "code",
       "norm_label": "initial_form_data",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L55"
+      "source_location": "L56"
     },
     {
       "id": "src_components_dashboard_session_guard",
@@ -23948,7 +23948,7 @@
       "file_type": "code",
       "norm_label": "default_chatbot_config",
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L100"
+      "source_location": "L101"
     },
     {
       "id": "src_lib_chatbot_rule_engine_default_chatbot_rules",
@@ -25909,7 +25909,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/api/chatbot/rules/route.ts",
-      "source_location": "L101",
+      "source_location": "L104",
       "weight": 1.0
     },
     {
@@ -25921,7 +25921,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/app/api/chatbot/rules/route.ts",
-      "source_location": "L80",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -28549,7 +28549,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L341",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -28561,7 +28561,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L63",
+      "source_location": "L64",
       "weight": 1.0
     },
     {
@@ -28573,7 +28573,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L296",
+      "source_location": "L302",
       "weight": 1.0
     },
     {
@@ -28585,7 +28585,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L272",
+      "source_location": "L278",
       "weight": 1.0
     },
     {
@@ -28597,7 +28597,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L341",
+      "source_location": "L347",
       "weight": 1.0
     },
     {
@@ -30445,7 +30445,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L260",
+      "source_location": "L273",
       "weight": 1.0
     },
     {
@@ -30457,7 +30457,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L289",
+      "source_location": "L302",
       "weight": 1.0
     },
     {
@@ -31513,7 +31513,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L130",
+      "source_location": "L133",
       "weight": 1.0
     },
     {
@@ -31525,7 +31525,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L205",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -31537,7 +31537,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L282",
+      "source_location": "L288",
       "weight": 1.0
     },
     {
@@ -31549,7 +31549,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L304",
+      "source_location": "L310",
       "weight": 1.0
     },
     {
@@ -31561,7 +31561,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L93",
+      "source_location": "L95",
       "weight": 1.0
     },
     {
@@ -31754,7 +31754,7 @@
       "context": "import",
       "deferred": true,
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L204",
+      "source_location": "L206",
       "weight": 1.0
     },
     {
@@ -31767,7 +31767,7 @@
       "context": "import",
       "deferred": true,
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L254",
+      "source_location": "L267",
       "weight": 1.0
     },
     {
@@ -40803,7 +40803,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -40815,7 +40815,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -40827,7 +40827,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -40839,7 +40839,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -40851,7 +40851,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -40863,7 +40863,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -40875,7 +40875,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -40887,7 +40887,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -40899,7 +40899,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -40911,7 +40911,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -40923,7 +40923,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -40935,7 +40935,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -40947,7 +40947,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -40959,7 +40959,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L27",
+      "source_location": "L28",
       "weight": 1.0
     },
     {
@@ -40971,7 +40971,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L28",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -40983,7 +40983,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L29",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -40995,7 +40995,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L30",
+      "source_location": "L31",
       "weight": 1.0
     },
     {
@@ -41007,7 +41007,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L32",
+      "source_location": "L33",
       "weight": 1.0
     },
     {
@@ -41019,7 +41019,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -41031,7 +41031,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -41043,7 +41043,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -41055,7 +41055,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -51571,7 +51571,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L23",
+      "source_location": "L24",
       "weight": 1.0
     },
     {
@@ -51583,7 +51583,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L24",
+      "source_location": "L25",
       "weight": 1.0
     },
     {
@@ -51595,7 +51595,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L25",
+      "source_location": "L26",
       "weight": 1.0
     },
     {
@@ -51607,7 +51607,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0
     },
     {
@@ -51619,24 +51619,12 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L27",
-      "weight": 1.0
-    },
-    {
-      "source": "src_components_agents_keyword_chatbot",
-      "target": "src_components_ui_label",
-      "relation": "imports_from",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "context": "import",
-      "source_file": "src/components/agents/keyword-chatbot.tsx",
       "source_location": "L28",
       "weight": 1.0
     },
     {
       "source": "src_components_agents_keyword_chatbot",
-      "target": "src_components_ui_textarea",
+      "target": "src_components_ui_label",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -51660,7 +51648,7 @@
     },
     {
       "source": "src_components_agents_keyword_chatbot",
-      "target": "src_components_ui_switch",
+      "target": "src_components_ui_textarea",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -51672,7 +51660,7 @@
     },
     {
       "source": "src_components_agents_keyword_chatbot",
-      "target": "ref_sonner",
+      "target": "src_components_ui_switch",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -51684,7 +51672,7 @@
     },
     {
       "source": "src_components_agents_keyword_chatbot",
-      "target": "src_components_dashboard_session_provider",
+      "target": "ref_sonner",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -51696,7 +51684,7 @@
     },
     {
       "source": "src_components_agents_keyword_chatbot",
-      "target": "src_lib_chatbot_rule_engine",
+      "target": "src_components_dashboard_session_provider",
       "relation": "imports_from",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -51704,6 +51692,18 @@
       "context": "import",
       "source_file": "src/components/agents/keyword-chatbot.tsx",
       "source_location": "L33",
+      "weight": 1.0
+    },
+    {
+      "source": "src_components_agents_keyword_chatbot",
+      "target": "src_lib_chatbot_rule_engine",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "src/components/agents/keyword-chatbot.tsx",
+      "source_location": "L34",
       "weight": 1.0
     },
     {
@@ -67598,17 +67598,6 @@
     },
     {
       "source": "src_app_api_chatbot_rules_route",
-      "target": "src_app_api_chatbot_rules_route_post",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/app/api/chatbot/rules/route.ts",
-      "source_location": "L78",
-      "weight": 1.0
-    },
-    {
-      "source": "src_app_api_chatbot_rules_route",
       "target": "src_app_api_chatbot_rules_route_get",
       "relation": "contains",
       "_origin": "ast",
@@ -67616,6 +67605,17 @@
       "confidence_score": 1.0,
       "source_file": "src/app/api/chatbot/rules/route.ts",
       "source_location": "L8",
+      "weight": 1.0
+    },
+    {
+      "source": "src_app_api_chatbot_rules_route",
+      "target": "src_app_api_chatbot_rules_route_post",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/app/api/chatbot/rules/route.ts",
+      "source_location": "L80",
       "weight": 1.0
     },
     {
@@ -70123,7 +70123,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L40",
+      "source_location": "L41",
       "weight": 1.0
     },
     {
@@ -70134,7 +70134,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0
     },
     {
@@ -70145,7 +70145,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L55",
+      "source_location": "L56",
       "weight": 1.0
     },
     {
@@ -70156,7 +70156,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L62",
+      "source_location": "L63",
       "weight": 1.0
     },
     {
@@ -70167,7 +70167,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L198",
+      "source_location": "L204",
       "weight": 1.0
     },
     {
@@ -70178,7 +70178,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L217",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -70189,7 +70189,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/agents/keyword-chatbot.tsx",
-      "source_location": "L367",
+      "source_location": "L373",
       "weight": 1.0
     },
     {
@@ -73214,7 +73214,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L100",
+      "source_location": "L101",
       "weight": 1.0
     },
     {
@@ -73225,7 +73225,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L109",
+      "source_location": "L111",
       "weight": 1.0
     },
     {
@@ -73247,7 +73247,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L120",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
@@ -73258,7 +73258,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/lib/chatbot/rule-engine.ts",
-      "source_location": "L195",
+      "source_location": "L197",
       "weight": 1.0
     },
     {
@@ -75612,5 +75612,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "207589d9c1770f3ae995e50d219531c199c8172e"
+  "built_at_commit": "3b603bd26b5e16b4c5cc0ac850400334ee3d5d24"
 }
