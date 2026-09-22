@@ -3,17 +3,29 @@ import { logger } from "./logger";
 export async function getLatestRelease(owner: string, repo: string) {
     try {
         const url = `https://api.github.com/repos/${owner}/${repo}/releases/latest`;
+        const headers: Record<string, string> = {
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "WA-AKG-System"
+        };
+
+        if (process.env.GITHUB_TOKEN) {
+            headers["Authorization"] = `Bearer ${process.env.GITHUB_TOKEN}`;
+        }
+
         const res = await fetch(url, {
-            headers: {
-                "Accept": "application/vnd.github+json",
-                "User-Agent": "WA-AKG-System"
-            },
-            cache: 'no-store' // Disable cache for debugging
+            headers,
+            cache: 'no-store'
         });
         
+        if (res.status === 404) {
+            // 404 is normal when no releases have been published yet on GitHub for this repo
+            logger.info("GitHub", `No published releases found for ${owner}/${repo}`);
+            return null;
+        }
+
         if (!res.ok) {
             const errorText = await res.text();
-            logger.error("GitHub", `API Error: ${res.status} ${res.statusText} - ${errorText}`);
+            logger.warn("GitHub", `API Error: ${res.status} ${res.statusText} - ${errorText}`);
             return null;
         }
         
