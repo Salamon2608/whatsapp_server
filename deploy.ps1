@@ -78,9 +78,9 @@ git push origin main
 Write-Host "`nUpdating AWS server and restarting PM2..." -ForegroundColor Cyan
 
 if ($Choice -eq "2") {
-    $RemoteCmd = "cd ~/whatsapp_server ; git fetch origin ; git reset --hard origin/main ; mkdir -p .next ; tar -xzf next_build.tar.gz -C .next/ ; rm -f next_build.tar.gz ; pm2 restart whatsapp-server ; pm2 status"
+    $RemoteCmd = "cd ~/whatsapp_server ; git fetch origin ; git reset --hard origin/main ; npx prisma db push ; mkdir -p .next ; tar -xzf next_build.tar.gz -C .next/ ; rm -f next_build.tar.gz ; pm2 restart whatsapp-server ; pm2 status"
 } else {
-    $RemoteCmd = "cd ~/whatsapp_server ; git fetch origin ; git reset --hard origin/main ; pm2 restart whatsapp-server ; pm2 status"
+    $RemoteCmd = "cd ~/whatsapp_server ; git fetch origin ; git reset --hard origin/main ; npx prisma db push ; pm2 restart whatsapp-server ; pm2 status"
 }
 
 ssh.exe -n -i $KeyPath -o StrictHostKeyChecking=no "ubuntu@$ServerIP" $RemoteCmd
