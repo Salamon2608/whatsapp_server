@@ -28,10 +28,20 @@ export interface DispatchFlowsResult {
   outcome?: string
 }
 
+function cleanNewlines(text: string): string {
+  if (!text || typeof text !== 'string') return ''
+  return text
+    .replace(/\\r\\n/g, '\n')
+    .replace(/\\n/g, '\n')
+    .replace(/\\r/g, '\n')
+}
+
 function interpolateVars(text: string, vars: Record<string, unknown>): string {
-  return text.replace(/\{\{\s*vars\.([\w.]+)\s*\}\}/g, (_, key) => {
+  if (!text || typeof text !== 'string') return ''
+  let result = text.replace(/\{\{\s*vars\.([\w.]+)\s*\}\}/g, (_, key) => {
     return String(vars[key] ?? '')
   })
+  return cleanNewlines(result)
 }
 
 export async function dispatchInboundToFlows(
@@ -325,7 +335,7 @@ async function walkFlowGraph(args: {
 
     // 2. Send Message node
     if (node.nodeType === 'send_message') {
-      const text = interpolateVars(cfg.text || '', currentVars)
+      const text = cleanNewlines(interpolateVars(cfg.text || '', currentVars))
       await simulateHumanTyping(sock, remoteJid, text.length)
       await sock.sendMessage(remoteJid, { text }, { quoted: msg as any })
       currKey = cfg.next_node_key || null
@@ -350,10 +360,11 @@ async function walkFlowGraph(args: {
     // 4. Send Buttons node (suspends)
     if (node.nodeType === 'send_buttons') {
       const btnCfg = cfg as SendButtonsNodeConfig
-      const rawText = interpolateVars(btnCfg.text || '', currentVars)
+      const rawText = cleanNewlines(interpolateVars(btnCfg.text || '', currentVars))
       let outText = rawText
-      if (btnCfg.footer_text) outText += `\n\n_${btnCfg.footer_text}_`
-      outText += '\n' + (btnCfg.buttons || []).map((b, i) => `\n${i + 1}. ${b.title}`).join('')
+      if (btnCfg.footer_text) outText += `\n\n_${cleanNewlines(btnCfg.footer_text)}_`
+      outText += '\n' + (btnCfg.buttons || []).map((b, i) => `\n${i + 1}. ${cleanNewlines(b.title)}`).join('')
+      outText = cleanNewlines(outText)
 
       await simulateHumanTyping(sock, remoteJid, outText.length)
       await sock.sendMessage(remoteJid, { text: outText }, { quoted: msg as any })
@@ -368,14 +379,15 @@ async function walkFlowGraph(args: {
     // 5. Send List node (suspends)
     if (node.nodeType === 'send_list') {
       const listCfg = cfg as SendListNodeConfig
-      let outText = interpolateVars(listCfg.text || '', currentVars)
+      let outText = cleanNewlines(interpolateVars(listCfg.text || '', currentVars))
       for (const sec of listCfg.sections || []) {
-        outText += `\n\n*${sec.title}*`
+        outText += `\n\n*${cleanNewlines(sec.title)}*`
         for (const r of sec.rows || []) {
-          outText += `\n• ${r.title}${r.description ? ` - ${r.description}` : ''}`
+          outText += `\n• ${cleanNewlines(r.title)}${r.description ? ` - ${cleanNewlines(r.description)}` : ''}`
         }
       }
-      if (listCfg.footer_text) outText += `\n\n_${listCfg.footer_text}_`
+      if (listCfg.footer_text) outText += `\n\n_${cleanNewlines(listCfg.footer_text)}_`
+      outText = cleanNewlines(outText)
 
       await simulateHumanTyping(sock, remoteJid, outText.length)
       await sock.sendMessage(remoteJid, { text: outText }, { quoted: msg as any })
@@ -390,7 +402,7 @@ async function walkFlowGraph(args: {
     // 6. Collect Input node (suspends)
     if (node.nodeType === 'collect_input') {
       const inputCfg = cfg as CollectInputNodeConfig
-      const prompt = interpolateVars(inputCfg.prompt_text || '', currentVars)
+      const prompt = cleanNewlines(interpolateVars(inputCfg.prompt_text || '', currentVars))
       await simulateHumanTyping(sock, remoteJid, prompt.length)
       await sock.sendMessage(remoteJid, { text: prompt }, { quoted: msg as any })
 

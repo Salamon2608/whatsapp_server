@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { waManager } from "@/modules/whatsapp/manager";
 import { getAuthenticatedUser, canAccessSession } from "@/lib/api-auth";
+import { resolveSpintax } from "@/lib/spintax";
 import type { AnyMessageContent } from "@whiskeysockets/baileys";
 import { z } from "zod";
 
@@ -59,7 +60,6 @@ export async function POST(
             include: { recipients: true }
         });
 
-        const messageContent: AnyMessageContent = { text: message };
         const io = (global as any).io;
         const broadcastId = log.id;
 
@@ -85,6 +85,10 @@ export async function POST(
 
             for (let i = 0; i < recipients.length; i++) {
                 const jid = recipients[i];
+                // Generate unique variation per recipient via Spintax
+                const recipientText = resolveSpintax(message);
+                const messageContent: AnyMessageContent = { text: recipientText };
+
                 try {
                     await instance.socket!.sendMessage(jid, messageContent);
                     sent++;
@@ -96,14 +100,31 @@ export async function POST(
                     });
                 } catch (e: any) {
                     failed++;
-                    errors.push({ jid, error: e.message || "Unknown error" });
-                    console.error(`Failed to send broadcast to ${jid}`, e);
+                    const errMsg = e.message || "Unknown error";
+                    errors.push({ jid, error: errMsg });
+                    console.error(`Failed to send broadcast to ${jid}:`, errMsg);
 
                     // Update recipient error in DB
                     await prisma.broadcastRecipient.updateMany({
                         where: { broadcastLogId: broadcastId, jid },
-                        data: { status: "failed", error: e.message || "Unknown error" }
+                        data: { status: "failed", error: errMsg }
                     });
+
+                    // If daily safety limit is hit, abort remaining to protect WhatsApp number
+                    if (errMsg.toLowerCase().includes("daily safety limit")) {
+                        const remaining = recipients.slice(i + 1);
+                        if (remaining.length > 0) {
+                            failed += remaining.length;
+                            for (const remJid of remaining) {
+                                errors.push({ jid: remJid, error: "Aborted: Daily safety limit reached" });
+                            }
+                            await prisma.broadcastRecipient.updateMany({
+                                where: { broadcastLogId: broadcastId, jid: { in: remaining } },
+                                data: { status: "failed", error: "Aborted: Daily safety limit reached" }
+                            });
+                        }
+                        break;
+                    }
                 }
 
                 const progress = Math.round(((sent + failed) / recipients.length) * 100);

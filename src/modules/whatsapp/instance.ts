@@ -73,8 +73,26 @@ export class WhatsAppInstance {
         // Apply Anti-Spam Wrapper to sendMessage
         const originalSendMessage = this.socket.sendMessage.bind(this.socket);
         const sessionId = this.sessionId;
+        const sock = this.socket;
         this.socket.sendMessage = async function (jid: string, content: any, options?: any) {
             await antispam.enqueue(sessionId, jid, content);
+
+            // Human Presence / Typing Simulation
+            try {
+                const config = await antispam.getAntiSpamConfig(sessionId);
+                if (config?.humanTyping && !jid.endsWith("@broadcast")) {
+                    const textLen = (typeof content?.text === "string" ? content.text.length : 0)
+                        || (typeof content?.caption === "string" ? content.caption.length : 0)
+                        || 25;
+                    const typingMs = Math.min(Math.max(textLen * 30, 1000), 3500) + Math.floor(Math.random() * 400);
+                    await sock.sendPresenceUpdate("composing", jid);
+                    await new Promise((res) => setTimeout(res, typingMs));
+                    await sock.sendPresenceUpdate("paused", jid);
+                }
+            } catch {
+                // Non-fatal presence update error, proceed with message dispatch
+            }
+
             return originalSendMessage(jid, content, options);
         } as any;
 

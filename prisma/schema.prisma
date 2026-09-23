@@ -285,6 +285,16 @@ model BotConfig {
   spamDelayMin    Int     @default(1000) // MS min delay
   spamDelayMax    Int     @default(3000) // MS max delay
 
+  // Advanced Safety Suite
+  humanTyping       Boolean @default(true)
+  dailyLimit        Int     @default(500)
+  warmupMode        Boolean @default(false)
+  warmupStage       Int     @default(1)
+  spintaxEnabled    Boolean @default(true)
+  quietHoursEnabled Boolean @default(false)
+  quietHoursStart   String  @default("22:00")
+  quietHoursEnd     String  @default("08:00")
+
   // Automation & Presence
   welcomeMessage  String? @db.Text
   autoRead        Boolean @default(false)

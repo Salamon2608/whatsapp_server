@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse, NextRequest } from "next/server";
 import { getAuthenticatedUser, canAccessSession } from "@/lib/api-auth";
+import { antispam } from "@/modules/whatsapp/antispam";
 
 export async function GET(
     request: NextRequest,
@@ -56,13 +57,24 @@ export async function GET(
             spamDelayMax: 3000,
             welcomeMessage: null,
             autoRead: false,
-            alwaysOnline: false
+            alwaysOnline: false,
+            humanTyping: false,
+            dailyLimit: 100,
+            warmupMode: false,
+            warmupStage: 1,
+            spintaxEnabled: true,
+            quietHoursEnabled: false,
+            quietHoursStart: "22:00",
+            quietHoursEnd: "07:00"
         };
+
+        const safetyMetrics = await antispam.getSafetyMetrics(sessionId);
 
         return NextResponse.json({
             status: true,
             message: "Bot config fetched successfully",
-            data: { ...botConfigData, ignoreGroups }
+            data: { ...botConfigData, ignoreGroups },
+            safetyMetrics
         });
     } catch (error) {
         console.error("Get Bot Config Error:", error);
@@ -135,6 +147,16 @@ export async function POST(
                 welcomeMessage: body.welcomeMessage || null,
                 autoRead: body.autoRead ?? false,
                 alwaysOnline: body.alwaysOnline ?? false,
+
+                // Anti-Ban & Safety Features
+                humanTyping: body.humanTyping ?? false,
+                dailyLimit: typeof body.dailyLimit === 'number' ? body.dailyLimit : 100,
+                warmupMode: body.warmupMode ?? false,
+                warmupStage: typeof body.warmupStage === 'number' ? body.warmupStage : 1,
+                spintaxEnabled: body.spintaxEnabled ?? true,
+                quietHoursEnabled: body.quietHoursEnabled ?? false,
+                quietHoursStart: body.quietHoursStart || "22:00",
+                quietHoursEnd: body.quietHoursEnd || "07:00"
             },
             update: {
                 botMode: body.botMode,
@@ -159,10 +181,28 @@ export async function POST(
                 welcomeMessage: body.welcomeMessage,
                 autoRead: body.autoRead,
                 alwaysOnline: body.alwaysOnline,
+
+                // Anti-Ban & Safety Features
+                humanTyping: body.humanTyping,
+                dailyLimit: body.dailyLimit,
+                warmupMode: body.warmupMode,
+                warmupStage: body.warmupStage,
+                spintaxEnabled: body.spintaxEnabled,
+                quietHoursEnabled: body.quietHoursEnabled,
+                quietHoursStart: body.quietHoursStart,
+                quietHoursEnd: body.quietHoursEnd
             }
         });
 
-        return NextResponse.json({ status: true, message: "Bot config updated successfully", data: { ...config, ignoreGroups } });
+        antispam.invalidateConfig(sessionId);
+        const safetyMetrics = await antispam.getSafetyMetrics(sessionId);
+
+        return NextResponse.json({ 
+            status: true, 
+            message: "Bot config updated successfully", 
+            data: { ...config, ignoreGroups },
+            safetyMetrics
+        });
     } catch (error) {
         console.error("Update Bot Config Error:", error);
         return NextResponse.json({ status: false, message: "Failed to update config", error: "Failed to update config" }, { status: 500 });

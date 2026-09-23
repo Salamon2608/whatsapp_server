@@ -8,11 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
-import { RefreshCw, Send, CheckCircle2, XCircle, Radio, Clock, AlertTriangle, History, Eye, Calendar } from "lucide-react";
+import { RefreshCw, Send, CheckCircle2, XCircle, Radio, Clock, AlertTriangle, History, Eye, Calendar, Shuffle, Sparkles, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/components/dashboard/session-provider";
 import { SessionGuard } from "@/components/dashboard/session-guard";
 import { useSocket } from "@/components/dashboard/socket-context";
+import { resolveSpintax, containsSpintax } from "@/lib/spintax";
 
 interface BroadcastProgress {
     broadcastId: string;
@@ -58,6 +59,17 @@ export default function BroadcastPage() {
     const [loading, setLoading] = useState(false);
     const [broadcastProgress, setBroadcastProgress] = useState<BroadcastProgress | null>(null);
     const [activeTab, setActiveTab] = useState<"new" | "history">("new");
+    const [sampleVariation, setSampleVariation] = useState("");
+
+    const hasSpintax = containsSpintax(message);
+
+    useEffect(() => {
+        if (containsSpintax(message)) {
+            setSampleVariation(resolveSpintax(message));
+        } else {
+            setSampleVariation("");
+        }
+    }, [message]);
 
     // History
     const [history, setHistory] = useState<BroadcastLog[]>([]);
@@ -253,14 +265,43 @@ export default function BroadcastPage() {
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label>Message</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label>Message</Label>
+                                            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
+                                                <ShieldCheck className="h-3 w-3" /> Anti-Ban Spintax Ready
+                                            </span>
+                                        </div>
                                         <Textarea
-                                            placeholder="Type your message here..."
-                                            className="min-h-[150px]"
+                                            placeholder="Type message with spintax: {Hello|Hi|Hey} {friend|customer}, ..."
+                                            className="min-h-[140px]"
                                             value={message}
                                             onChange={e => setMessage(e.target.value)}
                                             disabled={loading}
                                         />
+                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] text-muted-foreground pt-0.5">
+                                            <span>💡 Spin syntax: <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">{"{Option 1|Option 2}"}</code></span>
+                                            {hasSpintax && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setSampleVariation(resolveSpintax(message))}
+                                                    className="flex items-center gap-1 text-primary hover:underline font-medium cursor-pointer"
+                                                >
+                                                    <Shuffle className="h-3 w-3" />
+                                                    Re-spin variation preview
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {hasSpintax && sampleVariation && (
+                                            <div className="p-2.5 rounded-lg bg-purple-500/10 border border-purple-500/25 text-xs space-y-1 animate-in fade-in">
+                                                <span className="font-semibold text-purple-600 dark:text-purple-400 flex items-center gap-1.5 text-[11px]">
+                                                    <Sparkles className="h-3.5 w-3.5" /> Sample recipient variation:
+                                                </span>
+                                                <p className="font-mono text-foreground whitespace-pre-wrap text-xs bg-background/50 p-2 rounded border border-border/50">
+                                                    {sampleVariation}
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="space-y-4 pt-4">

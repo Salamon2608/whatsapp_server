@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
 import {
     Select,
     SelectContent,
@@ -15,9 +16,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { RefreshCw, Save, AlertCircle, Bot, X, Plus, ShieldCheck, Zap, UserCheck, MessageSquarePlus, Users } from "lucide-react";
+import { 
+    RefreshCw, Save, AlertCircle, Bot, X, Plus, ShieldCheck, Zap, UserCheck, 
+    MessageSquarePlus, Users, Shield, Moon, Clock, Shuffle, CheckCircle2, 
+    Flame, Gauge, Sparkles, Activity, AlertTriangle
+} from "lucide-react";
 import { toast } from "sonner";
 import { SessionGuard } from "@/components/dashboard/session-guard";
+import { resolveSpintax, generateSpintaxVariations, containsSpintax } from "@/lib/spintax";
 
 export default function BotSettingsPage() {
     const { sessionId } = useSessionProvider();
@@ -40,7 +46,7 @@ export default function BotSettingsPage() {
         spamDelayMin: 1000,
         spamDelayMax: 3000,
 
-        // New fields
+        // Bot Extra fields
         welcomeMessage: "",
         autoRead: false,
         alwaysOnline: false,
@@ -48,8 +54,23 @@ export default function BotSettingsPage() {
         botBlockedJids: [] as string[],
         autoReplyAllowedJids: [] as string[],
         autoReplyBlockedJids: [] as string[],
+
+        // Anti-Ban & Safety Features
+        humanTyping: false,
+        dailyLimit: 100,
+        warmupMode: false,
+        warmupStage: 1,
+        spintaxEnabled: true,
+        quietHoursEnabled: false,
+        quietHoursStart: "22:00",
+        quietHoursEnd: "07:00",
     });
     const [botLoading, setBotLoading] = useState(false);
+    const [safetyMetrics, setSafetyMetrics] = useState<any>(null);
+
+    // Spintax Tester State
+    const [spintaxTestInput, setSpintaxTestInput] = useState("{Hello|Hi|Hey} {friend|customer}, {how are you|hope you have a wonderful day}!");
+    const [spintaxTestVariations, setSpintaxTestVariations] = useState<string[]>([]);
 
     const [newJid, setNewJid] = useState("");
 
@@ -79,7 +100,18 @@ export default function BotSettingsPage() {
                         botBlockedJids: data.botBlockedJids || [],
                         autoReplyAllowedJids: data.autoReplyAllowedJids || [],
                         autoReplyBlockedJids: data.autoReplyBlockedJids || [],
+                        humanTyping: data.humanTyping ?? false,
+                        dailyLimit: data.dailyLimit ?? 100,
+                        warmupMode: data.warmupMode ?? false,
+                        warmupStage: data.warmupStage ?? 1,
+                        spintaxEnabled: data.spintaxEnabled ?? true,
+                        quietHoursEnabled: data.quietHoursEnabled ?? false,
+                        quietHoursStart: data.quietHoursStart || "22:00",
+                        quietHoursEnd: data.quietHoursEnd || "07:00",
                     }));
+                }
+                if (responseData?.safetyMetrics) {
+                    setSafetyMetrics(responseData.safetyMetrics);
                 }
             })
             .catch(() => { });
@@ -110,7 +142,11 @@ export default function BotSettingsPage() {
             });
 
             if (res.ok) {
-                toast.success("Bot configuration saved");
+                const json = await res.json();
+                if (json.safetyMetrics) {
+                    setSafetyMetrics(json.safetyMetrics);
+                }
+                toast.success("Bot & Anti-Ban configuration saved");
             } else {
                 toast.error("Failed to save bot configuration");
             }
@@ -364,116 +400,354 @@ export default function BotSettingsPage() {
                         </CardContent>
                     </Card>
 
-                    {/* Anti-Ban Protection */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <AlertCircle className="h-5 w-5 text-orange-500" />
-                                Anti-Ban Protection (Beta)
-                            </CardTitle>
-                            <CardDescription>
-                                Prevent your WhatsApp number from being detected as spam or banned by adding intelligent random delays between outgoing messages. This applies to <strong>all</strong> actions: bot replies, auto-replies, broadcasts, scheduled messages, and API calls for this session.
+                    {/* Anti-Ban & Account Protection Shield */}
+                    <Card className="border-emerald-500/20 shadow-md">
+                        <CardHeader className="pb-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <CardTitle className="flex items-center gap-2.5 text-xl font-bold">
+                                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                        <Shield className="h-5 w-5" />
+                                    </div>
+                                    <span>WhatsApp Anti-Ban & Safety Suite</span>
+                                </CardTitle>
+                                {botConfig.antiSpamEnabled && (
+                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 w-fit">
+                                        <ShieldCheck className="h-3.5 w-3.5" />
+                                        Protection Active
+                                    </span>
+                                )}
+                            </div>
+                            <CardDescription className="text-sm">
+                                Comprehensive algorithmic protection against WhatsApp bans, mass-reporting, and rate-limiting. Applies to bot messages, broadcasts, autoreplies, and API triggers.
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <div className="flex items-center justify-between space-x-2 border p-3 rounded-lg bg-orange-500/5 border-orange-500/20">
-                                <Label htmlFor="anti-spam" className="flex flex-col space-y-1">
-                                    <span className="font-semibold text-orange-700 dark:text-orange-400">Enable Anti-Spam Delay</span>
-                                    <span className="font-normal text-xs text-muted-foreground">When enabled, messages will be queued and sent with a random delay if the rate limit is reached. Messages are never rejected — only delayed.</span>
-                                </Label>
-                                <Switch id="anti-spam" checked={botConfig.antiSpamEnabled}
-                                    onCheckedChange={c => setBotConfig(prev => ({ ...prev, antiSpamEnabled: c }))} />
-                            </div>
-
-                            {botConfig.antiSpamEnabled && (
-                                <div className="grid gap-6 animate-in fade-in slide-in-from-top-1 duration-200">
-                                    {/* How it works */}
-                                    <div className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-4 space-y-2">
-                                        <p className="text-sm font-semibold text-blue-700 dark:text-blue-400">💡 How it works</p>
-                                        <p className="text-xs text-muted-foreground leading-relaxed">
-                                            The system tracks how many messages this session sends within a time window.
-                                            If the number of messages exceeds the <strong>threshold</strong> within the <strong>time window</strong>,
-                                            each subsequent message will be <strong>delayed</strong> by a random amount between <strong>Min</strong> and <strong>Max</strong> delay.
-                                            Once the time window resets (old messages expire), messages go back to normal speed.
+                            {/* Live Metrics Banner */}
+                            {safetyMetrics && (
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3.5 rounded-xl bg-muted/40 border border-border/60">
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Today's Sends</span>
+                                        <p className="text-lg font-bold flex items-baseline gap-1">
+                                            {safetyMetrics.dailyCount}
+                                            <span className="text-xs font-normal text-muted-foreground">
+                                                / {safetyMetrics.dailyLimit > 0 ? safetyMetrics.dailyLimit : "∞"}
+                                            </span>
                                         </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            <strong>Example:</strong> With threshold = <strong>{botConfig.spamLimit}</strong> and window = <strong>{botConfig.spamInterval}s</strong> →
-                                            the first {botConfig.spamLimit} messages within {botConfig.spamInterval} seconds are sent instantly.
-                                            Message #{botConfig.spamLimit + 1} and beyond will be delayed by {botConfig.spamDelayMin}ms–{botConfig.spamDelayMax}ms each.
+                                        {safetyMetrics.dailyLimit > 0 && (
+                                            <Progress 
+                                                value={Math.min((safetyMetrics.dailyCount / safetyMetrics.dailyLimit) * 100, 100)} 
+                                                className="h-1.5 mt-1"
+                                                indicatorClassName={
+                                                    safetyMetrics.dailyCount >= safetyMetrics.dailyLimit 
+                                                        ? "bg-red-500" 
+                                                        : safetyMetrics.dailyCount > safetyMetrics.dailyLimit * 0.8 
+                                                            ? "bg-yellow-500" 
+                                                            : "bg-emerald-500"
+                                                }
+                                            />
+                                        )}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Warmup Mode</span>
+                                        <p className="text-sm font-semibold flex items-center gap-1 mt-0.5">
+                                            {safetyMetrics.warmupMode ? (
+                                                <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                                                    <Flame className="h-3.5 w-3.5" /> Stage {safetyMetrics.warmupStage}
+                                                </span>
+                                            ) : (
+                                                <span className="text-muted-foreground">Disabled</span>
+                                            )}
                                         </p>
                                     </div>
-
-                                    <div className="grid sm:grid-cols-2 gap-4">
-                                        <div className="grid gap-2">
-                                            <Label className="font-semibold">Messages Threshold</Label>
-                                            <Input
-                                                type="number"
-                                                value={botConfig.spamLimit}
-                                                onChange={e => setBotConfig(prev => ({ ...prev, spamLimit: parseInt(e.target.value) || 1 }))}
-                                                min={1}
-                                            />
-                                            <p className="text-xs text-muted-foreground">
-                                                Number of messages allowed at full speed before delay kicks in.
-                                                <span className="text-orange-600 dark:text-orange-400"> Lower = safer but slower.</span>
-                                            </p>
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label className="font-semibold">Time Window (Seconds)</Label>
-                                            <Input
-                                                type="number"
-                                                value={botConfig.spamInterval}
-                                                onChange={e => setBotConfig(prev => ({ ...prev, spamInterval: parseInt(e.target.value) || 1 }))}
-                                                min={1}
-                                            />
-                                            <p className="text-xs text-muted-foreground">
-                                                The rolling window to count messages. After this time passes, the counter resets naturally.
-                                                <span className="text-orange-600 dark:text-orange-400"> Longer = more conservative.</span>
-                                            </p>
-                                        </div>
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Quiet Hours</span>
+                                        <p className="text-sm font-semibold flex items-center gap-1 mt-0.5">
+                                            {safetyMetrics.inQuietHours ? (
+                                                <span className="text-blue-500 flex items-center gap-1">
+                                                    <Moon className="h-3.5 w-3.5" /> Sleeping
+                                                </span>
+                                            ) : (
+                                                <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                                    <Activity className="h-3.5 w-3.5" /> Active
+                                                </span>
+                                            )}
+                                        </p>
                                     </div>
-
-                                    <div className="grid sm:grid-cols-2 gap-4">
-                                        <div className="grid gap-2">
-                                            <Label className="font-semibold">Min Delay (ms)</Label>
-                                            <Input
-                                                type="number"
-                                                value={botConfig.spamDelayMin}
-                                                onChange={e => setBotConfig(prev => ({ ...prev, spamDelayMin: parseInt(e.target.value) || 0 }))}
-                                                min={0}
-                                                step={100}
-                                            />
-                                            <p className="text-xs text-muted-foreground">
-                                                Minimum random delay applied. 1000ms = 1 second.
-                                            </p>
-                                        </div>
-                                        <div className="grid gap-2">
-                                            <Label className="font-semibold">Max Delay (ms)</Label>
-                                            <Input
-                                                type="number"
-                                                value={botConfig.spamDelayMax}
-                                                onChange={e => setBotConfig(prev => ({ ...prev, spamDelayMax: parseInt(e.target.value) || 0 }))}
-                                                min={0}
-                                                step={100}
-                                            />
-                                            <p className="text-xs text-muted-foreground">
-                                                Maximum random delay applied. 3000ms = 3 seconds.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-3">
-                                        <p className="text-xs text-muted-foreground">
-                                            ⚠️ <strong>Recommended safe settings:</strong> Threshold <strong>5</strong>, Window <strong>10s</strong>, Delay <strong>1000–3000ms</strong>.
-                                            For high-volume broadcasts, use Threshold <strong>3</strong> with Delay <strong>2000–5000ms</strong>.
+                                    <div className="space-y-1">
+                                        <span className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">Human Typing</span>
+                                        <p className="text-sm font-semibold flex items-center gap-1 mt-0.5">
+                                            {safetyMetrics.humanTyping ? (
+                                                <span className="text-emerald-600 dark:text-emerald-400">Simulating</span>
+                                            ) : (
+                                                <span className="text-muted-foreground">Off</span>
+                                            )}
                                         </p>
                                     </div>
                                 </div>
                             )}
 
+                            {/* Main Anti-Spam Switch */}
+                            <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/60">
+                                <Label htmlFor="anti-spam" className="flex flex-col space-y-1 cursor-pointer">
+                                    <span className="font-semibold text-base flex items-center gap-2">
+                                        <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                                        Master Anti-Ban Rate Limiter
+                                    </span>
+                                    <span className="font-normal text-xs text-muted-foreground max-w-xl">
+                                        Queues messages and introduces human-like jitter delays when thresholds are exceeded. Messages are safely delayed in memory and never dropped.
+                                    </span>
+                                </Label>
+                                <Switch 
+                                    id="anti-spam" 
+                                    checked={botConfig.antiSpamEnabled}
+                                    onCheckedChange={c => setBotConfig(prev => ({ ...prev, antiSpamEnabled: c }))} 
+                                />
+                            </div>
+
+                            {/* Human Typing Simulation */}
+                            <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/60">
+                                <Label htmlFor="human-typing" className="flex flex-col space-y-1 cursor-pointer">
+                                    <span className="font-semibold text-base flex items-center gap-2">
+                                        <Zap className="h-4 w-4 text-amber-500" />
+                                        Realistic Human Typing Simulation (Presence)
+                                    </span>
+                                    <span className="font-normal text-xs text-muted-foreground max-w-xl">
+                                        Broadcasts a real WhatsApp <code className="bg-muted px-1 rounded text-foreground font-mono">composing...</code> state for 1.2s – 3.5s before dispatching each message. Completely eliminates the signature of headless bot traffic.
+                                    </span>
+                                </Label>
+                                <Switch 
+                                    id="human-typing" 
+                                    checked={botConfig.humanTyping}
+                                    onCheckedChange={c => setBotConfig(prev => ({ ...prev, humanTyping: c }))} 
+                                />
+                            </div>
+
+                            {/* Automated Warmup Mode */}
+                            <div className="p-4 rounded-xl border border-border bg-card/60 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="warmup-mode" className="flex flex-col space-y-1 cursor-pointer">
+                                        <span className="font-semibold text-base flex items-center gap-2">
+                                            <Flame className="h-4 w-4 text-orange-500" />
+                                            Automated Warm-up Mode (For New / Fresh Numbers)
+                                        </span>
+                                        <span className="font-normal text-xs text-muted-foreground max-w-xl">
+                                            Gradually builds phone number reputation with WhatsApp over days to prevent instant bans on newly connected SIM cards.
+                                        </span>
+                                    </Label>
+                                    <Switch 
+                                        id="warmup-mode" 
+                                        checked={botConfig.warmupMode}
+                                        onCheckedChange={c => setBotConfig(prev => ({ ...prev, warmupMode: c }))} 
+                                    />
+                                </div>
+
+                                {botConfig.warmupMode && (
+                                    <div className="pt-3 border-t border-border/60 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                                        <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Select Warmup Stage</Label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                                            {[
+                                                { stage: 1, label: "Stage 1: Day 1–3", limit: "≤ 20 / day", delay: "8–15s delays", desc: "For fresh SIMs" },
+                                                { stage: 2, label: "Stage 2: Day 4–7", limit: "≤ 50 / day", delay: "5–10s delays", desc: "Light activity" },
+                                                { stage: 3, label: "Stage 3: Day 8–14", limit: "≤ 150 / day", delay: "3–6s delays", desc: "Moderate volume" },
+                                                { stage: 4, label: "Stage 4: Day 15+", limit: "≤ 500 / day", delay: "Adaptive delays", desc: "Established" },
+                                            ].map(s => (
+                                                <div 
+                                                    key={s.stage}
+                                                    onClick={() => setBotConfig(prev => ({ ...prev, warmupStage: s.stage }))}
+                                                    className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                                                        botConfig.warmupStage === s.stage
+                                                            ? "border-primary bg-primary/10 shadow-sm"
+                                                            : "border-border/60 hover:border-border bg-muted/20"
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="font-bold text-xs">{s.label}</span>
+                                                        {botConfig.warmupStage === s.stage && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
+                                                    </div>
+                                                    <p className="text-xs font-semibold text-foreground">{s.limit}</p>
+                                                    <p className="text-[10px] text-muted-foreground mt-0.5">{s.delay}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Daily Quota & Quiet Hours */}
+                            <div className="grid sm:grid-cols-2 gap-4">
+                                {/* Daily Safety Limit */}
+                                <div className="p-4 rounded-xl border border-border bg-card/60 space-y-3">
+                                    <div className="flex items-center gap-2">
+                                        <Gauge className="h-4 w-4 text-primary" />
+                                        <Label className="font-semibold text-sm">Daily Message Quota</Label>
+                                    </div>
+                                    <Input
+                                        type="number"
+                                        min={0}
+                                        step={25}
+                                        value={botConfig.dailyLimit}
+                                        disabled={botConfig.warmupMode}
+                                        onChange={e => setBotConfig(prev => ({ ...prev, dailyLimit: parseInt(e.target.value) || 0 }))}
+                                    />
+                                    <p className="text-xs text-muted-foreground">
+                                        {botConfig.warmupMode 
+                                            ? "Controlled automatically by Active Warmup Stage." 
+                                            : "Max outbound messages allowed in 24 hours. (0 = unlimited)"}
+                                    </p>
+                                </div>
+
+                                {/* Quiet Hours */}
+                                <div className="p-4 rounded-xl border border-border bg-card/60 space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Moon className="h-4 w-4 text-blue-500" />
+                                            <Label htmlFor="quiet-hours" className="font-semibold text-sm cursor-pointer">Quiet Hours (Sleep)</Label>
+                                        </div>
+                                        <Switch 
+                                            id="quiet-hours" 
+                                            checked={botConfig.quietHoursEnabled}
+                                            onCheckedChange={c => setBotConfig(prev => ({ ...prev, quietHoursEnabled: c }))} 
+                                        />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <span className="text-[11px] text-muted-foreground block mb-1">Start (Night)</span>
+                                            <Input
+                                                type="time"
+                                                value={botConfig.quietHoursStart}
+                                                disabled={!botConfig.quietHoursEnabled}
+                                                onChange={e => setBotConfig(prev => ({ ...prev, quietHoursStart: e.target.value }))}
+                                            />
+                                        </div>
+                                        <div>
+                                            <span className="text-[11px] text-muted-foreground block mb-1">End (Morning)</span>
+                                            <Input
+                                                type="time"
+                                                value={botConfig.quietHoursEnd}
+                                                disabled={!botConfig.quietHoursEnabled}
+                                                onChange={e => setBotConfig(prev => ({ ...prev, quietHoursEnd: e.target.value }))}
+                                            />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Pauses outbound queue during night hours to avoid abnormal traffic flags.</p>
+                                </div>
+                            </div>
+
+                            {/* Spintax Anti-Fingerprinting Engine */}
+                            <div className="p-4 rounded-xl border border-border bg-card/60 space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="spintax-engine" className="flex flex-col space-y-1 cursor-pointer">
+                                        <span className="font-semibold text-base flex items-center gap-2">
+                                            <Shuffle className="h-4 w-4 text-purple-500" />
+                                            Spintax Anti-Fingerprinting Engine
+                                        </span>
+                                        <span className="font-normal text-xs text-muted-foreground max-w-xl">
+                                            Automatically resolves Spin Syntax like <code className="bg-muted px-1.5 py-0.5 rounded text-foreground font-mono">{"{Hello|Hi|Hey}"}</code> into randomized text variations per recipient. Prevents WhatsApp hash-matching algorithms from flagging repeated messages.
+                                        </span>
+                                    </Label>
+                                    <Switch 
+                                        id="spintax-engine" 
+                                        checked={botConfig.spintaxEnabled}
+                                        onCheckedChange={c => setBotConfig(prev => ({ ...prev, spintaxEnabled: c }))} 
+                                    />
+                                </div>
+
+                                {botConfig.spintaxEnabled && (
+                                    <div className="pt-3 border-t border-border/60 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                                                <Sparkles className="h-3.5 w-3.5 text-purple-500" />
+                                                Live Spintax Playground & Tester
+                                            </Label>
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm"
+                                                className="h-7 text-xs gap-1.5"
+                                                onClick={() => {
+                                                    const variations = generateSpintaxVariations(spintaxTestInput, 3);
+                                                    setSpintaxTestVariations(variations);
+                                                }}
+                                            >
+                                                <Shuffle className="h-3 w-3" />
+                                                Generate 3 Variations
+                                            </Button>
+                                        </div>
+                                        <Input
+                                            value={spintaxTestInput}
+                                            onChange={e => setSpintaxTestInput(e.target.value)}
+                                            placeholder="{Hello|Hi|Hey} {friend|customer}..."
+                                            className="font-mono text-xs"
+                                        />
+                                        {spintaxTestVariations.length > 0 && (
+                                            <div className="space-y-1.5 pt-1">
+                                                {spintaxTestVariations.map((v, i) => (
+                                                    <div key={i} className="p-2 rounded-md bg-purple-500/10 border border-purple-500/20 text-xs font-mono text-foreground flex items-center gap-2">
+                                                        <span className="text-[10px] font-bold text-purple-500 px-1 py-0.5 rounded bg-purple-500/20">#{i + 1}</span>
+                                                        <span>{v}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Advanced Burst Delays (When antiSpamEnabled) */}
+                            {botConfig.antiSpamEnabled && (
+                                <div className="grid sm:grid-cols-4 gap-3 p-3.5 rounded-xl bg-muted/30 border border-border/60">
+                                    <div className="grid gap-1">
+                                        <Label className="text-xs font-semibold">Burst Limit</Label>
+                                        <Input
+                                            type="number"
+                                            value={botConfig.spamLimit}
+                                            onChange={e => setBotConfig(prev => ({ ...prev, spamLimit: parseInt(e.target.value) || 1 }))}
+                                            min={1}
+                                        />
+                                        <p className="text-[10px] text-muted-foreground">Instant msgs allowed</p>
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <Label className="text-xs font-semibold">Window (Sec)</Label>
+                                        <Input
+                                            type="number"
+                                            value={botConfig.spamInterval}
+                                            onChange={e => setBotConfig(prev => ({ ...prev, spamInterval: parseInt(e.target.value) || 1 }))}
+                                            min={1}
+                                        />
+                                        <p className="text-[10px] text-muted-foreground">Rolling count reset</p>
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <Label className="text-xs font-semibold">Min Jitter (ms)</Label>
+                                        <Input
+                                            type="number"
+                                            value={botConfig.spamDelayMin}
+                                            onChange={e => setBotConfig(prev => ({ ...prev, spamDelayMin: parseInt(e.target.value) || 0 }))}
+                                            min={0}
+                                            step={200}
+                                        />
+                                        <p className="text-[10px] text-muted-foreground">e.g. 1000 = 1s</p>
+                                    </div>
+                                    <div className="grid gap-1">
+                                        <Label className="text-xs font-semibold">Max Jitter (ms)</Label>
+                                        <Input
+                                            type="number"
+                                            value={botConfig.spamDelayMax}
+                                            onChange={e => setBotConfig(prev => ({ ...prev, spamDelayMax: parseInt(e.target.value) || 0 }))}
+                                            min={0}
+                                            step={200}
+                                        />
+                                        <p className="text-[10px] text-muted-foreground">e.g. 3000 = 3s</p>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="pt-2">
-                                <Button onClick={handleSaveBot} disabled={botLoading || !sessionId}>
-                                    {botLoading ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                                    Save Protection Settings
+                                <Button 
+                                    className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white gap-2 font-medium" 
+                                    onClick={handleSaveBot} 
+                                    disabled={botLoading || !sessionId}
+                                >
+                                    {botLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                                    Save Protection & Anti-Ban Settings
                                 </Button>
                             </div>
                         </CardContent>
