@@ -53,8 +53,8 @@ export async function generateMetadata(): Promise<Metadata> {
     // @ts-ignore
     const config = await prisma.systemConfig.findUnique({ where: { id: "default" } });
     if (config?.appName) appName = config.appName;
-  } catch (e) {
-    console.error("Failed to fetch system config for metadata:", e);
+  } catch {
+    // Silently fall back to default appName during static pre-rendering or when DB is offline
   }
 
   const appDefaultTitle = `${appName} | Premium WhatsApp Gateway`;
