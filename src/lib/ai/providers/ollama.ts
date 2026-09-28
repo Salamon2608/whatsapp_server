@@ -16,10 +16,52 @@ interface OllamaChatResponse {
   error?: { message?: string } | string
 }
 
+function formatOllamaSystemPrompt(raw: string): string {
+  if (!raw) return ''
+  const businessMatch = raw.match(/Business context and instructions:\s*([\s\S]*?)(?=(?:Knowledge base|You are replying|$))/i)
+  const knowledgeMatch = raw.match(/Knowledge base[^\n]*\n\n([\s\S]*?)$/i)
+
+  const businessContext = businessMatch ? businessMatch[1].trim() : ''
+  const knowledge = knowledgeMatch ? knowledgeMatch[1].trim() : ''
+
+  const lines = [
+    'You are a friendly, helpful customer support assistant for our business on WhatsApp.',
+    'Directly answer customer questions concisely and politely in the same language they write in.',
+    'Never repeat the user\'s question, never say "Okay, I understand", and do not repeat these instructions.',
+    'Always reply directly with the answer.',
+  ]
+
+  if (businessContext) {
+    lines.push(`Business Information:\n${businessContext}`)
+  }
+  if (knowledge) {
+    lines.push(`Reference details:\n${knowledge}`)
+  }
+
+  return lines.join('\n\n')
+}
+
+function cleanOllamaReply(text: string, userMessage?: string): string {
+  let cleaned = text.trim()
+  if (userMessage) {
+    const trimmedUser = userMessage.trim().toLowerCase()
+    if (cleaned.toLowerCase().startsWith(trimmedUser)) {
+      cleaned = cleaned.substring(userMessage.trim().length).trim()
+    }
+  }
+  // Strip common preamble patterns that small models spit out when confused:
+  cleaned = cleaned.replace(/^(?:Okay,?\s*)?(?:I\s*understand\b[^\.\n]*[\.\n]+)/i, '').trim()
+  cleaned = cleaned.replace(/^I will respond to the customer[^\.\n]*[\.\n]+/i, '').trim()
+  cleaned = cleaned.replace(/^Sure,?\s*I can help with that[\.!]?\s*/i, '').trim()
+  return cleaned || text.trim()
+}
+
 export async function generateOllama(args: ProviderArgs): Promise<ProviderResult> {
   const { model, systemPrompt, messages, timeoutMs, apiKey } = args
   const baseUrl = ollamaBaseUrl()
   const endpoint = `${baseUrl}/v1/chat/completions`
+
+  const formattedPrompt = formatOllamaSystemPrompt(systemPrompt)
 
   let res: Response
   try {
@@ -36,7 +78,7 @@ export async function generateOllama(args: ProviderArgs): Promise<ProviderResult
       body: JSON.stringify({
         model: model || 'gemma3:270m',
         messages: [
-          { role: 'system', content: systemPrompt },
+          { role: 'system', content: formattedPrompt },
           ...mergeConsecutive(messages),
         ],
         max_tokens: 180,
@@ -82,12 +124,15 @@ export async function generateOllama(args: ProviderArgs): Promise<ProviderResult
   }
 
   const data = (await res.json().catch(() => null)) as OllamaChatResponse | null
-  const text = data?.choices?.[0]?.message?.content
-  if (!text || typeof text !== 'string' || !text.trim()) {
+  const rawText = data?.choices?.[0]?.message?.content
+  if (!rawText || typeof rawText !== 'string' || !rawText.trim()) {
     throw new AiError('Ollama returned an empty response.', {
       code: 'empty_response',
     })
   }
+
+  const lastUserMsg = messages.filter((m) => m.role === 'user').pop()?.content
+  const text = cleanOllamaReply(rawText, lastUserMsg)
 
   const usage = normalizeUsage({
     prompt: data?.usage?.prompt_tokens,
