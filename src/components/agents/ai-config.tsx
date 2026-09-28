@@ -100,7 +100,7 @@ export function AiConfigForm() {
       if (json.status) {
         setStatusMsg({
           text: provider === 'ollama'
-            ? 'Connected successfully to local Ollama & Gemma 3 model!'
+            ? `Connected successfully to local Ollama (${model || 'Local Model'})!`
             : 'API key is valid and connected successfully!',
           ok: true,
         })
@@ -202,7 +202,7 @@ export function AiConfigForm() {
                 <SelectContent>
                   <SelectItem value="openai">OpenAI (ChatGPT / GPT-4o)</SelectItem>
                   <SelectItem value="anthropic">Anthropic (Claude 3.5)</SelectItem>
-                  <SelectItem value="ollama">Ollama / Gemma 3 (100% Free, Local EC2)</SelectItem>
+                  <SelectItem value="ollama">Ollama (Local EC2 - Gemma / Qwen / Llama)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -213,7 +213,7 @@ export function AiConfigForm() {
                 className="h-9 text-xs font-mono"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder={provider === 'ollama' ? 'gemma3:270m' : 'gpt-4o-mini'}
+                placeholder="qwen2.5:0.5b, gemma3:270m, etc."
               />
             </div>
           </div>
@@ -222,10 +222,10 @@ export function AiConfigForm() {
             <div className="rounded-md bg-emerald-500/10 border border-emerald-500/20 p-2.5 text-xs text-emerald-700 dark:text-emerald-400 space-y-1">
               <div className="font-semibold flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
-                Local Gemma 3 on EC2 Active
+                Local Ollama Engine Active ({model || 'qwen2.5:0.5b'})
               </div>
               <p className="text-[11px] opacity-90">
-                Queries run locally on your EC2 instance via Ollama (<code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded">http://localhost:11434</code>) with zero API costs and ultra-low latency. Make sure you ran <code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded">ollama run gemma3:270m</code> on your EC2 server.
+                Queries run locally on your EC2 instance via Ollama (<code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded">http://localhost:11434</code>) with zero API costs. Currently configured model: <code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded font-semibold">{model || 'qwen2.5:0.5b'}</code>.
               </p>
             </div>
           )}
