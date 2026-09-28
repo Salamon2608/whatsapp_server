@@ -53,11 +53,10 @@ export async function simulateHumanTyping(
         await sock.sendPresenceUpdate('composing', jid).catch(() => {});
 
         // 2. Realistic human typing delay based on message length:
-        // Base delay: 1000ms + (length * 15ms) + random jitter (200-500ms)
-        // Capped between 1200ms and 2800ms to keep interactions snappy yet natural.
-        const jitter = Math.floor(Math.random() * 300) + 200;
-        const calculatedDelay = 1000 + Math.min(1300, textLength * 15) + jitter;
-        const duration = Math.min(2800, Math.max(1200, calculatedDelay));
+        // Snappy presence indicator (400ms - 1000ms) that looks natural while responding quickly.
+        const jitter = Math.floor(Math.random() * 150) + 50;
+        const calculatedDelay = 350 + Math.min(500, textLength * 6) + jitter;
+        const duration = Math.min(1000, Math.max(400, calculatedDelay));
 
         await new Promise((resolve) => setTimeout(resolve, duration));
 

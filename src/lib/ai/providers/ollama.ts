@@ -39,8 +39,14 @@ export async function generateOllama(args: ProviderArgs): Promise<ProviderResult
           { role: 'system', content: systemPrompt },
           ...mergeConsecutive(messages),
         ],
-        max_tokens: MAX_OUTPUT_TOKENS,
+        max_tokens: 180,
         temperature: 0.3,
+        options: {
+          num_ctx: 2048,
+          num_predict: 180,
+          num_thread: 2,
+        },
+        keep_alive: '24h',
       }),
       signal: AbortSignal.timeout(timeoutMs),
     })
