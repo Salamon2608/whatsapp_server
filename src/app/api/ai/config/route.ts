@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
       testKey,
     } = body
 
-    // Test API key before saving if requested
-    if (testKey && apiKey) {
+    // Test API key or local model connection before saving if requested
+    if (testKey && (apiKey || provider === 'ollama')) {
       const testPrompt = buildSystemPrompt({
         userPrompt: 'Test key validity',
         mode: 'draft',
@@ -53,8 +53,8 @@ export async function POST(request: NextRequest) {
       await generateReply({
         config: {
           provider: provider || 'openai',
-          model: model || 'gpt-4o-mini',
-          apiKey,
+          model: model || (provider === 'ollama' ? 'gemma3:270m' : 'gpt-4o-mini'),
+          apiKey: apiKey || (provider === 'ollama' ? 'ollama' : ''),
           systemPrompt: null,
           isActive: true,
           autoReplyEnabled: false,

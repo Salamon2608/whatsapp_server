@@ -36,6 +36,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (resolvedProvider === 'ollama' && !resolvedKey) {
+      resolvedKey = 'ollama'
+    }
+
     if (!resolvedKey) {
       return NextResponse.json(
         { status: false, message: 'Please provide or save an API key in AI Setup.' },

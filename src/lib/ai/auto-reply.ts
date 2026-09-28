@@ -3,7 +3,7 @@ import type { WASocket, proto } from '@whiskeysockets/baileys'
 import { generateReply } from './generate'
 import { buildSystemPrompt } from './defaults'
 import { retrieveKnowledge } from './knowledge'
-import type { AiConfigData, ChatMessage } from './types'
+import type { AiConfigData, AiProvider, ChatMessage } from './types'
 import { logger } from '@/lib/logger'
 import { smartSendWithHumanBehavior } from '@/lib/anti-ban'
 
@@ -29,14 +29,14 @@ export async function runAiAutoReply(input: AiAutoReplyInput): Promise<boolean> 
       },
     })
 
-    if (!aiConfig || !aiConfig.apiKey) {
+    if (!aiConfig || (!aiConfig.apiKey && aiConfig.provider !== 'ollama')) {
       return false
     }
 
     const configData: AiConfigData = {
-      provider: (aiConfig.provider as 'openai' | 'anthropic') || 'openai',
+      provider: (aiConfig.provider as AiProvider) || 'openai',
       model: aiConfig.model || 'gpt-4o-mini',
-      apiKey: aiConfig.apiKey,
+      apiKey: aiConfig.apiKey || '',
       systemPrompt: aiConfig.systemPrompt,
       isActive: aiConfig.isActive,
       autoReplyEnabled: aiConfig.autoReplyEnabled,

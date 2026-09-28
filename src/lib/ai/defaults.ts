@@ -3,11 +3,17 @@ import type { AiProvider } from './types'
 export const AI_PROVIDER_DEFAULT_MODEL: Record<AiProvider, string> = {
   openai: 'gpt-4o-mini',
   anthropic: 'claude-3-5-haiku-20241022',
+  ollama: 'gemma3:270m',
 }
 
 export const HANDOFF_SENTINEL = '[[HANDOFF]]'
 export const MAX_OUTPUT_TOKENS = 1024
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000
+
+export function ollamaBaseUrl(): string {
+  const url = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434'
+  return url.replace(/\/+$/, '')
+}
 
 export function aiRequestTimeoutMs(): number {
   const raw = Number(process.env.AI_REQUEST_TIMEOUT_MS)

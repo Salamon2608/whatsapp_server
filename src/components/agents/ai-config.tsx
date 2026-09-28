@@ -34,7 +34,7 @@ export function AiConfigForm() {
   const currentSession = sessions.find((s) => s.sessionId === sessionId);
   const isLoggedOut = currentSession?.status === "LOGGED_OUT" || (sessions.length > 0 && sessions.every(s => s.status === "LOGGED_OUT"));
 
-  const [provider, setProvider] = useState<'openai' | 'anthropic'>('openai')
+  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'ollama'>('openai')
   const [model, setModel] = useState(AI_PROVIDER_DEFAULT_MODEL.openai)
   const [apiKey, setApiKey] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
@@ -72,13 +72,13 @@ export function AiConfigForm() {
     load()
   }, [])
 
-  const handleProviderChange = (p: 'openai' | 'anthropic') => {
+  const handleProviderChange = (p: 'openai' | 'anthropic' | 'ollama') => {
     setProvider(p)
     setModel(AI_PROVIDER_DEFAULT_MODEL[p])
   }
 
   const handleTestKey = async () => {
-    if (!apiKey) {
+    if (provider !== 'ollama' && !apiKey) {
       setStatusMsg({ text: 'Please enter an API key to test.', ok: false })
       return
     }
@@ -98,9 +98,14 @@ export function AiConfigForm() {
       })
       const json = await res.json()
       if (json.status) {
-        setStatusMsg({ text: 'API key is valid and connected successfully!', ok: true })
+        setStatusMsg({
+          text: provider === 'ollama'
+            ? 'Connected successfully to local Ollama & Gemma 3 model!'
+            : 'API key is valid and connected successfully!',
+          ok: true,
+        })
       } else {
-        setStatusMsg({ text: `Key test failed: ${json.message}`, ok: false })
+        setStatusMsg({ text: `Test failed: ${json.message}`, ok: false })
       }
     } catch (err: any) {
       setStatusMsg({ text: `Test error: ${err.message}`, ok: false })
@@ -197,6 +202,7 @@ export function AiConfigForm() {
                 <SelectContent>
                   <SelectItem value="openai">OpenAI (ChatGPT / GPT-4o)</SelectItem>
                   <SelectItem value="anthropic">Anthropic (Claude 3.5)</SelectItem>
+                  <SelectItem value="ollama">Ollama / Gemma 3 (100% Free, Local EC2)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -207,29 +213,53 @@ export function AiConfigForm() {
                 className="h-9 text-xs font-mono"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder="gpt-4o-mini"
+                placeholder={provider === 'ollama' ? 'gemma3:270m' : 'gpt-4o-mini'}
               />
             </div>
           </div>
 
+          {provider === 'ollama' && (
+            <div className="rounded-md bg-emerald-500/10 border border-emerald-500/20 p-2.5 text-xs text-emerald-700 dark:text-emerald-400 space-y-1">
+              <div className="font-semibold flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5" />
+                Local Gemma 3 on EC2 Active
+              </div>
+              <p className="text-[11px] opacity-90">
+                Queries run locally on your EC2 instance via Ollama (<code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded">http://localhost:11434</code>) with zero API costs and ultra-low latency. Make sure you ran <code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded">ollama run gemma3:270m</code> on your EC2 server.
+              </p>
+            </div>
+          )}
+
           <div className="space-y-1.5">
-            <Label className="text-xs">API Key</Label>
+            <Label className="text-xs">
+              {provider === 'ollama' ? 'API Key (Optional for Local Ollama)' : 'API Key'}
+            </Label>
             <div className="flex gap-2">
               <Input
                 type="password"
                 className="h-9 text-xs font-mono"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder={provider === 'openai' ? 'sk-...' : 'sk-ant-...'}
+                placeholder={
+                  provider === 'ollama'
+                    ? 'None required for local EC2 Ollama'
+                    : provider === 'openai'
+                      ? 'sk-...'
+                      : 'sk-ant-...'
+                }
               />
               <Button
                 variant="outline"
                 size="sm"
                 className="h-9 text-xs shrink-0"
                 onClick={handleTestKey}
-                disabled={testingKey || !apiKey}
+                disabled={testingKey || (!apiKey && provider !== 'ollama')}
               >
-                {testingKey ? 'Testing...' : 'Test Key'}
+                {testingKey
+                  ? 'Testing...'
+                  : provider === 'ollama'
+                    ? 'Test Connection'
+                    : 'Test Key'}
               </Button>
             </div>
           </div>
