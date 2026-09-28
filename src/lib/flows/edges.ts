@@ -19,6 +19,12 @@ export function outgoingSlots(node: BuilderNode): OutgoingSlot[] {
         { id: 'false', label: 'false' },
       ]
 
+    case 'http_request':
+      return [
+        { id: 'next', label: 'Success (2xx)' },
+        { id: 'error', label: 'Error / Fallback' },
+      ]
+
     case 'send_buttons': {
       const buttons = Array.isArray((cfg as { buttons?: unknown }).buttons)
         ? ((cfg as { buttons: Array<Record<string, unknown>> }).buttons)
@@ -79,6 +85,11 @@ export function applyEdgeConnection(
     case 'condition':
       if (sourceHandle === 'true') return { true_next: targetKey }
       if (sourceHandle === 'false') return { false_next: targetKey }
+      return null
+
+    case 'http_request':
+      if (sourceHandle === 'next') return { next_node_key: targetKey }
+      if (sourceHandle === 'error') return { error_node_key: targetKey }
       return null
 
     case 'send_buttons': {
@@ -148,6 +159,18 @@ export function unlinkNodeReferences(
             ...cfg,
             ...(c.true_next === deletedKey ? { true_next: '' } : {}),
             ...(c.false_next === deletedKey ? { false_next: '' } : {}),
+          },
+        }
+      }
+      case 'http_request': {
+        const h = cfg as { next_node_key?: string; error_node_key?: string }
+        if (h.next_node_key !== deletedKey && h.error_node_key !== deletedKey) return n
+        return {
+          ...n,
+          config: {
+            ...cfg,
+            ...(h.next_node_key === deletedKey ? { next_node_key: '' } : {}),
+            ...(h.error_node_key === deletedKey ? { error_node_key: '' } : {}),
           },
         }
       }

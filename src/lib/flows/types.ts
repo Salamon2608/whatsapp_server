@@ -7,6 +7,7 @@ export type FlowNodeType =
   | 'collect_input'
   | 'condition'
   | 'set_tag'
+  | 'http_request'
   | 'handoff'
   | 'end'
 
@@ -64,6 +65,27 @@ export interface ConditionNodeConfig {
   value?: string
   true_next: string
   false_next: string
+}
+
+export interface HttpRequestHeader {
+  key: string
+  value: string
+}
+
+export interface HttpResponseMapping {
+  json_path: string
+  var_key: string
+}
+
+export interface HttpRequestNodeConfig {
+  url: string
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
+  headers?: HttpRequestHeader[]
+  body?: string
+  response_mappings?: HttpResponseMapping[]
+  next_node_key: string
+  error_node_key?: string
+  timeout_ms?: number
 }
 
 export interface HandoffNodeConfig {

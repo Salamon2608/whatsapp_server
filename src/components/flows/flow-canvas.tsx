@@ -37,6 +37,7 @@ import {
   CornerDownRight,
   Eye,
   Info,
+  Globe,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -71,6 +72,7 @@ const NODE_COLORS: Record<FlowNodeType, { bg: string; text: string; border: stri
   collect_input: { bg: 'bg-amber-500/10', text: 'text-amber-500', border: 'border-amber-500/30' },
   condition: { bg: 'bg-orange-500/10', text: 'text-orange-500', border: 'border-orange-500/30' },
   set_tag: { bg: 'bg-teal-500/10', text: 'text-teal-500', border: 'border-teal-500/30' },
+  http_request: { bg: 'bg-cyan-500/10', text: 'text-cyan-500', border: 'border-cyan-500/30' },
   handoff: { bg: 'bg-rose-500/10', text: 'text-rose-500', border: 'border-rose-500/30' },
   end: { bg: 'bg-slate-500/10', text: 'text-slate-400', border: 'border-slate-500/30' },
 }
@@ -106,6 +108,7 @@ function CustomFlowNode({ data, id }: { data: any; id: string }) {
             {node.node_type === 'send_list' && <ListFilter className="h-3.5 w-3.5" />}
             {node.node_type === 'collect_input' && <HelpCircle className="h-3.5 w-3.5" />}
             {node.node_type === 'condition' && <LayoutGrid className="h-3.5 w-3.5" />}
+            {node.node_type === 'http_request' && <Globe className="h-3.5 w-3.5" />}
             {node.node_type === 'handoff' && <PhoneCall className="h-3.5 w-3.5" />}
             {node.node_type === 'end' && <CheckCircle2 className="h-3.5 w-3.5" />}
           </div>
@@ -144,6 +147,25 @@ function CustomFlowNode({ data, id }: { data: any; id: string }) {
         {node.node_type === 'condition' && (
           <span>Check if: {node.config.subject_key as string || 'var'}</span>
         )}
+        {node.node_type === 'http_request' && (
+          <div className="space-y-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 uppercase font-mono">
+                {(node.config.method as string) || 'GET'}
+              </span>
+              <span className="truncate font-mono text-[10px] text-foreground">
+                {(node.config.url as string) || 'https://api...'}
+              </span>
+            </div>
+            {Array.isArray(node.config.response_mappings) && node.config.response_mappings.length > 0 ? (
+              <p className="text-[10px] text-muted-foreground truncate">
+                → {node.config.response_mappings.map((m: any) => `vars.${m.var_key}`).join(', ')}
+              </p>
+            ) : (
+              <p className="text-[10px] text-muted-foreground truncate">(No response mappings)</p>
+            )}
+          </div>
+        )}
         {node.node_type === 'handoff' && <span>Transfer conversation to human agent</span>}
         {node.node_type === 'end' && <span>End flow conversation</span>}
       </div>
@@ -167,6 +189,27 @@ function CustomFlowNode({ data, id }: { data: any; id: string }) {
               id="false"
               position={Position.Bottom}
               className="!right-4 !left-auto !h-2.5 !w-2.5 !bg-rose-500 !border-2 !border-background"
+            />
+          </div>
+        </div>
+      ) : node.node_type === 'http_request' ? (
+        <div className="mt-2 flex justify-between text-[10px] font-semibold pt-1 border-t border-border/30">
+          <div className="relative flex items-center text-emerald-500">
+            <span>2xx Success</span>
+            <Handle
+              type="source"
+              id="next"
+              position={Position.Bottom}
+              className="!left-5 !h-2.5 !w-2.5 !bg-emerald-500 !border-2 !border-background"
+            />
+          </div>
+          <div className="relative flex items-center text-rose-500">
+            <span>Error</span>
+            <Handle
+              type="source"
+              id="error"
+              position={Position.Bottom}
+              className="!right-5 !left-auto !h-2.5 !w-2.5 !bg-rose-500 !border-2 !border-background"
             />
           </div>
         </div>
@@ -247,6 +290,28 @@ export function FlowCanvas({
             style: { stroke: '#f43f5e', strokeWidth: 2 },
           })
         }
+      } else if (n.node_type === 'http_request') {
+        const h = n.config as any
+        if (h.next_node_key) {
+          list.push({
+            id: `edge-${n.node_key}-success-${h.next_node_key}`,
+            source: n.node_key,
+            sourceHandle: 'next',
+            target: h.next_node_key,
+            label: '2xx Success',
+            style: { stroke: '#10b981', strokeWidth: 2 },
+          })
+        }
+        if (h.error_node_key) {
+          list.push({
+            id: `edge-${n.node_key}-error-${h.error_node_key}`,
+            source: n.node_key,
+            sourceHandle: 'error',
+            target: h.error_node_key,
+            label: 'Error',
+            style: { stroke: '#f43f5e', strokeWidth: 2 },
+          })
+        }
       } else if (n.node_type === 'send_buttons') {
         const btns = ((n.config.buttons as any[]) || [])
         for (const b of btns) {
@@ -318,6 +383,12 @@ export function FlowCanvas({
       } else {
         updatedConfig.false_next = params.target
       }
+    } else if (sourceNode.node_type === 'http_request') {
+      if (params.sourceHandle === 'error') {
+        updatedConfig.error_node_key = params.target
+      } else {
+        updatedConfig.next_node_key = params.target
+      }
     } else {
       updatedConfig.next_node_key = params.target
     }
@@ -342,6 +413,14 @@ export function FlowCanvas({
           ? { prompt_text: 'Please enter your response:', var_key: 'input' }
           : type === 'condition'
           ? { subject_key: 'input', operator: 'equals', value: '' }
+          : type === 'http_request'
+          ? {
+              url: 'https://api.yourproject.com/customers/lookup?phone={{phone}}',
+              method: 'GET',
+              headers: [],
+              body: '',
+              response_mappings: [{ json_path: 'customer.name', var_key: 'customer_name' }],
+            }
           : {},
       position_x: 200 + Math.floor(Math.random() * 80),
       position_y: 200 + Math.floor(Math.random() * 80),
@@ -404,6 +483,9 @@ export function FlowCanvas({
           <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={() => addNode('condition')}>
             <Plus className="h-3 w-3" /> Condition
           </Button>
+          <Button size="sm" variant="outline" className="h-8 text-xs gap-1 border-cyan-500/30 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10" onClick={() => addNode('http_request')}>
+            <Globe className="h-3 w-3 text-cyan-500" /> API / DB Request
+          </Button>
           <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={() => addNode('handoff')}>
             <Plus className="h-3 w-3" /> Handoff
           </Button>
@@ -432,6 +514,7 @@ export function FlowCanvas({
                       {selectedNode.node_type === 'send_list' && <ListFilter className="h-5 w-5" />}
                       {selectedNode.node_type === 'collect_input' && <HelpCircle className="h-5 w-5" />}
                       {selectedNode.node_type === 'condition' && <LayoutGrid className="h-5 w-5" />}
+                      {selectedNode.node_type === 'http_request' && <Globe className="h-5 w-5" />}
                       {selectedNode.node_type === 'handoff' && <PhoneCall className="h-5 w-5" />}
                       {selectedNode.node_type === 'end' && <CheckCircle2 className="h-5 w-5" />}
                     </div>
@@ -884,6 +967,266 @@ export function FlowCanvas({
                       </div>
                     )}
 
+                    {/* HTTP REQUEST NODE */}
+                    {selectedNode.node_type === 'http_request' && (
+                      <div className="space-y-4">
+                        {/* 1. Endpoint Configuration */}
+                        <div className="p-3.5 rounded-xl border border-border/70 bg-card space-y-3 shadow-2xs">
+                          <Label className="text-xs font-semibold flex items-center gap-1.5">
+                            <Globe className="h-3.5 w-3.5 text-cyan-500" />
+                            Backend API Endpoint & Method
+                          </Label>
+
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="col-span-1 space-y-1">
+                              <span className="text-[10px] text-muted-foreground font-medium">Method</span>
+                              <Select
+                                value={(selectedNode.config.method as string) || 'GET'}
+                                onValueChange={(val) => updateSelectedNodeConfig({ method: val })}
+                              >
+                                <SelectTrigger className="h-8 text-xs font-mono font-bold">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="GET">GET</SelectItem>
+                                  <SelectItem value="POST">POST</SelectItem>
+                                  <SelectItem value="PUT">PUT</SelectItem>
+                                  <SelectItem value="PATCH">PATCH</SelectItem>
+                                  <SelectItem value="DELETE">DELETE</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="col-span-2 space-y-1">
+                              <span className="text-[10px] text-muted-foreground font-medium">Timeout (ms)</span>
+                              <Input
+                                type="number"
+                                value={selectedNode.config.timeout_ms || 10000}
+                                onChange={(e) => updateSelectedNodeConfig({ timeout_ms: parseInt(e.target.value) || 10000 })}
+                                className="h-8 text-xs font-mono"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <span className="text-[10px] text-muted-foreground font-medium">API Endpoint URL</span>
+                            <Input
+                              value={(selectedNode.config.url as string) || ''}
+                              placeholder="https://api.yourbackend.com/orders/{{vars.order_id}}"
+                              onChange={(e) => updateSelectedNodeConfig({ url: e.target.value })}
+                              className="h-8 text-xs font-mono"
+                            />
+                            <p className="text-[10px] text-muted-foreground">
+                              Supports variables like <span className="font-mono text-primary font-semibold">{'{{vars.key}}'}</span>, <span className="font-mono text-primary font-semibold">{'{{phone}}'}</span>.
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* 2. Custom Headers */}
+                        <div className="p-3.5 rounded-xl border border-border/70 bg-card space-y-2.5 shadow-2xs">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs font-semibold">HTTP Headers</Label>
+                            <span className="text-[10px] text-muted-foreground">e.g. Authorization, Api-Key</span>
+                          </div>
+
+                          <div className="space-y-2">
+                            {((selectedNode.config.headers as any[]) || []).map((h, i) => (
+                              <div key={i} className="flex items-center gap-1.5">
+                                <Input
+                                  placeholder="Header Name (e.g. Authorization)"
+                                  value={h.key || ''}
+                                  onChange={(e) => {
+                                    const updated = [...(selectedNode.config.headers as any[])]
+                                    updated[i] = { ...updated[i], key: e.target.value }
+                                    updateSelectedNodeConfig({ headers: updated })
+                                  }}
+                                  className="h-7 text-xs font-mono"
+                                />
+                                <Input
+                                  placeholder="Header Value (e.g. Bearer token)"
+                                  value={h.value || ''}
+                                  onChange={(e) => {
+                                    const updated = [...(selectedNode.config.headers as any[])]
+                                    updated[i] = { ...updated[i], value: e.target.value }
+                                    updateSelectedNodeConfig({ headers: updated })
+                                  }}
+                                  className="h-7 text-xs font-mono"
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+                                  onClick={() => {
+                                    const updated = ((selectedNode.config.headers as any[]) || []).filter((_, idx) => idx !== i)
+                                    updateSelectedNodeConfig({ headers: updated })
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full text-xs h-7 gap-1 border-dashed"
+                            onClick={() => {
+                              const existing = (selectedNode.config.headers as any[]) || []
+                              updateSelectedNodeConfig({ headers: [...existing, { key: '', value: '' }] })
+                            }}
+                          >
+                            <Plus className="h-3 w-3" /> Add Header
+                          </Button>
+                        </div>
+
+                        {/* 3. Request Body (if POST, PUT, PATCH, DELETE) */}
+                        {['POST', 'PUT', 'PATCH', 'DELETE'].includes(
+                          String(selectedNode.config.method || 'GET').toUpperCase()
+                        ) && (
+                          <div className="space-y-1.5 p-3.5 rounded-xl border border-border/70 bg-card shadow-2xs">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-xs font-semibold">Request Body (JSON)</Label>
+                              <span className="text-[10px] text-muted-foreground">Supports {'{{vars.x}}'}</span>
+                            </div>
+                            <Textarea
+                              rows={4}
+                              value={(selectedNode.config.body as string) || ''}
+                              onChange={(e) => updateSelectedNodeConfig({ body: e.target.value })}
+                              placeholder={'{\n  "query": "{{vars.input}}",\n  "phone": "{{phone}}"\n}'}
+                              className="font-mono text-xs leading-relaxed resize-y bg-muted/20"
+                            />
+                          </div>
+                        )}
+
+                        {/* 4. Response Field Mappings */}
+                        <div className="p-3.5 rounded-xl border border-cyan-500/30 bg-cyan-500/5 space-y-2.5 shadow-2xs">
+                          <div className="space-y-1">
+                            <Label className="text-xs font-semibold text-cyan-700 dark:text-cyan-300 flex items-center gap-1.5">
+                              Extract Response to Variables
+                            </Label>
+                            <p className="text-[10px] text-muted-foreground leading-normal">
+                              Map JSON fields returned by your backend into flow variables to use in next messages.
+                            </p>
+                          </div>
+
+                          <div className="space-y-2">
+                            {((selectedNode.config.response_mappings as any[]) || []).map((m, i) => (
+                              <div key={i} className="flex items-center gap-1.5">
+                                <div className="flex-1 space-y-0.5">
+                                  <span className="text-[9px] text-muted-foreground">JSON Path in Response</span>
+                                  <Input
+                                    placeholder="e.g. data.customer.name"
+                                    value={m.json_path || ''}
+                                    onChange={(e) => {
+                                      const updated = [...(selectedNode.config.response_mappings as any[])]
+                                      updated[i] = { ...updated[i], json_path: e.target.value }
+                                      updateSelectedNodeConfig({ response_mappings: updated })
+                                    }}
+                                    className="h-7 text-xs font-mono bg-background"
+                                  />
+                                </div>
+                                <div className="text-muted-foreground text-xs pt-3">➔</div>
+                                <div className="flex-1 space-y-0.5">
+                                  <span className="text-[9px] text-muted-foreground">Store in Variable</span>
+                                  <Input
+                                    placeholder="e.g. customer_name"
+                                    value={m.var_key || ''}
+                                    onChange={(e) => {
+                                      const updated = [...(selectedNode.config.response_mappings as any[])]
+                                      updated[i] = { ...updated[i], var_key: e.target.value }
+                                      updateSelectedNodeConfig({ response_mappings: updated })
+                                    }}
+                                    className="h-7 text-xs font-mono bg-background"
+                                  />
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0 mt-3"
+                                  onClick={() => {
+                                    const updated = ((selectedNode.config.response_mappings as any[]) || []).filter((_, idx) => idx !== i)
+                                    updateSelectedNodeConfig({ response_mappings: updated })
+                                  }}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="w-full text-xs h-7 gap-1 border-dashed border-cyan-500/40 text-cyan-700 dark:text-cyan-300"
+                            onClick={() => {
+                              const existing = (selectedNode.config.response_mappings as any[]) || []
+                              updateSelectedNodeConfig({
+                                response_mappings: [...existing, { json_path: '', var_key: '' }],
+                              })
+                            }}
+                          >
+                            <Plus className="h-3 w-3" /> Add Response Mapping
+                          </Button>
+                        </div>
+
+                        {/* 5. Branch Routes */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="p-3 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1.5">
+                            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                              ✓ On 2xx Success ➔ Next Node
+                            </span>
+                            <Select
+                              value={(selectedNode.config.next_node_key as string) || 'none'}
+                              onValueChange={(val) =>
+                                updateSelectedNodeConfig({ next_node_key: val === 'none' ? '' : val })
+                              }
+                            >
+                              <SelectTrigger className="h-8 text-xs bg-background">
+                                <SelectValue placeholder="Select node..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">(None / Stop)</SelectItem>
+                                {nodes
+                                  .filter((n) => n.node_key !== selectedNode.node_key)
+                                  .map((n) => (
+                                    <SelectItem key={n.node_key} value={n.node_key}>
+                                      {n.node_key}
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="p-3 rounded-xl border border-rose-500/30 bg-rose-500/5 space-y-1.5">
+                            <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 flex items-center gap-1">
+                              ✕ On Error / Fallback ➔ Next Node
+                            </span>
+                            <Select
+                              value={(selectedNode.config.error_node_key as string) || 'none'}
+                              onValueChange={(val) =>
+                                updateSelectedNodeConfig({ error_node_key: val === 'none' ? '' : val })
+                              }
+                            >
+                              <SelectTrigger className="h-8 text-xs bg-background">
+                                <SelectValue placeholder="Select node..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">(None / Stop)</SelectItem>
+                                {nodes
+                                  .filter((n) => n.node_key !== selectedNode.node_key)
+                                  .map((n) => (
+                                    <SelectItem key={n.node_key} value={n.node_key}>
+                                      {n.node_key}
+                                    </SelectItem>
+                                  ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* HANDOFF NODE */}
                     {selectedNode.node_type === 'handoff' && (
                       <div className="space-y-4">
@@ -974,19 +1317,57 @@ export function FlowCanvas({
                         <Badge variant="outline" className="text-[10px] bg-background/80">WhatsApp Preview</Badge>
                       </div>
 
-                      {/* Fake WhatsApp Message Bubble */}
-                      <div className="flex justify-start">
-                        <div className="max-w-[92%] rounded-xl rounded-tl-none bg-card text-card-foreground p-3 shadow-md border border-border/40 space-y-2 text-xs">
-                          {/* Body text with formatting */}
-                          <div
-                            className="whitespace-pre-wrap leading-relaxed text-foreground"
-                            dangerouslySetInnerHTML={{
-                              __html: (
-                                (selectedNode.config.text as string) ||
-                                (selectedNode.config.prompt_text as string) ||
-                                (selectedNode.config.note as string) ||
-                                '*(Empty message)*'
-                              )
+                      {/* HTTP Request Node Live Preview */}
+                      {selectedNode.node_type === 'http_request' ? (
+                        <div className="rounded-xl bg-card border border-cyan-500/30 p-4 space-y-3 shadow-md text-xs">
+                          <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                            <span className="font-bold text-cyan-600 dark:text-cyan-400 flex items-center gap-1.5">
+                              <Globe className="h-4 w-4" /> Automated API / DB Call
+                            </span>
+                            <Badge variant="outline" className="font-mono text-[10px] bg-cyan-500/10 text-cyan-600 border-cyan-500/30">
+                              {(selectedNode.config.method as string) || 'GET'}
+                            </Badge>
+                          </div>
+
+                          <div className="space-y-1">
+                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">Target URL</span>
+                            <div className="p-2 rounded bg-muted/40 font-mono text-[11px] text-foreground break-all">
+                              {(selectedNode.config.url as string) || '(URL not configured)'}
+                            </div>
+                          </div>
+
+                          {Array.isArray(selectedNode.config.response_mappings) && selectedNode.config.response_mappings.length > 0 && (
+                            <div className="space-y-1">
+                              <span className="text-[10px] text-muted-foreground uppercase font-semibold">Extracted Variables</span>
+                              <div className="space-y-1">
+                                {selectedNode.config.response_mappings.map((m: any, idx: number) => (
+                                  <div key={idx} className="flex items-center justify-between bg-muted/20 px-2 py-1 rounded text-[11px] font-mono">
+                                    <span className="text-muted-foreground">{m.json_path || 'path'}</span>
+                                    <span className="text-primary font-bold">➔ vars.{m.var_key || 'key'}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="pt-2 border-t border-border/50 flex justify-between text-[11px]">
+                            <span className="text-emerald-600 dark:text-emerald-400 font-medium">✓ Next: {selectedNode.config.next_node_key || '(Stop)'}</span>
+                            <span className="text-rose-500 font-medium">✕ Error: {selectedNode.config.error_node_key || '(Stop)'}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex justify-start">
+                          <div className="max-w-[92%] rounded-xl rounded-tl-none bg-card text-card-foreground p-3 shadow-md border border-border/40 space-y-2 text-xs">
+                            {/* Body text with formatting */}
+                            <div
+                              className="whitespace-pre-wrap leading-relaxed text-foreground"
+                              dangerouslySetInnerHTML={{
+                                __html: (
+                                  (selectedNode.config.text as string) ||
+                                  (selectedNode.config.prompt_text as string) ||
+                                  (selectedNode.config.note as string) ||
+                                  '*(Empty message)*'
+                                )
                                 .replace(/\\n/g, '\n')
                                 .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
                                 .replace(/_(.*?)_/g, '<em>$1</em>')
@@ -1007,6 +1388,7 @@ export function FlowCanvas({
                           </div>
                         </div>
                       </div>
+                    )}
 
                       {/* Interactive Button Chips underneath */}
                       {selectedNode.node_type === 'send_buttons' && (

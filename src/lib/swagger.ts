@@ -33,8 +33,12 @@ All endpoints require authentication via:
             },
             servers: [
                 {
-                    url: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api",
-                    description: "API Server",
+                    url: process.env.NEXT_PUBLIC_API_URL || "/api",
+                    description: "Current Host API",
+                },
+                {
+                    url: "http://localhost:3000/api",
+                    description: "Localhost Development",
                 },
             ],
             components: {

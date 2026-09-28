@@ -8,6 +8,7 @@ import type {
   SendMessageNodeConfig,
   CollectInputNodeConfig,
   ConditionNodeConfig,
+  HttpRequestNodeConfig,
   HandoffNodeConfig,
 } from './types'
 import { logger } from '@/lib/logger'
@@ -36,10 +37,102 @@ function cleanNewlines(text: string): string {
     .replace(/\\r/g, '\n')
 }
 
+export function resolveJsonPath(data: any, path: string): unknown {
+  if (data == null || !path) return undefined
+  const cleanPath = path.trim()
+  if (!cleanPath) return data
+
+  const normalizedPath = cleanPath.replace(/\[(\w+)\]/g, '.$1')
+  const parts = normalizedPath.split('.')
+  let current: any = data
+
+  for (const part of parts) {
+    if (current == null) return undefined
+    current = current[part]
+  }
+
+  return current
+}
+
+function formatValueForWhatsApp(val: unknown): string {
+  if (val === undefined || val === null) return ''
+  if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
+    return String(val)
+  }
+  if (Array.isArray(val)) {
+    return val
+      .map((item, idx) => {
+        if (typeof item === 'object' && item !== null) {
+          const obj = item as Record<string, any>
+
+          // 1. Time Slot formatting (if item is a timeslot)
+          if (obj.label && (obj.start_time || obj.display_order !== undefined)) {
+            return `⏰ *${obj.label}*`
+          }
+
+          // 2. Offer / Discount formatting (if item is an offer)
+          if (obj.discount_percentage || obj.promo_code) {
+            let res = `🎉 *${obj.title || 'Special Offer'}* (${Number(obj.discount_percentage)}% OFF)`
+            if (obj.promo_code) res += `\n  🎟️ Promo Code: *${obj.promo_code}*`
+            if (obj.description) res += `\n  _${obj.description}_`
+            if (obj.end_date) res += `\n  ⏳ Valid until: ${new Date(obj.end_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
+            return res
+          }
+
+          // 3. Location formatting (if item is a location)
+          if (obj.name && (obj.slug || obj.description || obj.desc) && !obj.pricing_type && !obj.adult_price && !obj.flat_price) {
+            const desc = obj.description || obj.desc
+            return `📍 *${obj.name}*${desc ? `\n  _${desc}_` : ''}`
+          }
+
+          // 4. Package formatting (if item is a package or tour)
+          const name = obj.name || obj.title || obj.package || obj.package_name || obj.label || `Option ${idx + 1}`
+          const details: string[] = []
+
+          // Pricing calculation
+          if (obj.pricing_type === 'flat' && obj.flat_price) {
+            details.push(`💰 Price: ₹${Number(obj.flat_price).toLocaleString('en-IN')} / trip`)
+          } else if (obj.pricing_type === 'per_head' && obj.adult_price) {
+            const childText = obj.child_price && Number(obj.child_price) > 0 ? ` (Child: ₹${Number(obj.child_price).toLocaleString('en-IN')})` : ''
+            details.push(`💰 Price: ₹${Number(obj.adult_price).toLocaleString('en-IN')} / person${childText}`)
+          } else if (obj.price || obj.cost || obj.amount) {
+            details.push(`💰 Price: ₹${Number(obj.price || obj.cost || obj.amount).toLocaleString('en-IN')}`)
+          }
+
+          // Capacity & Duration
+          if (obj.max_capacity) {
+            details.push(`👥 Capacity: ${obj.max_capacity} Persons`)
+          }
+          if (obj.duration_minutes) {
+            details.push(`⏱️ Duration: ${obj.duration_minutes} Mins`)
+          } else if (obj.date || obj.duration) {
+            details.push(`📅 ${obj.date || obj.duration}`)
+          }
+
+          let res = `• *${name}*`
+          if (details.length > 0) {
+            res += `\n  ${details.join(' | ')}`
+          }
+          if (obj.description) {
+            res += `\n  _${obj.description}_`
+          }
+          return res
+        }
+        return `• ${String(item)}`
+      })
+      .join('\n\n')
+  }
+  if (typeof val === 'object') {
+    return JSON.stringify(val)
+  }
+  return String(val)
+}
+
 function interpolateVars(text: string, vars: Record<string, unknown>): string {
   if (!text || typeof text !== 'string') return ''
   let result = text.replace(/\{\{\s*vars\.([\w.]+)\s*\}\}/g, (_, key) => {
-    return String(vars[key] ?? '')
+    const val = vars[key] !== undefined ? vars[key] : resolveJsonPath(vars, key)
+    return formatValueForWhatsApp(val)
   })
   return cleanNewlines(result)
 }
@@ -354,6 +447,118 @@ async function walkFlowGraph(args: {
       else if (cond.operator === 'absent') passed = !varVal
 
       currKey = passed ? cond.true_next : cond.false_next
+      continue
+    }
+
+    // 3b. HTTP Request / External Backend node
+    if (node.nodeType === 'http_request') {
+      const httpCfg = cfg as HttpRequestNodeConfig
+      const timeoutMs = httpCfg.timeout_ms || 10000
+
+      // Injected system context for convenience
+      const enrichedVars: Record<string, unknown> = {
+        ...currentVars,
+        remote_jid: remoteJid,
+        phone: remoteJid.replace(/@.*$/, ''),
+      }
+
+      // Interpolate URL
+      const targetUrl = interpolateVars(httpCfg.url || '', enrichedVars).trim()
+      const method = (httpCfg.method || 'GET').toUpperCase()
+
+      // Build Headers
+      const headers: Record<string, string> = {}
+      if (Array.isArray(httpCfg.headers)) {
+        for (const h of httpCfg.headers) {
+          if (h.key && h.key.trim()) {
+            headers[h.key.trim()] = interpolateVars(h.value || '', enrichedVars)
+          }
+        }
+      }
+
+      // Build Body for POST / PUT / PATCH
+      let body: string | undefined = undefined
+      if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && httpCfg.body) {
+        body = interpolateVars(httpCfg.body, enrichedVars)
+        if (!headers['Content-Type'] && !headers['content-type']) {
+          headers['Content-Type'] = 'application/json'
+        }
+      }
+
+      let isSuccess = false
+      let responseData: any = null
+
+      try {
+        logger.info('FlowEngine', `Executing HTTP Request [${method}] ${targetUrl}`)
+        const response = await fetch(targetUrl, {
+          method,
+          headers,
+          body,
+          signal: AbortSignal.timeout(timeoutMs),
+        })
+
+        const contentType = response.headers.get('content-type') || ''
+        if (contentType.includes('application/json')) {
+          try {
+            responseData = await response.json()
+          } catch {
+            responseData = await response.text()
+          }
+        } else {
+          responseData = await response.text()
+        }
+
+        isSuccess = response.ok
+
+        if (isSuccess && responseData) {
+          if (Array.isArray(httpCfg.response_mappings)) {
+            for (const mapping of httpCfg.response_mappings) {
+              if (mapping.var_key && mapping.json_path) {
+                const extracted = resolveJsonPath(responseData, mapping.json_path)
+                if (extracted !== undefined) {
+                  currentVars[mapping.var_key] = extracted
+                }
+              }
+            }
+          }
+          currentVars['http_status'] = response.status
+        } else {
+          currentVars['http_status'] = response.status
+          currentVars['http_error'] = `HTTP ${response.status}: ${
+            typeof responseData === 'string' ? responseData.slice(0, 200) : 'Request failed'
+          }`
+        }
+      } catch (err: any) {
+        logger.error('FlowEngine', `HTTP Request failed to ${targetUrl}: ${err.message}`)
+        isSuccess = false
+        currentVars['http_status'] = 0
+        currentVars['http_error'] = err.message || 'Network error'
+      }
+
+      // Persist updated variables in DB
+      await prisma.flowRun.update({
+        where: { id: runId },
+        data: { vars: currentVars as any, lastAdvancedAt: new Date() },
+      })
+
+      await prisma.flowRunEvent.create({
+        data: {
+          runId,
+          nodeKey: node.nodeKey,
+          nodeType: node.nodeType,
+          eventType: isSuccess ? 'http_request_success' : 'http_request_failed',
+          payload: {
+            url: targetUrl,
+            method,
+            success: isSuccess,
+            status: Number(currentVars['http_status']) || 0,
+          },
+        },
+      })
+
+      currKey = isSuccess
+        ? httpCfg.next_node_key || null
+        : httpCfg.error_node_key || httpCfg.next_node_key || null
       continue
     }
 

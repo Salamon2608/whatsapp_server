@@ -28,6 +28,244 @@ All endpoints require one of the following authentication methods:
 
 ---
 
+## 🚀 Developer Integration Guide
+
+### Quick Start & Architecture
+
+This server provides standard REST API endpoints over HTTP/JSON. Any backend application (Node.js, Python, PHP, Java, Go) can send messages and receive real-time customer replies via webhooks.
+
+```
+┌───────────────────────────────────────┐
+│     Your Application / Backend        │
+│  (Node.js / Python / PHP / Laravel)   │
+└──────────────────┬────────────────────┘
+                   │
+                   │  1. Outbound API Calls (HTTPS / JSON)
+                   │     Headers: X-API-Key: wag_xxxx
+                   ▼
+┌───────────────────────────────────────┐
+│           WHATSAPP SERVER             │
+│   (Next.js REST API + Baileys Engine) │
+└──────────────────┬────────────────────┘
+                   │
+                   │  2. Inbound Webhooks (HTTP POST)
+                   │     Event: "message.received"
+                   ▼
+┌───────────────────────────────────────┐
+│       Your Webhook Listener / Bot     │
+│       /api/whatsapp/webhook           │
+└───────────────────────────────────────┘
+```
+
+**Required Credentials:**
+1. **Base URL**: e.g., `https://wa.yourdomain.com` or `http://localhost:3000`
+2. **API Key**: `X-API-Key: wag_...` (Found in Dashboard -> Settings / Profile)
+3. **Session ID**: e.g., `primary` or `pondykings` (Connected WhatsApp instance name)
+
+---
+
+### Sending Text Messages
+
+* **Method**: `POST`
+* **Endpoint**: `/api/messages/:sessionId/:jid/send`
+* **Headers**:
+  ```http
+  X-API-Key: wag_your_api_key_here
+  Content-Type: application/json
+  ```
+* **Request Body**:
+  ```json
+  {
+    "message": "Hello from Pondy Kings Boating! Your booking #PKB-101 is confirmed. 🚤"
+  }
+  ```
+* **Response (200 OK)**:
+  ```json
+  {
+    "status": true,
+    "message": "Message sent successfully",
+    "data": {
+      "key": {
+        "remoteJid": "919092725689@s.whatsapp.net",
+        "fromMe": true,
+        "id": "BAE59F82A1B2C3"
+      }
+    }
+  }
+  ```
+
+---
+
+### Sending Media & PDF Tickets
+
+Send booking passes, PDFs, images, or audio voice notes:
+* **Method**: `POST`
+* **Endpoint**: `/api/messages/:sessionId/:jid/media`
+* **Request Body**:
+  ```json
+  {
+    "type": "document",
+    "url": "https://yourdomain.com/tickets/ticket_PKB-101.pdf",
+    "fileName": "Boat_Ride_Ticket.pdf",
+    "caption": "Here is your confirmed booking ticket and QR boarding pass 🎟️"
+  }
+  ```
+*Supported `type` values: `"document"`, `"image"`, `"video"`, `"audio"`.*
+
+---
+
+### Inbound Webhooks & Chatbots
+
+To receive customer replies and power chatbots, register your webhook in the Dashboard under **Sessions ➔ Webhooks ➔ Add Webhook**:
+* **Webhook URL**: `https://api.yourdomain.com/api/whatsapp/webhook`
+* **Subscribed Events**: `message.received`
+
+**Webhook Payload Structure received by your server:**
+```json
+{
+  "event": "message.received",
+  "sessionId": "pondykings",
+  "timestamp": "2026-09-24T05:45:00.000Z",
+  "data": {
+    "key": {
+      "id": "BAE53F91A2B3C4D5",
+      "remoteJid": "919092725689@s.whatsapp.net",
+      "fromMe": false
+    },
+    "pushName": "Customer Name",
+    "from": "919092725689@s.whatsapp.net",
+    "sender": "919092725689@s.whatsapp.net",
+    "isGroup": false,
+    "type": "TEXT",
+    "content": "Hi",
+    "caption": "",
+    "fileUrl": null,
+    "quoted": null
+  }
+}
+```
+
+> **Developer Implementation Rules:**
+> 1. Read customer text from `data.content` (or `data.caption` for images).
+> 2. Ignore messages where `data.key.fromMe === true` to avoid self-echo loops.
+> 3. Return HTTP `200 OK` within 3 seconds.
+
+---
+
+### Code Examples (Node.js, Python, PHP, cURL)
+
+#### Node.js (Fetch)
+```javascript
+const BASE_URL = process.env.WHATSAPP_SERVER_URL || 'https://wa.yourdomain.com';
+const API_KEY = process.env.WHATSAPP_API_KEY || 'wag_your_key_here';
+const SESSION_ID = process.env.WHATSAPP_SESSION_ID || 'primary';
+
+async function sendWhatsAppText(phone, message) {
+  const cleanPhone = phone.replace(/\D/g, ''); // 919092725689
+
+  const response = await fetch(`${BASE_URL}/api/messages/${SESSION_ID}/${cleanPhone}/send`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-API-Key': API_KEY
+    },
+    body: JSON.stringify({ message })
+  });
+
+  const data = await response.json();
+  if (!response.ok || !data.status) {
+    throw new Error(data.message || 'Failed to send WhatsApp message');
+  }
+  return data;
+}
+
+// Usage
+sendWhatsAppText('919092725689', 'Your booking is confirmed! 🚢')
+  .then(res => console.log('Success:', res))
+  .catch(err => console.error('Error:', err.message));
+```
+
+#### Python (requests)
+```python
+import requests
+import os
+
+BASE_URL = os.getenv("WHATSAPP_SERVER_URL", "https://wa.yourdomain.com")
+API_KEY = os.getenv("WHATSAPP_API_KEY", "wag_your_key_here")
+SESSION_ID = os.getenv("WHATSAPP_SESSION_ID", "primary")
+
+def send_whatsapp(phone: str, text: str) -> dict:
+    clean_phone = "".join(filter(str.isdigit, phone))
+    url = f"{BASE_URL}/api/messages/{SESSION_ID}/{clean_phone}/send"
+    
+    headers = {
+        "X-API-Key": API_KEY,
+        "Content-Type": "application/json"
+    }
+    
+    response = requests.post(url, json={"message": text}, headers=headers, timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+# Usage
+send_whatsapp("919092725689", "Hello from Python!")
+```
+
+#### PHP (cURL)
+```php
+<?php
+$baseUrl   = getenv('WHATSAPP_SERVER_URL') ?: 'https://wa.yourdomain.com';
+$apiKey    = getenv('WHATSAPP_API_KEY') ?: 'wag_your_key_here';
+$sessionId = getenv('WHATSAPP_SESSION_ID') ?: 'primary';
+$phone     = '919092725689';
+
+$ch = curl_init("{$baseUrl}/api/messages/{$sessionId}/{$phone}/send");
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['message' => 'Hello from PHP!']));
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    "X-API-Key: {$apiKey}",
+    "Content-Type: application/json"
+]);
+
+$response = curl_exec($ch);
+curl_close($ch);
+echo $response;
+?>
+```
+
+#### cURL (CLI)
+```bash
+curl -X POST "https://wa.yourdomain.com/api/messages/primary/919092725689/send" \
+  -H "X-API-Key: wag_your_key_here" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello from Terminal!"}'
+```
+
+---
+
+### Status Codes & Troubleshooting
+
+| Status Code | Meaning | Cause & Resolution |
+| :--- | :--- | :--- |
+| **`200 OK`** | Success | Message queued/sent successfully. |
+| **`400 Bad Request`** | Missing Data | `message` or `text` is required in request body. |
+| **`401 Unauthorized`** | Invalid Auth | Missing or incorrect `X-API-Key` header. |
+| **`403 Forbidden`** | Access Denied | User account does not have permission for this `sessionId`. |
+| **`404 Not Found`** | Not Found | Session does not exist in the database. |
+| **`500 Server Error`** | Disconnected | Phone is offline or session is disconnected. Reconnect via dashboard. |
+
+---
+
+### Swagger UI Interactive Testing
+
+You can test all endpoints in your browser without writing code:
+1. Navigate to `/swagger` (e.g., `https://wa.yourdomain.com/swagger`).
+2. Log in with credentials (Default: `admin` / `admin123`).
+3. Select an endpoint, click **Try it out**, fill in the parameters, and click **Execute**.
+
+---
+
 ## 📂 Media
 
 ### \[GET\] /media/{filename}
