@@ -34,7 +34,7 @@ export function AiConfigForm() {
   const currentSession = sessions.find((s) => s.sessionId === sessionId);
   const isLoggedOut = currentSession?.status === "LOGGED_OUT" || (sessions.length > 0 && sessions.every(s => s.status === "LOGGED_OUT"));
 
-  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'ollama'>('openai')
+  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'ollama' | 'groq'>('openai')
   const [model, setModel] = useState(AI_PROVIDER_DEFAULT_MODEL.openai)
   const [apiKey, setApiKey] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
@@ -72,7 +72,7 @@ export function AiConfigForm() {
     load()
   }, [])
 
-  const handleProviderChange = (p: 'openai' | 'anthropic' | 'ollama') => {
+  const handleProviderChange = (p: 'openai' | 'anthropic' | 'ollama' | 'groq') => {
     setProvider(p)
     setModel(AI_PROVIDER_DEFAULT_MODEL[p])
   }
@@ -202,7 +202,8 @@ export function AiConfigForm() {
                 <SelectContent>
                   <SelectItem value="openai">OpenAI (ChatGPT / GPT-4o)</SelectItem>
                   <SelectItem value="anthropic">Anthropic (Claude 3.5)</SelectItem>
-                  <SelectItem value="ollama">Ollama (Local EC2 - Gemma / Qwen / Llama)</SelectItem>
+                  <SelectItem value="groq">Groq Cloud (100% Free, Ultra-Fast 500 T/s)</SelectItem>
+                  <SelectItem value="ollama">Ollama (Local EC2 - Gemma 3)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -213,19 +214,37 @@ export function AiConfigForm() {
                 className="h-9 text-xs font-mono"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder="qwen2.5:0.5b, gemma3:270m, etc."
+                placeholder={
+                  provider === 'groq'
+                    ? 'qwen/qwen3.8-27b'
+                    : provider === 'ollama'
+                      ? 'gemma3:270m'
+                      : 'gpt-4o-mini'
+                }
               />
             </div>
           </div>
+
+          {provider === 'groq' && (
+            <div className="rounded-md bg-orange-500/10 border border-orange-500/20 p-2.5 text-xs text-orange-700 dark:text-orange-400 space-y-1">
+              <div className="font-semibold flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5" />
+                Groq Cloud Ultra-Fast Inference Active
+              </div>
+              <p className="text-[11px] opacity-90">
+                100% Free tier running on Groq LPUs (~500 tokens/sec). Speaks fluent English, Tamil, and Tanglish with 0 MB RAM used on your EC2! Default model: <code className="font-mono bg-orange-500/20 px-1 py-0.5 rounded font-semibold">{model || 'qwen/qwen3.8-27b'}</code>.
+              </p>
+            </div>
+          )}
 
           {provider === 'ollama' && (
             <div className="rounded-md bg-emerald-500/10 border border-emerald-500/20 p-2.5 text-xs text-emerald-700 dark:text-emerald-400 space-y-1">
               <div className="font-semibold flex items-center gap-1.5">
                 <Sparkles className="h-3.5 w-3.5" />
-                Local Ollama Engine Active ({model || 'qwen2.5:0.5b'})
+                Local Ollama Engine Active ({model || 'gemma3:270m'})
               </div>
               <p className="text-[11px] opacity-90">
-                Queries run locally on your EC2 instance via Ollama (<code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded">http://localhost:11434</code>) with zero API costs. Currently configured model: <code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded font-semibold">{model || 'qwen2.5:0.5b'}</code>.
+                Queries run locally on your EC2 instance via Ollama (<code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded">http://localhost:11434</code>) with zero API costs. Currently configured model: <code className="font-mono bg-emerald-500/20 px-1 py-0.5 rounded font-semibold">{model || 'gemma3:270m'}</code>.
               </p>
             </div>
           )}
@@ -243,9 +262,11 @@ export function AiConfigForm() {
                 placeholder={
                   provider === 'ollama'
                     ? 'None required for local EC2 Ollama'
-                    : provider === 'openai'
-                      ? 'sk-...'
-                      : 'sk-ant-...'
+                    : provider === 'groq'
+                      ? 'gsk_...'
+                      : provider === 'openai'
+                        ? 'sk-...'
+                        : 'sk-ant-...'
                 }
               />
               <Button

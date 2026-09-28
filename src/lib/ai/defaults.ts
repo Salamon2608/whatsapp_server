@@ -4,6 +4,7 @@ export const AI_PROVIDER_DEFAULT_MODEL: Record<AiProvider, string> = {
   openai: 'gpt-4o-mini',
   anthropic: 'claude-3-5-haiku-20241022',
   ollama: 'gemma3:270m',
+  groq: 'qwen/qwen3.8-27b',
 }
 
 export const HANDOFF_SENTINEL = '[[HANDOFF]]'

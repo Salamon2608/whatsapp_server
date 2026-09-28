@@ -53,7 +53,13 @@ export async function POST(request: NextRequest) {
       await generateReply({
         config: {
           provider: provider || 'openai',
-          model: model || (provider === 'ollama' ? 'gemma3:270m' : 'gpt-4o-mini'),
+          model:
+            model ||
+            (provider === 'ollama'
+              ? 'gemma3:270m'
+              : provider === 'groq'
+                ? 'llama-3.3-70b-versatile'
+                : 'gpt-4o-mini'),
           apiKey: apiKey || (provider === 'ollama' ? 'ollama' : ''),
           systemPrompt: null,
           isActive: true,

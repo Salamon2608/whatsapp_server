@@ -5,7 +5,7 @@
 // manual drafts talk to `generateReply` seamlessly.
 // ============================================================
 
-export type AiProvider = 'openai' | 'anthropic' | 'ollama'
+export type AiProvider = 'openai' | 'anthropic' | 'ollama' | 'groq'
 
 export interface AiConfigData {
   provider: AiProvider
