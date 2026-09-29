@@ -140,6 +140,16 @@ function interpolateVars(text: string, vars: Record<string, unknown>): string {
   return cleanNewlines(result)
 }
 
+function stripEmojiAndPunctuation(str: string): string {
+  if (!str || typeof str !== 'string') return ''
+  return str
+    .toLowerCase()
+    .replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F1E6}-\u{1F1FF}]/gu, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 export async function dispatchInboundToFlows(
   input: DispatchFlowsInput,
 ): Promise<DispatchFlowsResult> {
@@ -320,50 +330,75 @@ async function advanceActiveRun(args: {
     nextNodeKey = cfg.next_node_key || null
   } else if (currentNode.nodeType === 'send_buttons') {
     const cfg = (currentNode.config as any) as SendButtonsNodeConfig
-    const reply = (message.reply_id || message.text || '').toLowerCase().trim()
-    const hit = cfg.buttons?.find(
-      (b, i) =>
-        b.reply_id.toLowerCase() === reply ||
-        b.title.toLowerCase() === reply ||
-        String(i + 1) === reply ||
-        reply.startsWith(String(i + 1) + '.') ||
-        reply.startsWith(String(i + 1) + ' ')
-    )
+    const rawReply = (message.reply_id || message.text || '').trim()
+    const cleanReply = stripEmojiAndPunctuation(rawReply)
+
+    // 1. Intelligent Option Matching (Exact, Number, Substring, or Keyphrase)
+    const hit = cfg.buttons?.find((b, i) => {
+      const cleanTitle = stripEmojiAndPunctuation(b.title || '')
+      const cleanId = stripEmojiAndPunctuation(b.reply_id || '')
+      const numStr = String(i + 1)
+
+      // Direct ID or title match
+      if (rawReply.toLowerCase() === b.reply_id.toLowerCase() || rawReply.toLowerCase() === b.title.toLowerCase()) return true
+      // Number match: "1", "1.", "1 "
+      if (cleanReply === numStr || cleanReply.startsWith(numStr + '.') || cleanReply.startsWith(numStr + ' ')) return true
+      // Cleaned exact match
+      if (cleanReply && (cleanReply === cleanTitle || cleanReply === cleanId)) return true
+      // Substring match: e.g. "Give the tour attractions" contains "tour attractions"
+      if (cleanTitle.length >= 3 && cleanReply.includes(cleanTitle)) return true
+      if (cleanReply.length >= 4 && cleanTitle.includes(cleanReply)) return true
+      // Significant keyword match (e.g. "attractions" in "📍 Tour Attractions", "timings" in "⏰ Daily Time Slots")
+      const titleWords = cleanTitle.split(/\s+/).filter((w) => w.length > 3)
+      if (titleWords.some((w) => cleanReply.includes(w))) return true
+
+      return false
+    })
+
     if (hit) {
-      vars.input = message.text || message.reply_title || ''
-      vars.last_input = message.text || message.reply_title || ''
+      vars.input = rawReply
+      vars.last_input = rawReply
       nextNodeKey = hit.next_node_key
     } else if (cfg.fallback_node_key) {
       // Direct fallback node configured (e.g. AI Agent node)
-      vars.input = message.text || message.reply_title || ''
-      vars.last_input = message.text || message.reply_title || ''
+      vars.input = rawReply
+      vars.last_input = rawReply
       nextNodeKey = cfg.fallback_node_key
     } else {
       // If customer typed a custom prompt or question (e.g. "price is high any discount"),
       // check if the flow has an AI agent node to answer!
       const aiNode = nodes.find((n: any) => n.nodeType === 'ai_agent')
       if (aiNode) {
-        vars.input = message.text || message.reply_title || ''
-        vars.last_input = message.text || message.reply_title || ''
+        vars.input = rawReply
+        vars.last_input = rawReply
         nextNodeKey = aiNode.nodeKey
       }
     }
   } else if (currentNode.nodeType === 'send_list') {
     const cfg = (currentNode.config as any) as SendListNodeConfig
-    const reply = (message.reply_id || message.text || '').toLowerCase().trim()
+    const rawReply = (message.reply_id || message.text || '').trim()
+    const cleanReply = stripEmojiAndPunctuation(rawReply)
     let rowIndex = 0
+
     for (const section of cfg.sections || []) {
       for (const r of section.rows || []) {
         rowIndex++
+        const cleanTitle = stripEmojiAndPunctuation(r.title || '')
+        const cleanId = stripEmojiAndPunctuation(r.reply_id || '')
+        const numStr = String(rowIndex)
+
         if (
-          r.reply_id.toLowerCase() === reply ||
-          r.title.toLowerCase() === reply ||
-          String(rowIndex) === reply ||
-          reply.startsWith(String(rowIndex) + '.') ||
-          reply.startsWith(String(rowIndex) + ' ')
+          rawReply.toLowerCase() === r.reply_id.toLowerCase() ||
+          rawReply.toLowerCase() === r.title.toLowerCase() ||
+          cleanReply === numStr ||
+          cleanReply.startsWith(numStr + '.') ||
+          cleanReply.startsWith(numStr + ' ') ||
+          (cleanReply && (cleanReply === cleanTitle || cleanReply === cleanId)) ||
+          (cleanTitle.length >= 3 && cleanReply.includes(cleanTitle)) ||
+          (cleanReply.length >= 4 && cleanTitle.includes(cleanReply))
         ) {
-          vars.input = message.text || message.reply_title || ''
-          vars.last_input = message.text || message.reply_title || ''
+          vars.input = rawReply
+          vars.last_input = rawReply
           nextNodeKey = r.next_node_key
           break
         }
@@ -372,14 +407,14 @@ async function advanceActiveRun(args: {
     }
     if (!nextNodeKey) {
       if (cfg.fallback_node_key) {
-        vars.input = message.text || message.reply_title || ''
-        vars.last_input = message.text || message.reply_title || ''
+        vars.input = rawReply
+        vars.last_input = rawReply
         nextNodeKey = cfg.fallback_node_key
       } else {
         const aiNode = nodes.find((n: any) => n.nodeType === 'ai_agent')
         if (aiNode) {
-          vars.input = message.text || message.reply_title || ''
-          vars.last_input = message.text || message.reply_title || ''
+          vars.input = rawReply
+          vars.last_input = rawReply
           nextNodeKey = aiNode.nodeKey
         }
       }
@@ -387,7 +422,53 @@ async function advanceActiveRun(args: {
   }
 
   if (!nextNodeKey) {
-    // Unrecognized answer: reprompt or handoff
+    const rawReply = (message.reply_id || message.text || '').trim()
+
+    // Try AI Assistant fallback if an active AI provider is configured
+    try {
+      const aiConfig = await prisma.aiConfig.findFirst({
+        where: { userId: flow.userId || undefined },
+      })
+      if (aiConfig && aiConfig.isActive && rawReply) {
+        const { generateReply } = await import('@/lib/ai/generate')
+        const { buildSystemPrompt } = await import('@/lib/ai/defaults')
+        let knowledgeExcerpts: string[] = []
+        try {
+          const { retrieveKnowledge } = await import('@/lib/ai/knowledge')
+          if (flow.userId) knowledgeExcerpts = await retrieveKnowledge(flow.userId, rawReply, 3)
+        } catch {}
+
+        const sys = buildSystemPrompt({
+          userPrompt: aiConfig.systemPrompt || 'You are a polite, helpful customer service assistant for this business. Answer concisely and politely in customer\'s language.',
+          mode: 'auto_reply',
+          knowledge: knowledgeExcerpts,
+        })
+        const reply = await generateReply({
+          config: {
+            provider: aiConfig.provider as any,
+            model: aiConfig.model,
+            apiKey: aiConfig.apiKey,
+            systemPrompt: aiConfig.systemPrompt,
+            isActive: aiConfig.isActive,
+            autoReplyEnabled: aiConfig.autoReplyEnabled,
+            autoReplyMaxPerConversation: aiConfig.autoReplyMaxPerConversation || 10,
+            handoffAgentId: aiConfig.handoffAgentId,
+            embeddingsApiKey: aiConfig.embeddingsApiKey,
+          },
+          systemPrompt: sys,
+          messages: [{ role: 'user', content: rawReply }],
+        })
+        if (reply.text) {
+          await simulateHumanTyping(sock, remoteJid, reply.text.length)
+          await sock.sendMessage(remoteJid, { text: reply.text }, { quoted: msg as any })
+          return { consumed: true, flowRunId: run.id, outcome: 'ai_fallback_replied' }
+        }
+      }
+    } catch (err: any) {
+      logger.error('FlowEngine', `AI fallback error: ${err?.message || err}`)
+    }
+
+    // Unrecognized answer fallback
     const reprompts = (run.repromptCount || 0) + 1
     if (reprompts >= 2) {
       await prisma.flowRun.update({
