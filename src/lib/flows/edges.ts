@@ -11,6 +11,7 @@ export function outgoingSlots(node: BuilderNode): OutgoingSlot[] {
     case 'start':
     case 'send_message':
     case 'collect_input':
+    case 'ai_agent':
       return [{ id: 'next', label: 'Next' }]
 
     case 'condition':
@@ -79,6 +80,7 @@ export function applyEdgeConnection(
     case 'start':
     case 'send_message':
     case 'collect_input':
+    case 'ai_agent':
       if (sourceHandle === 'next') return { next_node_key: targetKey }
       return null
 
@@ -145,7 +147,8 @@ export function unlinkNodeReferences(
     switch (n.node_type) {
       case 'start':
       case 'send_message':
-      case 'collect_input': {
+      case 'collect_input':
+      case 'ai_agent': {
         const next = (cfg as { next_node_key?: string }).next_node_key
         if (next !== deletedKey) return n
         return { ...n, config: { ...cfg, next_node_key: '' } }

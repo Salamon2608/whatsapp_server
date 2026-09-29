@@ -8,8 +8,18 @@ export type FlowNodeType =
   | 'condition'
   | 'set_tag'
   | 'http_request'
+  | 'ai_agent'
   | 'handoff'
   | 'end'
+
+export interface AiAgentNodeConfig {
+  system_prompt?: string
+  user_prompt?: string
+  response_var?: string
+  send_immediately?: boolean
+  knowledge_enabled?: boolean
+  next_node_key: string
+}
 
 export interface StartNodeConfig {
   next_node_key: string

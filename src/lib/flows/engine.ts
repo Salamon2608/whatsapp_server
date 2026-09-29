@@ -9,10 +9,13 @@ import type {
   CollectInputNodeConfig,
   ConditionNodeConfig,
   HttpRequestNodeConfig,
+  AiAgentNodeConfig,
   HandoffNodeConfig,
 } from './types'
 import { logger } from '@/lib/logger'
 import { simulateHumanTyping } from '@/lib/anti-ban'
+import { generateReply } from '@/lib/ai/generate'
+import { buildSystemPrompt } from '@/lib/ai/defaults'
 
 export interface DispatchFlowsInput {
   sock: WASocket
@@ -188,6 +191,7 @@ export async function dispatchInboundToFlows(
     for (const flow of activeFlows) {
       if (matchesTrigger(flow, message)) {
         logger.info('FlowEngine', `Starting flow "${flow.name}" for ${remoteJid}`)
+        const initialText = message.text || message.reply_title || message.reply_id || ''
         return await startNewFlowRun({
           sock,
           sessionId,
@@ -195,6 +199,7 @@ export async function dispatchInboundToFlows(
           flow,
           remoteJid,
           msg,
+          initialInput: initialText,
         })
       }
     }
@@ -240,10 +245,12 @@ async function startNewFlowRun(args: {
   flow: any
   remoteJid: string
   msg?: proto.IWebMessageInfo
+  initialInput?: string
 }): Promise<DispatchFlowsResult> {
-  const { sock, sessionId, userId, flow, remoteJid, msg } = args
+  const { sock, sessionId, userId, flow, remoteJid, msg, initialInput } = args
 
   const entryKey = flow.entryNodeId || 'start'
+  const initialVars: Record<string, unknown> = initialInput ? { input: initialInput } : {}
   const run = await prisma.flowRun.create({
     data: {
       flowId: flow.id,
@@ -252,7 +259,7 @@ async function startNewFlowRun(args: {
       contactId: remoteJid,
       status: 'active',
       currentNodeKey: entryKey,
-      vars: {},
+      vars: initialVars as any,
     },
   })
 
@@ -274,7 +281,7 @@ async function startNewFlowRun(args: {
     runId: run.id,
     remoteJid,
     startNodeKey: entryKey,
-    currentVars: {},
+    currentVars: initialVars,
     msg,
   })
 }
@@ -559,6 +566,102 @@ async function walkFlowGraph(args: {
       currKey = isSuccess
         ? httpCfg.next_node_key || null
         : httpCfg.error_node_key || httpCfg.next_node_key || null
+      continue
+    }
+
+    // 3c. AI Agent Node
+    if (node.nodeType === 'ai_agent') {
+      const aiCfg = cfg as AiAgentNodeConfig
+      const enrichedVars: Record<string, unknown> = {
+        ...currentVars,
+        remote_jid: remoteJid,
+        phone: remoteJid.replace(/@.*$/, ''),
+      }
+
+      // Fetch AI config for this user
+      const aiConfig = await prisma.aiConfig.findFirst({
+        where: { userId: flow.userId || undefined },
+      })
+
+      if (aiConfig) {
+        // Resolve user prompt input (defaulting to {{input}} or customer text)
+        const userPromptTemplate = aiCfg.user_prompt || '{{input}}'
+        const promptInput = interpolateVars(userPromptTemplate, enrichedVars).trim() || String(currentVars.input || '')
+
+        let knowledgeExcerpts: string[] = []
+        if (aiCfg.knowledge_enabled !== false && flow.userId) {
+          try {
+            const { retrieveKnowledge } = await import('@/lib/ai/knowledge')
+            knowledgeExcerpts = await retrieveKnowledge(flow.userId, promptInput, 3)
+          } catch (e) {
+            // ignore knowledge retrieval error
+          }
+        }
+
+        const systemPrompt = buildSystemPrompt({
+          userPrompt: aiCfg.system_prompt ? interpolateVars(aiCfg.system_prompt, enrichedVars) : (aiConfig.systemPrompt || null),
+          mode: 'auto_reply',
+          knowledge: knowledgeExcerpts,
+        })
+
+        try {
+          logger.info('FlowEngine', `Executing AI Agent node "${node.nodeKey}" using ${aiConfig.provider}/${aiConfig.model}`)
+          const genResult = await generateReply({
+            config: {
+              provider: aiConfig.provider as any,
+              model: aiConfig.model,
+              apiKey: aiConfig.apiKey,
+              systemPrompt: aiConfig.systemPrompt,
+              isActive: aiConfig.isActive,
+              autoReplyEnabled: aiConfig.autoReplyEnabled,
+              autoReplyMaxPerConversation: aiConfig.autoReplyMaxPerConversation || 10,
+              handoffAgentId: aiConfig.handoffAgentId,
+              embeddingsApiKey: aiConfig.embeddingsApiKey,
+            },
+            systemPrompt,
+            messages: [{ role: 'user', content: promptInput }],
+          })
+
+          const replyText = cleanNewlines(genResult.text)
+          const varKey = aiCfg.response_var || 'ai_reply'
+          currentVars[varKey] = replyText
+
+          // Save event
+          await prisma.flowRunEvent.create({
+            data: {
+              runId,
+              nodeKey: node.nodeKey,
+              nodeType: node.nodeType,
+              eventType: 'ai_reply_generated',
+              payload: {
+                provider: aiConfig.provider,
+                model: aiConfig.model,
+                input: promptInput,
+                reply_length: replyText.length,
+              },
+            },
+          })
+
+          // Send message to WhatsApp directly if send_immediately is true (default true)
+          if (aiCfg.send_immediately !== false && replyText) {
+            await simulateHumanTyping(sock, remoteJid, replyText.length)
+            await sock.sendMessage(remoteJid, { text: replyText }, { quoted: msg as any })
+          }
+
+          // Persist updated variables in DB
+          await prisma.flowRun.update({
+            where: { id: runId },
+            data: { vars: currentVars as any, lastAdvancedAt: new Date() },
+          })
+        } catch (err: any) {
+          logger.error('FlowEngine', `AI Agent node failed: ${err.message}`)
+          currentVars['ai_error'] = err.message
+        }
+      } else {
+        logger.warn('FlowEngine', `AI Agent node "${node.nodeKey}" skipped: No AI Config found for user.`)
+      }
+
+      currKey = aiCfg.next_node_key || null
       continue
     }
 

@@ -60,6 +60,7 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Switch } from '@/components/ui/switch'
 import { autoLayout, shouldAutoLayout } from '@/lib/flows/layout'
 import type { BuilderNode, FlowNodeType } from '@/lib/flows/types'
 
@@ -73,6 +74,7 @@ const NODE_COLORS: Record<FlowNodeType, { bg: string; text: string; border: stri
   condition: { bg: 'bg-orange-500/10', text: 'text-orange-500', border: 'border-orange-500/30' },
   set_tag: { bg: 'bg-teal-500/10', text: 'text-teal-500', border: 'border-teal-500/30' },
   http_request: { bg: 'bg-cyan-500/10', text: 'text-cyan-500', border: 'border-cyan-500/30' },
+  ai_agent: { bg: 'bg-violet-500/10', text: 'text-violet-500', border: 'border-violet-500/30' },
   handoff: { bg: 'bg-rose-500/10', text: 'text-rose-500', border: 'border-rose-500/30' },
   end: { bg: 'bg-slate-500/10', text: 'text-slate-400', border: 'border-slate-500/30' },
 }
@@ -109,6 +111,7 @@ function CustomFlowNode({ data, id }: { data: any; id: string }) {
             {node.node_type === 'collect_input' && <HelpCircle className="h-3.5 w-3.5" />}
             {node.node_type === 'condition' && <LayoutGrid className="h-3.5 w-3.5" />}
             {node.node_type === 'http_request' && <Globe className="h-3.5 w-3.5" />}
+            {node.node_type === 'ai_agent' && <Sparkles className="h-3.5 w-3.5" />}
             {node.node_type === 'handoff' && <PhoneCall className="h-3.5 w-3.5" />}
             {node.node_type === 'end' && <CheckCircle2 className="h-3.5 w-3.5" />}
           </div>
@@ -164,6 +167,17 @@ function CustomFlowNode({ data, id }: { data: any; id: string }) {
             ) : (
               <p className="text-[10px] text-muted-foreground truncate">(No response mappings)</p>
             )}
+          </div>
+        )}
+        {node.node_type === 'ai_agent' && (
+          <div className="space-y-1">
+            <p className="font-semibold text-violet-600 dark:text-violet-400 flex items-center gap-1 text-[11px]">
+              <Sparkles className="h-3 w-3" />
+              <span>AI Reply → <code className="bg-muted px-1 py-0.5 rounded font-mono text-[10px]">vars.{(node.config.response_var as string) || 'ai_reply'}</code></span>
+            </p>
+            <p className="text-[10px] text-muted-foreground truncate">
+              Prompt: {(node.config.user_prompt as string) || '{{input}}'}
+            </p>
           </div>
         )}
         {node.node_type === 'handoff' && <span>Transfer conversation to human agent</span>}
@@ -421,6 +435,15 @@ export function FlowCanvas({
               body: '',
               response_mappings: [{ json_path: 'customer.name', var_key: 'customer_name' }],
             }
+          : type === 'ai_agent'
+          ? {
+              system_prompt: 'You are a helpful customer support assistant on WhatsApp. Answer concisely and politely in the customer\'s language.',
+              user_prompt: '{{input}}',
+              response_var: 'ai_reply',
+              send_immediately: true,
+              knowledge_enabled: true,
+              next_node_key: '',
+            }
           : {},
       position_x: 200 + Math.floor(Math.random() * 80),
       position_y: 200 + Math.floor(Math.random() * 80),
@@ -486,6 +509,9 @@ export function FlowCanvas({
           <Button size="sm" variant="outline" className="h-8 text-xs gap-1 border-cyan-500/30 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/10" onClick={() => addNode('http_request')}>
             <Globe className="h-3 w-3 text-cyan-500" /> API / DB Request
           </Button>
+          <Button size="sm" variant="outline" className="h-8 text-xs gap-1 border-violet-500/30 text-violet-600 dark:text-violet-400 hover:bg-violet-500/10" onClick={() => addNode('ai_agent')}>
+            <Sparkles className="h-3 w-3 text-violet-500" /> AI Agent
+          </Button>
           <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={() => addNode('handoff')}>
             <Plus className="h-3 w-3" /> Handoff
           </Button>
@@ -515,6 +541,7 @@ export function FlowCanvas({
                       {selectedNode.node_type === 'collect_input' && <HelpCircle className="h-5 w-5" />}
                       {selectedNode.node_type === 'condition' && <LayoutGrid className="h-5 w-5" />}
                       {selectedNode.node_type === 'http_request' && <Globe className="h-5 w-5" />}
+                      {selectedNode.node_type === 'ai_agent' && <Sparkles className="h-5 w-5" />}
                       {selectedNode.node_type === 'handoff' && <PhoneCall className="h-5 w-5" />}
                       {selectedNode.node_type === 'end' && <CheckCircle2 className="h-5 w-5" />}
                     </div>
@@ -1227,6 +1254,121 @@ export function FlowCanvas({
                       </div>
                     )}
 
+                    {/* AI AGENT NODE */}
+                    {selectedNode.node_type === 'ai_agent' && (
+                      <div className="space-y-4">
+                        <div className="p-4 rounded-xl border border-violet-500/30 bg-violet-500/10 space-y-1.5">
+                          <p className="text-xs font-semibold text-violet-700 dark:text-violet-300 flex items-center gap-1.5">
+                            <Sparkles className="h-4 w-4" />
+                            AI Assistant Node (Groq / Ollama)
+                          </p>
+                          <p className="text-[11px] text-violet-600/90 dark:text-violet-400 leading-relaxed">
+                            Generates intelligent, context-aware responses using your active AI provider model. You can interpolate variables like <code className="bg-muted px-1 rounded font-mono">&#123;&#123;input&#125;&#125;</code> and reference uploaded documents.
+                          </p>
+                        </div>
+
+                        {/* System Instructions / Persona */}
+                        <div className="space-y-2">
+                          <Label className="text-xs font-semibold">System Instructions / Persona</Label>
+                          <Textarea
+                            rows={3}
+                            value={(selectedNode.config.system_prompt as string) || ''}
+                            onChange={(e) => updateSelectedNodeConfig({ system_prompt: e.target.value })}
+                            placeholder="You are a helpful customer support assistant on WhatsApp. Answer concisely and politely in the customer's language..."
+                            className="text-xs bg-muted/20 font-sans"
+                          />
+                          <p className="text-[10px] text-muted-foreground">
+                            Guidance for the AI on tone, persona, constraints, and business rules.
+                          </p>
+                        </div>
+
+                        {/* User Prompt / Context */}
+                        <div className="space-y-2">
+                          <Label className="text-xs font-semibold">User Prompt / Input Context</Label>
+                          <Textarea
+                            rows={2}
+                            value={(selectedNode.config.user_prompt as string) || '{{input}}'}
+                            onChange={(e) => updateSelectedNodeConfig({ user_prompt: e.target.value })}
+                            placeholder="Customer asked: {{input}}"
+                            className="text-xs bg-muted/20 font-mono"
+                          />
+                          <p className="text-[10px] text-muted-foreground">
+                            The prompt passed to the model. Use <code className="font-mono text-primary">&#123;&#123;input&#125;&#125;</code> for the latest user message, or any flow variable like <code className="font-mono text-primary">&#123;&#123;phone&#125;&#125;</code>.
+                          </p>
+                        </div>
+
+                        {/* Response Variable */}
+                        <div className="space-y-2">
+                          <Label className="text-xs font-semibold">Store Response In Variable</Label>
+                          <Input
+                            value={(selectedNode.config.response_var as string) || 'ai_reply'}
+                            onChange={(e) => updateSelectedNodeConfig({ response_var: e.target.value })}
+                            placeholder="ai_reply"
+                            className="h-8 text-xs font-mono bg-muted/20"
+                          />
+                          <p className="text-[10px] text-muted-foreground">
+                            Variable name where the generated reply will be stored for subsequent nodes.
+                          </p>
+                        </div>
+
+                        {/* Send Immediately Switch */}
+                        <div className="flex items-center justify-between p-3 rounded-lg border border-border/60 bg-muted/20">
+                          <div className="space-y-0.5">
+                            <Label className="text-xs font-semibold">Send Reply Immediately</Label>
+                            <p className="text-[10px] text-muted-foreground">
+                              Directly send the AI generated text message to the customer on WhatsApp.
+                            </p>
+                          </div>
+                          <Switch
+                            checked={selectedNode.config.send_immediately !== false}
+                            onCheckedChange={(checked) => updateSelectedNodeConfig({ send_immediately: checked })}
+                          />
+                        </div>
+
+                        {/* Knowledge Base Switch */}
+                        <div className="flex items-center justify-between p-3 rounded-lg border border-border/60 bg-muted/20">
+                          <div className="space-y-0.5">
+                            <Label className="text-xs font-semibold">Use Knowledge Base (RAG)</Label>
+                            <p className="text-[10px] text-muted-foreground">
+                              Attach relevant excerpts from your uploaded business documents.
+                            </p>
+                          </div>
+                          <Switch
+                            checked={selectedNode.config.knowledge_enabled !== false}
+                            onCheckedChange={(checked) => updateSelectedNodeConfig({ knowledge_enabled: checked })}
+                          />
+                        </div>
+
+                        {/* Next Node Target */}
+                        <div className="space-y-2 pt-2 border-t border-border/50">
+                          <Label className="text-xs font-semibold flex items-center gap-1.5 text-primary">
+                            <ArrowRight className="h-3.5 w-3.5" />
+                            Next Node (After AI Reply)
+                          </Label>
+                          <Select
+                            value={(selectedNode.config.next_node_key as string) || 'none'}
+                            onValueChange={(val) =>
+                              updateSelectedNodeConfig({ next_node_key: val === 'none' ? '' : val })
+                            }
+                          >
+                            <SelectTrigger className="h-8 text-xs bg-background">
+                              <SelectValue placeholder="Select node..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">(None / Stop Flow)</SelectItem>
+                              {nodes
+                                .filter((n) => n.node_key !== selectedNode.node_key)
+                                .map((n) => (
+                                  <SelectItem key={n.node_key} value={n.node_key}>
+                                    {n.node_key}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    )}
+
                     {/* HANDOFF NODE */}
                     {selectedNode.node_type === 'handoff' && (
                       <div className="space-y-4">
@@ -1317,8 +1459,46 @@ export function FlowCanvas({
                         <Badge variant="outline" className="text-[10px] bg-background/80">WhatsApp Preview</Badge>
                       </div>
 
-                      {/* HTTP Request Node Live Preview */}
-                      {selectedNode.node_type === 'http_request' ? (
+                      {/* AI Agent Node Live Preview */}
+                      {selectedNode.node_type === 'ai_agent' ? (
+                        <div className="rounded-xl bg-card border border-violet-500/30 p-4 space-y-3 shadow-md text-xs">
+                          <div className="flex items-center justify-between pb-2 border-b border-border/50">
+                            <span className="font-bold text-violet-600 dark:text-violet-400 flex items-center gap-1.5">
+                              <Sparkles className="h-4 w-4" /> AI Generated Reply
+                            </span>
+                            <Badge variant="outline" className="text-[10px] bg-violet-500/10 text-violet-600 border-violet-500/30">
+                              Groq / Ollama
+                            </Badge>
+                          </div>
+
+                          <div className="space-y-1">
+                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">User Context / Input</span>
+                            <div className="p-2 rounded bg-muted/40 font-mono text-[11px] text-foreground break-all">
+                              {(selectedNode.config.user_prompt as string) || '{{input}}'}
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <span className="text-[10px] text-muted-foreground uppercase font-semibold">Saved Output Variable</span>
+                            <div className="text-[11px] font-mono text-violet-600 dark:text-violet-400">
+                              vars.{(selectedNode.config.response_var as string) || 'ai_reply'}
+                            </div>
+                          </div>
+
+                          <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/20 text-xs italic text-muted-foreground">
+                            &quot;Hello! Thank you for contacting us. How can I assist you with your questions today?&quot;
+                          </div>
+
+                          <div className="pt-2 border-t border-border/50 flex justify-between text-[11px]">
+                            <span className="text-muted-foreground font-medium">
+                              Send directly: {selectedNode.config.send_immediately !== false ? 'Yes' : 'No'}
+                            </span>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                              ➔ Next: {(selectedNode.config.next_node_key as string) || '(Stop)'}
+                            </span>
+                          </div>
+                        </div>
+                      ) : selectedNode.node_type === 'http_request' ? (
                         <div className="rounded-xl bg-card border border-cyan-500/30 p-4 space-y-3 shadow-md text-xs">
                           <div className="flex items-center justify-between pb-2 border-b border-border/50">
                             <span className="font-bold text-cyan-600 dark:text-cyan-400 flex items-center gap-1.5">
