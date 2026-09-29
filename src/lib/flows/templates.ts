@@ -5,6 +5,7 @@ import type {
   CollectInputNodeConfig,
   HttpRequestNodeConfig,
   HandoffNodeConfig,
+  AiAgentNodeConfig,
 } from './types'
 
 const WELCOME_MENU: FlowTemplate = {
@@ -213,28 +214,105 @@ const PONDYKINGS_BOATING: FlowTemplate = {
       node_key: 'options_menu',
       node_type: 'send_buttons',
       config: {
-        text: 'What would you like to check next?',
-        footer_text: 'Choose an option',
+        text: '👉 *Choose an option or ask any question:*\n\n1. 🎟️ Instant Book Online\n2. ⏰ Check Time Slots & Sunset\n3. 💬 Discounts & Inquiries',
+        footer_text: 'Reply 1-3 or type your question',
+        fallback_node_key: 'ai_negotiator',
         buttons: [
           {
+            reply_id: 'btn_book',
+            title: '🎟️ 1. Book Online',
+            next_node_key: 'fetch_offers',
+          },
+          {
             reply_id: 'btn_timings',
-            title: '⏰ Daily Time Slots',
+            title: '⏰ 2. Daily Time Slots',
             next_node_key: 'fetch_timeslots',
           },
           {
-            reply_id: 'btn_location',
-            title: '📍 Tour Attractions',
-            next_node_key: 'fetch_locations',
-          },
-          {
-            reply_id: 'btn_book',
-            title: '🎟️ Offers & Booking',
-            next_node_key: 'fetch_offers',
+            reply_id: 'btn_discount',
+            title: '💬 3. Inquire / Offer',
+            next_node_key: 'ai_negotiator',
           },
         ],
       } as SendButtonsNodeConfig,
       position_x: 0,
       position_y: 400,
+    },
+    {
+      node_key: 'ai_negotiator',
+      node_type: 'ai_agent',
+      config: {
+        system_prompt: `You are Pondy, the friendly, helpful WhatsApp AI sales assistant for PondyKings Boating in Pondicherry.
+
+TOUR & FACILITY DETAILS:
+- Boarding Location: 1, Boat House Road, New Port (Inside Expo Ground), Uppalam, Pondicherry - 605001. Free parking inside Expo Ground!
+- Duration: 60 minutes (1 full hour).
+- 4 Destinations Covered: 1. Mangrove Forest Channels, 2. Fishing Harbour, 3. Arikamedu Ancient Roman Port, 4. River Mouth (Backwaters meet Bay of Bengal).
+- Safety: 100% certified life jackets provided for all passengers, expert licensed drivers.
+
+RATES & PACKAGES:
+• Mangrove Group Boating (10 Max) | 💰 ₹500/adult, ₹250/child
+• Couple's Private Escape (2 Max) | 💰 ₹3,500/trip
+• Friends & Family Cruise (5 Max) | 💰 ₹4,400/trip
+• Royal Private Cruise (8 Max) | 💰 ₹4,500/trip
+• Kings Grand Cruise (10 Max) | 💰 ₹5,000/trip
+• Bulk Booking (Schools & Corporate) | 💰 ₹400/head
+
+HOW TO HANDLE PRICE OBJECTIONS & DISCOUNTS:
+1. When customer says "price is high", "too costly", "rate athigam", or asks "any discount?":
+   - Be warm, welcoming, and reassuring.
+   - Highlight the value: A full 60-minute scenic cruise covering 4 major sights with premium boats and certified life jackets.
+   - For budget-friendly trips, recommend the Mangrove Group ride at only ₹500/adult (₹250/child).
+   - Offer our exclusive promotional discount code: "PONDY10" for 10% OFF when booking online at https://pondykingsboating.in/booking.html.
+   - For families or groups above 8 people, encourage calling our booking manager at +91 70947 27897 for spot group rates.
+2. If customer asks about sunset timing, parking, location, or safety, answer clearly.
+3. Language: Match customer's language (Tamil, Tanglish, or English).
+4. Length: Keep replies concise (2-4 sentences max), friendly, and encouraging.`,
+        user_prompt: '{{input}}',
+        response_var: 'ai_reply',
+        send_immediately: true,
+        knowledge_enabled: true,
+        next_node_key: 'post_ai_menu',
+      } as AiAgentNodeConfig,
+      position_x: 360,
+      position_y: 400,
+    },
+    {
+      node_key: 'post_ai_menu',
+      node_type: 'send_buttons',
+      config: {
+        text: '🎟️ *Reserve your boat ride with PondyKings:*',
+        footer_text: 'Reply 1-3 or type another query',
+        fallback_node_key: 'ai_negotiator',
+        buttons: [
+          {
+            reply_id: 'btn_book_discount',
+            title: '🎟️ 1. Book with PONDY10',
+            next_node_key: 'fetch_offers',
+          },
+          {
+            reply_id: 'btn_call_manager',
+            title: '📞 2. Call Manager',
+            next_node_key: 'manager_handoff',
+          },
+          {
+            reply_id: 'btn_view_packages',
+            title: '🔙 3. View Packages',
+            next_node_key: 'show_packages',
+          },
+        ],
+      } as SendButtonsNodeConfig,
+      position_x: 360,
+      position_y: 560,
+    },
+    {
+      node_key: 'manager_handoff',
+      node_type: 'handoff',
+      config: {
+        note: 'Customer inquiring about group discounts / booking at PondyKings Boating: +91 70947 27897',
+      } as HandoffNodeConfig,
+      position_x: 480,
+      position_y: 720,
     },
     {
       node_key: 'fetch_timeslots',
@@ -257,7 +335,7 @@ const PONDYKINGS_BOATING: FlowTemplate = {
       node_type: 'send_message',
       config: {
         text: '⏰ *Live Operating Time Slots (Today):*\n_Departures running daily from Uppalam:_\n\n{{vars.timeslots_list}}\n\n🌅 *Recommended Sunset Golden Hour:*\n4:00 PM – 6:00 PM for the most breathtaking views where the backwaters meet the Bay of Bengal!\n\n🎟️ *Instant Online Booking:*\n👉 https://pondykingsboating.in/booking.html',
-        next_node_key: 'end',
+        next_node_key: 'options_menu',
       } as SendMessageNodeConfig,
       position_x: -240,
       position_y: 680,
@@ -267,7 +345,7 @@ const PONDYKINGS_BOATING: FlowTemplate = {
       node_type: 'send_message',
       config: {
         text: '⏰ *Daily Operating Hours:*\n\n• 8:00 AM – 6:00 PM (Monday to Sunday)\n• Rides depart hourly (8 AM, 9 AM, 10 AM, 11 AM, 12 PM, 1 PM, 2 PM, 3 PM, 4 PM, 5 PM)\n• 🌅 Best Sunset Slot: 4:00 PM – 6:00 PM\n\n🎟️ *Book Online:* https://pondykingsboating.in/booking.html',
-        next_node_key: 'end',
+        next_node_key: 'options_menu',
       } as SendMessageNodeConfig,
       position_x: -240,
       position_y: 800,
@@ -293,7 +371,7 @@ const PONDYKINGS_BOATING: FlowTemplate = {
       node_type: 'send_message',
       config: {
         text: '📍 *Attractions & Sights Covered in Every Ride:*\n\n{{vars.locations_list}}\n\n━━━━━━━━━━━━━━━━━━━━\n🚗 *Boarding Point:*\n1, Boat House Road, New Port (Inside Expo Ground), Uppalam, Pondicherry - 605001.\n\n🗺️ *Google Maps:* https://maps.google.com/?q=PondyKings+Boating+Uppalam\n🚗 Free parking available inside Expo Ground!',
-        next_node_key: 'end',
+        next_node_key: 'options_menu',
       } as SendMessageNodeConfig,
       position_x: 0,
       position_y: 680,
@@ -303,7 +381,7 @@ const PONDYKINGS_BOATING: FlowTemplate = {
       node_type: 'send_message',
       config: {
         text: '📍 *PondyKings Boating Boarding Point:*\n\n1, First Cross (Boat House Road), New Port (Inside Expo Ground), Uppalam, Pondicherry - 605001.\n\n🗺️ *Google Maps:* https://maps.google.com/?q=PondyKings+Boating+Uppalam\n\n🚗 Free parking inside the Expo Ground premises!',
-        next_node_key: 'end',
+        next_node_key: 'options_menu',
       } as SendMessageNodeConfig,
       position_x: 0,
       position_y: 800,
@@ -328,7 +406,7 @@ const PONDYKINGS_BOATING: FlowTemplate = {
       node_key: 'show_offers',
       node_type: 'send_message',
       config: {
-        text: '🎟️ *Live Special Offers & Booking:*\n\n{{vars.offers_list}}\n\n👉 *Instant Online Booking:*\nhttps://pondykingsboating.in/booking.html\n\n1. Select your preferred date & time slot\n2. Choose your boat\n3. Instant confirmation voucher on WhatsApp!\n\n📞 Or call for phone booking: *+91 70947 27897*',
+        text: '🎟️ *Live Special Offers & Booking:*\n\n{{vars.offers_list}}\n\n👉 *Instant Online Booking:*\nhttps://pondykingsboating.in/booking.html\n\n1. Select your preferred date & time slot\n2. Choose your boat\n3. Apply promo code: *PONDY10* for discount\n4. Instant confirmation voucher on WhatsApp!\n\n📞 Or call for phone booking: *+91 70947 27897*',
         next_node_key: 'end',
       } as SendMessageNodeConfig,
       position_x: 240,
@@ -338,7 +416,7 @@ const PONDYKINGS_BOATING: FlowTemplate = {
       node_key: 'fallback_offers',
       node_type: 'send_message',
       config: {
-        text: '🎟️ *Instant Online Booking:*\n\n👉 https://pondykingsboating.in/booking.html\n\n📞 Phone booking / Inquiries: *+91 70947 27897*',
+        text: '🎟️ *Instant Online Booking:*\n\n👉 https://pondykingsboating.in/booking.html\n\nUse Promo Code: *PONDY10* for 10% OFF!\n\n📞 Phone booking / Inquiries: *+91 70947 27897*',
         next_node_key: 'end',
       } as SendMessageNodeConfig,
       position_x: 240,

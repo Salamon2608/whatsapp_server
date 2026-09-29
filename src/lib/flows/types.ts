@@ -40,6 +40,7 @@ export interface SendButtonsNodeConfig {
   text: string
   footer_text?: string
   buttons: FlowButtonOption[]
+  fallback_node_key?: string
 }
 
 export interface FlowListRow {
@@ -60,6 +61,7 @@ export interface SendListNodeConfig {
   title?: string
   footer_text?: string
   sections: FlowListSection[]
+  fallback_node_key?: string
 }
 
 export interface CollectInputNodeConfig {

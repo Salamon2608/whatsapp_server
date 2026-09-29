@@ -325,21 +325,63 @@ async function advanceActiveRun(args: {
       (b, i) =>
         b.reply_id.toLowerCase() === reply ||
         b.title.toLowerCase() === reply ||
-        String(i + 1) === reply
+        String(i + 1) === reply ||
+        reply.startsWith(String(i + 1) + '.') ||
+        reply.startsWith(String(i + 1) + ' ')
     )
     if (hit) {
+      vars.input = message.text || message.reply_title || ''
+      vars.last_input = message.text || message.reply_title || ''
       nextNodeKey = hit.next_node_key
+    } else if (cfg.fallback_node_key) {
+      // Direct fallback node configured (e.g. AI Agent node)
+      vars.input = message.text || message.reply_title || ''
+      vars.last_input = message.text || message.reply_title || ''
+      nextNodeKey = cfg.fallback_node_key
+    } else {
+      // If customer typed a custom prompt or question (e.g. "price is high any discount"),
+      // check if the flow has an AI agent node to answer!
+      const aiNode = nodes.find((n: any) => n.nodeType === 'ai_agent')
+      if (aiNode) {
+        vars.input = message.text || message.reply_title || ''
+        vars.last_input = message.text || message.reply_title || ''
+        nextNodeKey = aiNode.nodeKey
+      }
     }
   } else if (currentNode.nodeType === 'send_list') {
     const cfg = (currentNode.config as any) as SendListNodeConfig
     const reply = (message.reply_id || message.text || '').toLowerCase().trim()
+    let rowIndex = 0
     for (const section of cfg.sections || []) {
-      const hit = section.rows?.find(
-        (r) => r.reply_id.toLowerCase() === reply || r.title.toLowerCase() === reply
-      )
-      if (hit) {
-        nextNodeKey = hit.next_node_key
-        break
+      for (const r of section.rows || []) {
+        rowIndex++
+        if (
+          r.reply_id.toLowerCase() === reply ||
+          r.title.toLowerCase() === reply ||
+          String(rowIndex) === reply ||
+          reply.startsWith(String(rowIndex) + '.') ||
+          reply.startsWith(String(rowIndex) + ' ')
+        ) {
+          vars.input = message.text || message.reply_title || ''
+          vars.last_input = message.text || message.reply_title || ''
+          nextNodeKey = r.next_node_key
+          break
+        }
+      }
+      if (nextNodeKey) break
+    }
+    if (!nextNodeKey) {
+      if (cfg.fallback_node_key) {
+        vars.input = message.text || message.reply_title || ''
+        vars.last_input = message.text || message.reply_title || ''
+        nextNodeKey = cfg.fallback_node_key
+      } else {
+        const aiNode = nodes.find((n: any) => n.nodeType === 'ai_agent')
+        if (aiNode) {
+          vars.input = message.text || message.reply_title || ''
+          vars.last_input = message.text || message.reply_title || ''
+          nextNodeKey = aiNode.nodeKey
+        }
       }
     }
   }
