@@ -19,7 +19,7 @@ export const DEFAULT_CHATBOT_RULES: ChatbotRule[] = [
 How can we help you today? Please reply with a number:
 
 1️⃣ *Pricing & Plans* - View pricing & packages
-2️⃣ *Support & FAQs* - Get help with common issues
+2️⃣ *Suppo  rt & FAQs* - Get help with common issues
 3️⃣ *Book a Demo* - Schedule a walkthrough
 0️⃣ *Speak to Agent* - Connect with a human agent
 
@@ -302,7 +302,7 @@ export async function executeChatbotRule(
       // are immediately blocked and only ONE auto-reply is ever sent.
       if (replyOncePerDay) {
         const { recordChatbotReply } = await import('@/lib/chatbot/cooldown');
-        await recordChatbotReply(userId, sessionId, remoteJid).catch(() => {});
+        await recordChatbotReply(userId, sessionId, remoteJid).catch(() => { });
       }
 
       console.log(`[chatbot] Sending auto-reply to ${remoteJid}...`);

@@ -4,45 +4,44 @@ import fs from "fs";
 import path from "path";
 import {
   ArrowRight,
-  Bot,
-  Zap,
-  Shield,
-  MessageSquare,
-  Clock,
-  Code,
+  ShieldCheck,
   CheckCircle2,
-  Lock,
-  Layers,
-  Cpu,
-  Radio,
   ExternalLink,
   ChevronRight,
-  ShieldAlert,
-  ShieldCheck,
+  Terminal,
   Activity,
+  Layers,
+  Code,
+  Radio,
+  Cpu,
+  Lock,
   Sparkles,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { IsometricHeroPreview } from "@/components/landing/isometric-hero-preview";
+import { HeroGateway3D } from "@/components/landing/3d/hero-gateway-3d";
+import { AntiBanRadar3D } from "@/components/landing/3d/anti-ban-radar-3d";
+import { Features3DGrid } from "@/components/landing/3d/features-3d-grid";
+import { FlowPreview3D } from "@/components/landing/3d/flow-preview-3d";
+import { TerminalPlayground3D } from "@/components/landing/3d/terminal-playground-3d";
 import { MarqueeTicker } from "@/components/landing/marquee-ticker";
-import { CodePlayground } from "@/components/landing/code-playground";
+import { Navbar3D } from "@/components/landing/3d-navbar";
+import { FadeReveal } from "@/components/landing/fade-reveal";
 
 export const metadata = {
-  title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & AI Infrastructure",
+  title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
   description:
-    "Next-generation self-hosted WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, and Real-time Webhooks.",
+    "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
   openGraph: {
-    title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & AI Infrastructure",
+    title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
     description:
-      "Next-generation self-hosted WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, and Real-time Webhooks.",
+      "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
     type: "website",
-    url: process.env.NEXT_PUBLIC_APP_URL || "https://wa-akg.app",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://wa-server.app",
   },
   twitter: {
     card: "summary_large_image",
-    title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & AI Infrastructure",
+    title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
     description:
-      "Next-generation self-hosted WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, and Real-time Webhooks.",
+      "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
   },
 };
 
@@ -58,656 +57,369 @@ export default function Home() {
     console.error("Failed to read package.json", error);
   }
 
+  const telemetryStats = [
+    {
+      value: "< 42ms",
+      title: "P99 Binary Dispatch",
+      description: "Direct Baileys binary socket pipeline with zero gateway proxy overhead.",
+      color: "text-slate-900",
+      accent: "text-emerald-700",
+    },
+    {
+      value: "0.00%",
+      title: "Account Ban Rate",
+      description: "Heuristic human typing jitter, reading gaze delay, and spintax randomization.",
+      color: "text-emerald-600",
+      accent: "text-emerald-700",
+    },
+    {
+      value: "86+",
+      title: "REST API Endpoints",
+      description: "Complete OpenAPI 3.1 spec covering messages, media, stickers, and polls.",
+      color: "text-slate-900",
+      accent: "text-cyan-700",
+    },
+    {
+      value: "100%",
+      title: "Data Sovereignty",
+      description: "Your encryption keys, your database, your server. Zero third-party telemetry.",
+      color: "text-slate-900",
+      accent: "text-emerald-700",
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-white text-slate-700 landing-page selection:bg-[#25D366]/30 selection:text-slate-900 relative overflow-x-hidden">
-      {/* Background Decorative Mesh Grids */}
+    <div className="min-h-screen bg-white text-slate-900 selection:bg-[#25D366]/30 selection:text-slate-950 relative overflow-x-hidden font-manrope">
+      {/* Background Luminous Mesh Grid */}
       <div
         className="fixed inset-0 pointer-events-none opacity-40 -z-10"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.08) 0%, transparent 50%),
-            linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px)
+            radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.12) 0%, transparent 60%),
+            radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
+            linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px)
           `,
-          backgroundSize: "100% 100%, 64px 64px, 64px 64px",
+          backgroundSize: "100% 100%, 100% 100%, 56px 56px, 56px 56px",
         }}
       />
 
-      {/* Sticky High-Contrast Header */}
-      <header className="sticky top-0 z-50 w-full backdrop-blur-xl bg-white/85 border-b border-slate-200 transition-all shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 sm:h-22 flex items-center justify-between">
-          {/* Logo with Increased Size */}
-          <Link href="/" className="flex items-center gap-3.5 group">
-            <div className="relative flex h-14 w-14 sm:h-15 sm:w-15 items-center justify-center rounded-2xl bg-white p-1.5 shadow-sm border border-slate-200 group-hover:scale-105 group-hover:border-[#25D366] transition-all duration-300">
-              <Image
-                src="/logo.png"
-                alt="whatsapp_Server Logo"
-                width={58}
-                height={58}
-                className="h-full w-full object-contain filter drop-shadow-[0_2px_8px_rgba(37,211,102,0.2)]"
-                priority
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-lg sm:text-xl tracking-tight text-slate-900 flex items-center gap-2 font-triakis">
-                whatsapp_Server
-                <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  GATEWAY
-                </span>
-              </span>
-              <span className="text-[11px] font-mono text-slate-500 -mt-0.5">
-                Autonomous WhatsApp Engine
-              </span>
-            </div>
-          </Link>
+      {/* Modern Enterprise Navigation Bar */}
+      <Navbar3D version={version} />
 
-          {/* Nav Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-medium">
-            <Link
-              href="#architecture"
-              className="text-slate-600 hover:text-slate-950 transition-colors"
-            >
-              Architecture
-            </Link>
-            <Link
-              href="#anti-ban"
-              className="text-slate-600 hover:text-slate-950 transition-colors flex items-center gap-1.5"
-            >
-              <ShieldCheck className="h-4 w-4 text-[#25D366]" />
-              Anti-Ban Shield
-            </Link>
-            <Link
-              href="#sandbox"
-              className="text-slate-600 hover:text-slate-950 transition-colors"
-            >
-              Developer Sandbox
-            </Link>
-            <Link
-              href="/docs"
-              className="text-slate-600 hover:text-slate-950 transition-colors"
-            >
-              API & Docs
-            </Link>
-          </nav>
-
-          {/* Action CTAs */}
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 mr-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-mono text-emerald-700">
-              <span>Cluster Online</span>
-            </div>
-
-            <Link href="/auth/login">
-              <button className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200 transition-all">
-                Sign In
-              </button>
-            </Link>
-            <Link href="/dashboard">
-              <button className="px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold rounded-xl bg-[#25D366] hover:bg-[#1ebd5d] text-slate-950 font-bold shadow-lg shadow-[#25D366]/20 transition-all active:scale-95 flex items-center gap-1.5">
-                <span>Console</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      <main>
+      <main className="pt-2 sm:pt-6 space-y-16 sm:space-y-32">
         {/* ========================================================
-            HERO SECTION (Marquee Hero Macrostructure)
+            HERO SECTION WITH 3D WEBGL GATEWAY
            ======================================================== */}
-        <section className="relative pt-12 sm:pt-20 pb-12 sm:pb-20 overflow-hidden">
-          {/* Ambient Glow Orbs */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[52rem] h-[30rem] bg-emerald-500/10 rounded-full blur-[160px] pointer-events-none -z-10" />
-          <div className="absolute top-12 left-1/4 w-[24rem] h-[24rem] bg-emerald-400/5 rounded-full blur-[140px] pointer-events-none -z-10" />
+        <section className="relative pt-6 sm:pt-14 pb-4 sm:pb-8 overflow-hidden">
+          {/* Floating Soft Ambient Glow Orbs */}
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[55rem] h-[32rem] bg-emerald-500/10 rounded-full blur-[180px] pointer-events-none -z-10 animate-float-slow" />
+          <div className="absolute top-12 left-1/4 w-[28rem] h-[28rem] bg-cyan-400/5 rounded-full blur-[140px] pointer-events-none -z-10 animate-float-slow" />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-4xl mx-auto space-y-6">
+            <div className="text-center max-w-4xl mx-auto space-y-4 sm:space-y-6">
+              {/* Modern Enterprise Announcement Pill (Two-tone design, no online dot) */}
+              <FadeReveal direction="up" delayMs={50}>
+                <Link
+                  href="#architecture"
+                  className="inline-flex items-center gap-2.5 p-1 pr-3.5 rounded-full bg-white hover:bg-slate-50/90 border border-slate-200/90 hover:border-emerald-300/80 shadow-xs hover:shadow-md transition-all duration-300 group relative overflow-hidden cursor-pointer"
+                >
+                  {/* Subtle specular sheen sweep */}
+                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-emerald-100/30 to-transparent transition-transform duration-700 ease-in-out pointer-events-none" />
 
-              {/* Center Mascot Display with Soft Glow */}
-              <div className="flex justify-center pb-2">
-                <div className="relative group">
-                  <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-emerald-500/15 to-emerald-400/10 blur-lg opacity-40 group-hover:opacity-60 transition-opacity" />
-                  <div className="relative flex h-24 w-24 sm:h-28 sm:w-28 items-center justify-center rounded-3xl bg-white p-2.5 border border-slate-200 shadow-xl shadow-emerald-500/5 group-hover:scale-105 transition-transform duration-300">
-                    <Image
-                      src="/logo.png"
-                      alt="whatsapp_Server Mascot"
-                      width={112}
-                      height={112}
-                      className="h-full w-full object-contain filter drop-shadow-[0_2px_8px_rgba(37,211,102,0.2)]"
-                      priority
-                    />
-                  </div>
-                </div>
-              </div>
+                  {/* Contrast Tag Chip */}
+                  <span className="px-2.5 py-0.5 rounded-full bg-slate-950 text-white font-mono text-[10px] font-bold tracking-wide flex items-center gap-1 shadow-xs">
+                    <Sparkles className="h-3 w-3 text-amber-400" />
+                    <span>{version}</span>
+                  </span>
 
-              {/* Top Release Pill */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-mono text-emerald-800 shadow-xs">
-                <span>PRODUCTION ENGINE {version} READY</span>
-                <span className="text-slate-400">•</span>
-                <span className="text-slate-700">ZERO-BAN HEURISTIC ACTIVE</span>
-                <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-              </div>
+                  {/* Feature & Version Subtext */}
+                  <span className="text-[11px] sm:text-xs font-semibold text-slate-700 group-hover:text-slate-950 transition-colors flex items-center gap-1.5">
+                    <span>Baileys v7 Multi-Device Core</span>
+                    <span className="hidden xs:inline text-slate-300">•</span>
+                    <span className="hidden xs:inline text-emerald-700 font-medium">Enterprise Engine</span>
+                  </span>
 
-              {/* Bold High-Contrast Headline */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[62px] font-semibold text-slate-900 tracking-[-0.04em] leading-[1.15]">
-                Next-Gen WhatsApp API &{" "}
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-[#25D366]">
-                  Intelligent Automation Platform.
-                </span>
-              </h1>
+                  <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-700 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </Link>
+              </FadeReveal>
+
+              {/* Headline with Flowing Gradient Animation */}
+              <FadeReveal direction="up" delayMs={120}>
+                <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-[66px] font-extrabold text-slate-900 tracking-[-0.04em] leading-[1.15]">
+                  Next-Gen 3D WhatsApp Gateway &{" "}
+                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-[#25D366] to-teal-600 animate-gradient-flow">
+                    Autonomous AI Server.
+                  </span>
+                </h1>
+              </FadeReveal>
 
               {/* Subtitle */}
-              <p className="max-w-2xl mx-auto text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed">
-                Scale customer conversations effortlessly. Connect multiple WhatsApp numbers,
-                deploy smart AI assistants with contextual memory, and broadcast high-volume messages
-                with automated smart throttling.
-              </p>
+              <FadeReveal direction="up" delayMs={200}>
+                <p className="max-w-2xl mx-auto text-sm sm:text-lg text-slate-600 leading-relaxed font-normal">
+                  Scale mission-critical WhatsApp communication effortlessly. Connect multiple numbers concurrently with Baileys binary sockets, deploy self-hosted AI agents with RAG memory, and execute high-volume campaigns with automated humanizer anti-ban protection.
+                </p>
+              </FadeReveal>
 
-              {/* Dual CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                <Link href="/dashboard" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto h-13 px-8 rounded-2xl bg-[#25D366] hover:bg-[#1ebd5d] text-slate-950 font-bold text-base shadow-md shadow-[#25D366]/20 transition-all flex items-center justify-center gap-2 group active:scale-95">
-                    <span>Deploy Gateway Console</span>
-                    <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </Link>
-                <Link href="#sandbox" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto h-13 px-8 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-base border border-slate-200 shadow-xs transition-all flex items-center justify-center gap-2 active:scale-95">
-                    <Code className="h-5 w-5 text-emerald-600" />
-                    <span>Explore Sandbox & API</span>
-                  </button>
-                </Link>
-              </div>
+              {/* Dual CTA Buttons with Shimmer & Elevation */}
+              <FadeReveal direction="up" delayMs={280}>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2">
+                  <Link href="/dashboard" className="w-full sm:w-auto">
+                    <button className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl bg-[#25D366] hover:bg-[#1ebd5d] text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-[#25D366]/25 hover:shadow-xl hover:shadow-[#25D366]/35 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group active:scale-95 relative overflow-hidden">
+                      {/* Light shine beam sweep */}
+                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-in-out pointer-events-none" />
 
-              {/* Trust Indicators */}
-              <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-xs font-mono text-slate-500">
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#25D366]" /> 100% Self-Hosted & Private
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#25D366]" /> Zero WhatsApp Account Bans
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#25D366]" /> Multi-Tenant Baileys v6
-                </span>
-              </div>
+                      <span>Deploy Gateway Console</span>
+                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5" />
+                    </button>
+                  </Link>
+
+                  <Link href="#sandbox" className="w-full sm:w-auto">
+                    <button className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm sm:text-base border border-slate-200 hover:border-emerald-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 group">
+                      <Code className="h-4 w-4 text-emerald-600 transition-transform duration-200 group-hover:rotate-12" />
+                      <span>Explore 86+ REST Endpoints</span>
+                    </button>
+                  </Link>
+                </div>
+              </FadeReveal>
+
+              {/* Trust Indicators with Micro-Hover Bounces */}
+              <FadeReveal direction="up" delayMs={360}>
+                <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2.5 sm:gap-6 pt-2 text-[11px] sm:text-xs font-semibold text-slate-500">
+                  <span className="flex items-center gap-1.5 hover:text-slate-900 transition-colors duration-200 cursor-default group">
+                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#25D366] transition-transform duration-200 group-hover:scale-125 shrink-0" />
+                    <span>100% Self-Hosted</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 hover:text-slate-900 transition-colors duration-200 cursor-default group">
+                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#25D366] transition-transform duration-200 group-hover:scale-125 shrink-0" />
+                    <span>0.00% Ban Rate</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 hover:text-slate-900 transition-colors duration-200 cursor-default group">
+                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#25D366] transition-transform duration-200 group-hover:scale-125 shrink-0" />
+                    <span>Multi-Tenant Baileys</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 hover:text-slate-900 transition-colors duration-200 cursor-default group">
+                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#25D366] transition-transform duration-200 group-hover:scale-125 shrink-0" />
+                    <span>AI Native</span>
+                  </span>
+                </div>
+              </FadeReveal>
             </div>
 
-            {/* 3D Isometric Abstract Cards & Data Streams Preview */}
-            <div className="mt-12 sm:mt-16">
-              <IsometricHeroPreview />
-            </div>
+            {/* Interactive 3D WebGL Gateway Canvas */}
+            <FadeReveal direction="up" delayMs={420} className="mt-8 sm:mt-16">
+              <HeroGateway3D />
+            </FadeReveal>
           </div>
         </section>
 
         {/* ========================================================
-            INFINITE MARQUEE TICKER (Double-decker)
+            INFINITE MARQUEE TICKER
            ======================================================== */}
         <MarqueeTicker />
 
         {/* ========================================================
-            METRICS & PERFORMANCE BENCHMARK BAR
+            TELEMETRY & PERFORMANCE BENCHMARK HUD
            ======================================================== */}
-        <section className="py-16 bg-slate-50 border-y border-slate-200">
+        <section className="py-10 sm:py-14 bg-slate-50/80 border-y border-slate-200/90 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <div className="text-3xl sm:text-4xl font-bold font-mono text-slate-900 tracking-tight">
-                  &lt; 42ms
-                </div>
-                <div className="text-xs font-mono text-emerald-600 uppercase tracking-wider mt-1 font-semibold">
-                  P99 Dispatch Latency
-                </div>
-                <p className="text-xs text-slate-500 mt-2">
-                  Direct Baileys binary socket pipeline with zero gateway overhead.
-                </p>
-              </div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
+              {telemetryStats.map((stat, idx) => (
+                <FadeReveal
+                  key={stat.title}
+                  direction="up"
+                  delayMs={idx * 90}
+                >
+                  <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-emerald-400/80 hover:-translate-y-1.5 transition-all duration-300 group cursor-default h-full flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className={`text-2xl sm:text-4xl font-bold font-mono tracking-tight ${stat.color} transition-transform duration-300 group-hover:scale-105 origin-left`}>
+                          {stat.value}
+                        </div>
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-ping" />
+                      </div>
 
-              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <div className="text-3xl sm:text-4xl font-bold font-mono text-emerald-600 tracking-tight">
-                  0.00%
-                </div>
-                <div className="text-xs font-mono text-emerald-600 uppercase tracking-wider mt-1 font-semibold">
-                  False-Positive Ban Rate
-                </div>
-                <p className="text-xs text-slate-500 mt-2">
-                  Heuristic human typing ticks, reading gaze simulation, and warmups.
-                </p>
-              </div>
+                      <div className={`text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-1 ${stat.accent}`}>
+                        {stat.title}
+                      </div>
 
-              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <div className="text-3xl sm:text-4xl font-bold font-mono text-slate-900 tracking-tight">
-                  100k+
-                </div>
-                <div className="text-xs font-mono text-emerald-600 uppercase tracking-wider mt-1 font-semibold">
-                  Daily Message Capacity
-                </div>
-                <p className="text-xs text-slate-500 mt-2">
-                  Asynchronous event loop tested under high burst conditions.
-                </p>
-              </div>
+                      <p className="text-[11px] sm:text-xs text-slate-600 mt-1.5 sm:mt-2 font-normal leading-relaxed line-clamp-3 sm:line-clamp-none">
+                        {stat.description}
+                      </p>
+                    </div>
 
-              <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs">
-                <div className="text-3xl sm:text-4xl font-bold font-mono text-slate-900 tracking-tight">
-                  100%
-                </div>
-                <div className="text-xs font-mono text-emerald-600 uppercase tracking-wider mt-1 font-semibold">
-                  Data Sovereignty
-                </div>
-                <p className="text-xs text-slate-500 mt-2">
-                  Your keys, your server, your database. Zero third-party telemetry.
-                </p>
-              </div>
+                    <div className="pt-2 sm:pt-3 mt-2 sm:mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-400 group-hover:text-emerald-700 transition-colors">
+                      <span>Verified</span>
+                      <span className="font-semibold text-emerald-600">● LIVE</span>
+                    </div>
+                  </div>
+                </FadeReveal>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ========================================================
-            ARCHITECTURE & CAPABILITIES GRID (High Contrast 6-Card)
+            INTERACTIVE 3D ANTI-BAN RADAR SIMULATOR
            ======================================================== */}
-        <section id="architecture" className="py-24 sm:py-32 relative bg-white">
+        <section id="anti-ban" className="py-6 sm:py-8 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
-              <span className="text-xs font-mono font-bold tracking-widest text-emerald-700 uppercase px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 inline-block mb-4">
-                TECHNICAL CAPABILITIES
-              </span>
-              <h2 className="text-3xl sm:text-4xl lg:text-[48px] font-bold text-slate-900 tracking-tight leading-tight">
-                Engineered for High-Scale Enterprise WhatsApp Automation
-              </h2>
-              <p className="text-slate-600 text-base sm:text-lg mt-4">
-                Every component is built from the ground up for strict reliability,
-                instant event processing, and seamless developer workflows.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {/* Feature 01 */}
-              <div className="group relative p-7 rounded-3xl bg-white border border-slate-200 hover:border-emerald-500/60 hover:shadow-lg transition-all duration-300 shadow-xs overflow-hidden">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 group-hover:scale-110 transition-transform">
-                    <Radio className="h-6 w-6 text-[#25D366]" />
-                  </div>
-                  <span className="font-mono text-xs font-bold text-slate-400 group-hover:text-emerald-600">
-                    01 // SOCKET
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  Multi-Device Baileys Engine
-                </h3>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  Connect unlimited WhatsApp numbers simultaneously. Automated QR code
-                  refresh, state persistence, and auto-healing reconnection with
-                  exponential backoff.
-                </p>
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-400">
-                  <span>Protocol: WebSocket MD</span>
-                  <span className="text-emerald-600 font-semibold">Isolated JIDs</span>
-                </div>
-              </div>
-
-              {/* Feature 02 */}
-              <div
-                id="anti-ban"
-                className="group relative p-7 rounded-3xl bg-emerald-50/40 border-2 border-emerald-500 hover:border-emerald-600 transition-all duration-300 shadow-md shadow-emerald-500/5 overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
-                <div className="flex items-center justify-between mb-6">
-                  <div className="p-3 rounded-2xl bg-emerald-100 text-emerald-700 border border-emerald-300 group-hover:scale-110 transition-transform">
-                    <ShieldCheck className="h-6 w-6 text-[#25D366]" />
-                  </div>
-                  <span className="font-mono text-xs font-bold text-emerald-700">
-                    02 // PROTECTION
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                  Smart Anti-Ban Humanizer
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    EXCLUSIVE
-                  </span>
-                </h3>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  Bypass WhatsApp automated bot filters. Human keystroke jitter,
-                  realistic reading delays (gaze emulation), randomized typing indicators,
-                  and automated warmup quotas.
-                </p>
-                <div className="pt-4 border-t border-emerald-200 flex items-center justify-between text-xs font-mono text-emerald-700 font-semibold">
-                  <span>Safety Score: 100/100</span>
-                  <span>Zero Burst Detection</span>
-                </div>
-              </div>
-
-              {/* Feature 03 */}
-              <div className="group relative p-7 rounded-3xl bg-white border border-slate-200 hover:border-emerald-500/60 hover:shadow-lg transition-all duration-300 shadow-xs overflow-hidden">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 group-hover:scale-110 transition-transform">
-                    <Bot className="h-6 w-6 text-[#25D366]" />
-                  </div>
-                  <span className="font-mono text-xs font-bold text-slate-400 group-hover:text-emerald-600">
-                    03 // INTELLIGENCE
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  Autonomous AI Agents & Flows
-                </h3>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  Native Gemini 1.5, OpenAI GPT-4o, and local Ollama integrations.
-                  Persistent chat context memory, visual flow canvas, and RAG
-                  knowledge base vector queries.
-                </p>
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-400">
-                  <span>Models: Gemini / GPT / Claude</span>
-                  <span className="text-emerald-600 font-semibold">Visual Canvas</span>
-                </div>
-              </div>
-
-              {/* Feature 04 */}
-              <div className="group relative p-7 rounded-3xl bg-white border border-slate-200 hover:border-emerald-500/60 hover:shadow-lg transition-all duration-300 shadow-xs overflow-hidden">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="p-3 rounded-2xl bg-amber-50 text-amber-600 border border-amber-200 group-hover:scale-110 transition-transform">
-                    <Zap className="h-6 w-6 text-amber-500" />
-                  </div>
-                  <span className="font-mono text-xs font-bold text-slate-400 group-hover:text-emerald-600">
-                    04 // STREAMING
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  Real-time Webhook Pipeline
-                </h3>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  Inbound message notifications, delivery receipts (sent, delivered,
-                  read), and status broadcasts with HMAC-SHA256 signatures and
-                  guaranteed retry delivery.
-                </p>
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-400">
-                  <span>Signatures: HMAC-SHA256</span>
-                  <span className="text-amber-600 font-semibold">Zero Drops</span>
-                </div>
-              </div>
-
-              {/* Feature 05 */}
-              <div className="group relative p-7 rounded-3xl bg-white border border-slate-200 hover:border-emerald-500/60 hover:shadow-lg transition-all duration-300 shadow-xs overflow-hidden">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 group-hover:scale-110 transition-transform">
-                    <Code className="h-6 w-6 text-emerald-600" />
-                  </div>
-                  <span className="font-mono text-xs font-bold text-slate-400 group-hover:text-emerald-600">
-                    05 // DEVELOPER FIRST
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  Complete REST API Gateway
-                </h3>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  Send raw text, documents, audio voice notes, location pins, contact
-                  cards, and interactive poll surveys. Documented with OpenAPI 3.1
-                  interactive Swagger UI.
-                </p>
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-400">
-                  <span>Spec: OpenAPI 3.1</span>
-                  <span className="text-emerald-600 font-semibold">Swagger Live</span>
-                </div>
-              </div>
-
-              {/* Feature 06 */}
-              <div className="group relative p-7 rounded-3xl bg-white border border-slate-200 hover:border-emerald-500/60 hover:shadow-lg transition-all duration-300 shadow-xs overflow-hidden">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-200 group-hover:scale-110 transition-transform">
-                    <Lock className="h-6 w-6 text-[#25D366]" />
-                  </div>
-                  <span className="font-mono text-xs font-bold text-slate-400 group-hover:text-emerald-600">
-                    06 // ENTERPRISE SEC
-                  </span>
-                </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-2">
-                  Multi-Tenant Security & RBAC
-                </h3>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  Granular API token permissions, session quotas per tenant, live audit
-                  logs, rate limiting per second, and complete isolation between business
-                  workspaces.
-                </p>
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-mono text-slate-400">
-                  <span>Auth: Bearer Scopes</span>
-                  <span className="text-emerald-600 font-semibold">Audit Trails</span>
-                </div>
-              </div>
-            </div>
+            <FadeReveal direction="up" delayMs={100}>
+              <AntiBanRadar3D />
+            </FadeReveal>
           </div>
         </section>
 
         {/* ========================================================
-            ANTI-BAN COMPARISON MATRIX (Security Deep Dive)
+            3D ARCHITECTURE & 6 CORE PILLARS MATRIX
            ======================================================== */}
-        <section className="py-20 bg-slate-50 border-y border-slate-200">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <span className="text-xs font-mono font-bold tracking-widest text-emerald-700 uppercase px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 inline-block mb-3">
-                ZERO BAN GUARANTEE
-              </span>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900">
-                Why Standard WhatsApp Bots Get Banned vs whatsapp_Server
-              </h2>
-              <p className="text-sm text-slate-600 mt-2">
-                WhatsApp employs AI behavioral heuristics to detect automated message
-                bursts. Here is how whatsapp_Server keeps your numbers 100% safe.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Conventional Bots */}
-              <div className="p-7 rounded-3xl bg-white border border-rose-200 shadow-xs">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2.5 rounded-xl bg-rose-50 text-rose-500 border border-rose-200">
-                    <ShieldAlert className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">
-                      Generic Unofficial WhatsApp Scripts
-                    </h3>
-                    <p className="text-xs text-rose-600 font-mono font-semibold">
-                      High Ban Probability (1 to 48 Hours)
-                    </p>
-                  </div>
-                </div>
-
-                <ul className="space-y-4 text-sm text-slate-600">
-                  <li className="flex items-start gap-3">
-                    <span className="text-rose-500 font-bold">✕</span>
-                    <span>
-                      <strong className="text-slate-900">Instant Burst Blasts:</strong> Sends
-                      messages at 0ms delay without presence state switches.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-rose-500 font-bold">✕</span>
-                    <span>
-                      <strong className="text-slate-900">No Typing Simulation:</strong> Fails to
-                      transmit &apos;composing&apos; packets matching text length.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-rose-500 font-bold">✕</span>
-                    <span>
-                      <strong className="text-slate-900">No Reading Gaze Delay:</strong> Replies
-                      instantly to inbound chats before humanly possible to read.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-rose-500 font-bold">✕</span>
-                    <span>
-                      <strong className="text-slate-900">Static Device Footprint:</strong> Flagged
-                      user-agent headers triggering WhatsApp security alerts.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-
-              {/* whatsapp_Server Engine */}
-              <div className="p-7 rounded-3xl bg-white border-2 border-[#25D366] shadow-md shadow-emerald-500/10 relative overflow-hidden">
-                <div className="absolute top-0 right-0 px-3 py-1 bg-[#25D366] text-slate-950 text-[11px] font-mono font-bold rounded-bl-xl">
-                  whatsapp_Server SHIELD ACTIVE
-                </div>
-
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200">
-                    <ShieldCheck className="h-6 w-6 text-[#25D366]" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">
-                      whatsapp_Server Smart Anti-Ban Humanizer
-                    </h3>
-                    <p className="text-xs text-emerald-600 font-mono font-semibold">
-                      0.00% False-Positive Ban Track Record
-                    </p>
-                  </div>
-                </div>
-
-                <ul className="space-y-4 text-sm text-slate-600">
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#25D366] font-bold">✓</span>
-                    <span>
-                      <strong className="text-slate-900">Natural Typing Emulation:</strong>{" "}
-                      Computes dynamic typing duration matching word count (32-48 WPM).
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#25D366] font-bold">✓</span>
-                    <span>
-                      <strong className="text-slate-900">Human Gaze & Reading Jitter:</strong>{" "}
-                      Simulates realistic message receipt, reading pause, and state change.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#25D366] font-bold">✓</span>
-                    <span>
-                      <strong className="text-slate-900">Leaky Bucket Rate Limiting:</strong> Enforces
-                      natural message dispersal and cooling periods on spikes.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-3">
-                    <span className="text-[#25D366] font-bold">✓</span>
-                    <span>
-                      <strong className="text-slate-900">Account Warmup Automation:</strong>{" "}
-                      Incrementally scales quota for fresh SIM cards up to enterprise tiers.
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ========================================================
-            INTERACTIVE DEVELOPER SANDBOX
-           ======================================================== */}
-        <section id="sandbox" className="py-24 sm:py-32 relative bg-white">
+        <section id="architecture" className="py-8 sm:py-12 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-3xl mx-auto mb-16">
-              <span className="text-xs font-mono font-bold tracking-widest text-emerald-700 uppercase px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 inline-block mb-4">
-                DEVELOPER PLAYGROUND
-              </span>
-              <h2 className="text-3xl sm:text-4xl lg:text-[48px] font-bold text-slate-900 tracking-tight leading-tight">
-                Integrate in Minutes with Your Favorite Stack
-              </h2>
-              <p className="text-slate-600 text-base sm:text-lg mt-4">
-                Test API requests, inspect simulated humanizer payloads, and copy
-                ready-to-use snippets in cURL, TypeScript, or JSON.
-              </p>
-            </div>
+            <FadeReveal direction="up" delayMs={50}>
+              <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+                <span className="text-xs font-semibold tracking-widest text-emerald-800 uppercase px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 inline-block mb-3 shadow-xs">
+                  SYSTEM CAPABILITIES
+                </span>
+                <h2 className="text-2xl sm:text-4xl lg:text-[44px] font-extrabold text-slate-900 tracking-tight">
+                  Engineered for High-Scale Enterprise WhatsApp Automation
+                </h2>
+                <p className="text-slate-600 text-xs sm:text-base mt-2 sm:mt-3 font-normal">
+                  Every component is built from the ground up for strict reliability, instant event processing, and seamless developer workflows.
+                </p>
+              </div>
+            </FadeReveal>
 
-            <CodePlayground />
+            <FadeReveal direction="up" delayMs={150}>
+              <Features3DGrid />
+            </FadeReveal>
           </div>
         </section>
 
         {/* ========================================================
-            FINAL HIGH-IMPACT CALL TO ACTION
+            VISUAL CONVERSATIONAL FLOW BUILDER 3D
            ======================================================== */}
-        <section className="py-24 sm:py-32 relative overflow-hidden bg-gradient-to-b from-white to-emerald-50/70 border-t border-slate-200">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[28rem] h-[14rem] bg-emerald-400/10 rounded-full blur-[140px] pointer-events-none -z-10" />
-
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-            <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-slate-900 tracking-tight leading-tight">
-              Ready to automate your WhatsApp communication safely?
-            </h2>
-            <p className="text-base sm:text-xl text-slate-600 max-w-2xl mx-auto">
-              Deploy your private gateway today. Manage sessions, build conversational
-              AI agents, and send with complete peace of mind.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
-              <Link href="/dashboard" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto h-14 px-9 rounded-2xl bg-[#25D366] hover:bg-[#1ebd5d] text-slate-950 font-bold text-lg shadow-md shadow-[#25D366]/20 transition-all flex items-center justify-center gap-2 group active:scale-95">
-                  <span>Enter Gateway Console</span>
-                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </button>
-              </Link>
-              <Link href="/docs" className="w-full sm:w-auto">
-                <button className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-base border border-slate-200 shadow-xs transition-all flex items-center justify-center gap-2 active:scale-95">
-                  <span>Read Full Documentation</span>
-                  <ExternalLink className="h-4 w-4 text-emerald-600" />
-                </button>
-              </Link>
-            </div>
+        <section id="flows" className="py-6 sm:py-8 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <FadeReveal direction="up" delayMs={100}>
+              <FlowPreview3D />
+            </FadeReveal>
           </div>
+        </section>
+
+        {/* ========================================================
+            INTERACTIVE DEVELOPER SANDBOX & TERMINAL
+           ======================================================== */}
+        <section id="sandbox" className="py-8 sm:py-12 relative">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <FadeReveal direction="up" delayMs={100}>
+              <TerminalPlayground3D />
+            </FadeReveal>
+          </div>
+        </section>
+
+        {/* ========================================================
+            HIGH-IMPACT 3D CALL TO ACTION
+           ======================================================== */}
+        <section className="py-14 sm:py-24 relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/50 to-slate-50 border-t border-slate-200">
+          {/* Animated floating glow aura */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[18rem] bg-emerald-400/10 rounded-full blur-[160px] pointer-events-none -z-10 animate-float-slow" />
+
+          <FadeReveal direction="up" delayMs={100}>
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 sm:space-y-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold shadow-xs">
+                <Activity className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+                <span>CLUSTER CAPACITY READY</span>
+              </div>
+
+              <h2 className="text-2xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                Ready to automate your WhatsApp communication safely?
+              </h2>
+              <p className="text-xs sm:text-base text-slate-600 max-w-2xl mx-auto font-normal">
+                Deploy your private gateway today. Manage sessions, build conversational AI agents, and send millions of messages with complete peace of mind.
+              </p>
+
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-3 sm:pt-4">
+                <Link href="/dashboard" className="w-full sm:w-auto">
+                  <button className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl bg-[#25D366] hover:bg-[#1ebd5d] text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-[#25D366]/25 hover:shadow-xl hover:shadow-[#25D366]/35 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group active:scale-95 relative overflow-hidden">
+                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-in-out pointer-events-none" />
+                    <span>Enter Gateway Console</span>
+                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5" />
+                  </button>
+                </Link>
+                <Link href="/docs" className="w-full sm:w-auto">
+                  <button className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm sm:text-base border border-slate-200 hover:border-emerald-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 group">
+                    <span>Read Full 86+ API Reference</span>
+                    <ExternalLink className="h-4 w-4 text-emerald-600 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </FadeReveal>
         </section>
       </main>
 
       {/* ========================================================
-          HIGH-CONTRAST FOOTER
+          CLEAN ENTERPRISE FOOTER
          ======================================================== */}
-      <footer className="border-t border-slate-200 bg-slate-50 py-14 relative z-10">
+      <footer className="border-t border-slate-200 bg-slate-50/90 py-14 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             {/* Brand column */}
             <div className="md:col-span-2 space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-white p-1.5 shadow-sm border border-slate-200 overflow-hidden">
+              <div className="flex items-center gap-3.5">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-1.5 shadow-xs border border-slate-200">
                   <Image
                     src="/logo.png"
                     alt="whatsapp_Server Logo"
-                    width={60}
-                    height={60}
-                    className="h-full w-full object-contain filter drop-shadow-[0_2px_8px_rgba(37,211,102,0.2)]"
+                    width={48}
+                    height={48}
+                    className="h-full w-full object-contain filter drop-shadow-[0_2px_8px_rgba(37,211,102,0.3)]"
                   />
                 </div>
-                <span className="text-2xl font-bold text-slate-900 tracking-tight font-triakis">
+                <span className="text-xl font-bold text-slate-900 tracking-tight font-triakis">
                   whatsapp_Server Gateway
                 </span>
               </div>
-              <p className="text-sm text-slate-600 max-w-sm leading-relaxed">
-                Enterprise WhatsApp gateway and AI automation server.
+              <p className="text-xs text-slate-600 max-w-sm leading-relaxed font-normal">
+                Mission-critical enterprise WhatsApp gateway and AI automation server.
                 Designed for high throughput, absolute account safety, and complete
                 self-hosted data privacy.
               </p>
-              <div className="flex items-center gap-2 text-xs font-mono text-emerald-700 font-semibold">
+              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
                 <span>All gateway clusters operational</span>
               </div>
             </div>
 
             {/* Links column 1 */}
             <div>
-              <h4 className="text-xs font-mono uppercase tracking-wider text-slate-900 font-bold mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3">
                 Platform
               </h4>
-              <ul className="space-y-2.5 text-sm text-slate-600">
+              <ul className="space-y-2 text-xs font-medium text-slate-600">
                 <li>
-                  <Link href="/dashboard" className="hover:text-slate-950 transition-colors">
+                  <Link href="/dashboard" className="hover:text-emerald-700 transition-colors">
                     Dashboard Console
                   </Link>
                 </li>
                 <li>
-                  <Link href="#anti-ban" className="hover:text-slate-950 transition-colors">
+                  <Link href="#anti-ban" className="hover:text-emerald-700 transition-colors">
                     Anti-Ban Engine
                   </Link>
                 </li>
                 <li>
-                  <Link href="#architecture" className="hover:text-slate-950 transition-colors">
+                  <Link href="#architecture" className="hover:text-emerald-700 transition-colors">
                     Baileys Multi-Device
                   </Link>
                 </li>
                 <li>
-                  <Link href="#sandbox" className="hover:text-slate-950 transition-colors">
-                    Code Playground
+                  <Link href="#flows" className="hover:text-emerald-700 transition-colors">
+                    Visual Flow Builder
+                  </Link>
+                </li>
+                <li>
+                  <Link href="#sandbox" className="hover:text-emerald-700 transition-colors">
+                    REST API Sandbox
                   </Link>
                 </li>
               </ul>
@@ -715,22 +427,22 @@ export default function Home() {
 
             {/* Links column 2 */}
             <div>
-              <h4 className="text-xs font-mono uppercase tracking-wider text-slate-900 font-bold mb-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3">
                 Resources
               </h4>
-              <ul className="space-y-2.5 text-sm text-slate-600">
+              <ul className="space-y-2 text-xs font-medium text-slate-600">
                 <li>
-                  <Link href="/docs" className="hover:text-slate-950 transition-colors">
-                    API Reference
+                  <Link href="/docs" className="hover:text-emerald-700 transition-colors">
+                    Swagger API Reference
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="hover:text-slate-950 transition-colors">
+                  <Link href="/privacy" className="hover:text-emerald-700 transition-colors">
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="hover:text-slate-950 transition-colors">
+                  <Link href="/terms" className="hover:text-emerald-700 transition-colors">
                     Terms of Service
                   </Link>
                 </li>
@@ -738,10 +450,10 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-slate-500">
-            <p>© {new Date().getFullYear()} whatsapp_Server. All rights reserved.</p>
+          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
+            <p>© 2026 whatsapp_Server. All rights reserved.</p>
             <p className="flex items-center gap-2">
-              <span>Engineered with Next.js 16 &amp; TypeScript</span>
+              <span>Next.js 16 • Three.js 3D WebGL Core</span>
               <span>•</span>
               <span className="text-emerald-700 font-semibold">Powered by whatsapp_Server</span>
             </p>
