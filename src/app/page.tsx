@@ -236,7 +236,6 @@ export default function Home() {
                         <div className={`text-2xl sm:text-4xl font-bold font-mono tracking-tight ${stat.color} transition-transform duration-300 group-hover:scale-105 origin-left`}>
                           {stat.value}
                         </div>
-                        <span className="h-2 w-2 rounded-full bg-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-ping" />
                       </div>
 
                       <div className={`text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-1 ${stat.accent}`}>
@@ -248,9 +247,8 @@ export default function Home() {
                       </p>
                     </div>
 
-                    <div className="pt-2 sm:pt-3 mt-2 sm:mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-400 group-hover:text-emerald-700 transition-colors">
+                    <div className="pt-2 sm:pt-3 mt-2 sm:mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-400">
                       <span>Verified</span>
-                      <span className="font-semibold text-emerald-600">● LIVE</span>
                     </div>
                   </div>
                 </FadeReveal>
