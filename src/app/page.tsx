@@ -324,11 +324,6 @@ export default function Home() {
 
           <FadeReveal direction="up" delayMs={100}>
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 sm:space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold shadow-xs">
-                <Activity className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
-                <span>CLUSTER CAPACITY READY</span>
-              </div>
-
               <h2 className="text-2xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
                 Ready to automate your WhatsApp communication safely?
               </h2>
@@ -384,7 +379,6 @@ export default function Home() {
                 self-hosted data privacy.
               </p>
               <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
                 <span>All gateway clusters operational</span>
               </div>
             </div>
