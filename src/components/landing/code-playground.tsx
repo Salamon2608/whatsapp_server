@@ -127,7 +127,7 @@ Latency: 38ms | Status: 200 OK`,
       "conversation": "Can I upgrade our enterprise team plan today?"
     },
     "routing": {
-      "matchedRule": "AI_SALES_AGENT",
+      "matchedRule": "QUALITY_SALES_AGENT",
       "dispatchLatencyMs": 14
     }
   }

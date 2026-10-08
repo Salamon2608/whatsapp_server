@@ -59,7 +59,7 @@ export function IsometricHeroPreview() {
       {
         sender: "+44 7911 123456",
         text: "Invoice #INV-9041 receipt requested",
-        status: "AI Agent Routing (0.8s)",
+        status: "Quality Agent Routing (0.8s)",
       },
       {
         sender: "+65 9123 4567",
@@ -193,7 +193,7 @@ export function IsometricHeroPreview() {
                 </span>
               </div>
               <div className="flex items-center px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-semibold shadow-sm">
-                ONLINE
+                ACTIVE
               </div>
             </div>
 
@@ -255,7 +255,7 @@ export function IsometricHeroPreview() {
                     </span>
                   </h4>
                   <p className="text-xs text-[#c2dfd1]">
-                    Human behavior mimicry across all flows, automations, and AI rules
+                    Human behavior mimicry across all flows, automations, and Quality rules
                   </p>
                 </div>
               </div>
@@ -351,7 +351,7 @@ export function IsometricHeroPreview() {
             </div>
           </div>
 
-          {/* Card 3: Autonomous AI Agent & Real-time Flow Stream (Floating with Soft Levitation) */}
+          {/* Card 3: Autonomous Quality Agent & Real-time Flow Stream (Floating with Soft Levitation) */}
           <div className="animate-float-3 md:col-span-12 bg-[#03140a] border border-[#25D366]/25 rounded-3xl p-5 sm:p-6 shadow-lg shadow-black/40 relative overflow-hidden backdrop-blur-xl">
             {/* Shimmer Reflection */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer pointer-events-none" style={{ animationDelay: "1s" }} />
@@ -364,7 +364,7 @@ export function IsometricHeroPreview() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold text-white">
-                      Gemini 1.5 &amp; OpenAI Autonomous Agent Cluster
+                      Premium Quality Automated Response Engine
                     </span>
                     <span className="px-2 py-0.5 rounded-md bg-[#25D366]/20 text-[#4ade80] text-[10px] font-mono font-semibold border border-[#25D366]/30">
                       RAG EMBEDDED

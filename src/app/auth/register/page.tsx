@@ -107,7 +107,7 @@ export default function RegisterPage() {
                         <Image src="/logo.png" alt="Logo" width={48} height={48} className="h-full w-full object-contain" priority />
                     </div>
                     <h1 className="text-3xl font-bold tracking-tight text-foreground">Create Account</h1>
-                    <p className="text-muted-foreground mt-2">Join whatsapp_Server today</p>
+                    <p className="text-muted-foreground mt-2">Join WHATSAPP SERVER today</p>
                 </div>
 
                 <div className="glass-panel rounded-3xl p-8 shadow-2xl shadow-black/5 dark:shadow-black/40">

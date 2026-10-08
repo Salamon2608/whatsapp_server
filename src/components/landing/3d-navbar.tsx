@@ -69,7 +69,7 @@ export function Navbar3D({ version = "v1.6.4" }: NavbarProps) {
           <div className="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-white p-1 border border-slate-200 group-hover:border-[#25D366] shadow-xs group-hover:scale-105 transition-all duration-200 overflow-hidden">
             <Image
               src="/logo.png"
-              alt="whatsapp_Server Logo"
+              alt="WHATSAPP SERVER Logo"
               width={38}
               height={38}
               className="h-full w-full object-contain filter drop-shadow-[0_2px_4px_rgba(37,211,102,0.25)]"
@@ -79,7 +79,7 @@ export function Navbar3D({ version = "v1.6.4" }: NavbarProps) {
 
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 group-hover:text-emerald-700 transition-colors whitespace-nowrap">
-              whatsapp_Server
+              WHATSAPP SERVER
             </span>
             <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200 whitespace-nowrap">
               GATEWAY
@@ -164,7 +164,7 @@ export function Navbar3D({ version = "v1.6.4" }: NavbarProps) {
         <div className="md:hidden px-4 pt-3 pb-6 border-t border-slate-200 bg-white shadow-xl space-y-2.5 animate-in slide-in-from-top-2 fade-in duration-200">
           <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-600 mb-1">
             <span className="font-semibold text-slate-800">
-              whatsapp_Server {version}
+              WHATSAPP SERVER {version}
             </span>
             <span className="text-emerald-700 font-mono font-bold">Production Ready</span>
           </div>

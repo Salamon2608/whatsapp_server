@@ -39,7 +39,7 @@ const ENDPOINTS: EndpointPreset[] = [
   -d '{
     "jid": "14158921049@s.whatsapp.net",
     "type": "text",
-    "content": "Hello from whatsapp_Server! Your one-time passcode is: 849-201"
+    "content": "Hello from WHATSAPP SERVER! Your one-time passcode is: 849-201"
   }'`,
     typescript: `const response = await fetch("https://wa-server.app/api/messages/session_01/send", {
   method: "POST",
@@ -50,7 +50,7 @@ const ENDPOINTS: EndpointPreset[] = [
   body: JSON.stringify({
     jid: "14158921049@s.whatsapp.net",
     type: "text",
-    content: "Hello from whatsapp_Server! Your one-time passcode is: 849-201"
+    content: "Hello from WHATSAPP SERVER! Your one-time passcode is: 849-201"
   })
 });
 
@@ -66,7 +66,7 @@ headers = {
 payload = {
     "jid": "14158921049@s.whatsapp.net",
     "type": "text",
-    "content": "Hello from whatsapp_Server! Your one-time passcode is: 849-201"
+    "content": "Hello from WHATSAPP SERVER! Your one-time passcode is: 849-201"
 }
 
 res = requests.post(url, json=payload, headers=headers)
@@ -135,12 +135,12 @@ requests.post(url, json=payload, headers=headers)`,
 }`,
   },
   {
-    id: "ai-playground",
-    name: "Autonomous AI Assistant",
+    id: "automated-playground",
+    name: "Premium Automated Assistant",
     method: "POST",
-    path: "/api/ai/playground",
-    category: "AI & RAG",
-    curl: `curl -X POST https://wa-server.app/api/ai/playground \\
+    path: "/api/automation/playground",
+    category: "Automated & RAG",
+    curl: `curl -X POST https://wa-server.app/api/automation/playground \\
   -H "X-API-Key: wa_sec_9941a87e2b" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -148,7 +148,7 @@ requests.post(url, json=payload, headers=headers)`,
     "model": "gemini-1.5-flash",
     "prompt": "Explain our return policy for enterprise hardware."
   }'`,
-    typescript: `const response = await fetch("https://wa-server.app/api/ai/playground", {
+    typescript: `const response = await fetch("https://wa-server.app/api/automation/playground", {
   method: "POST",
   headers: {
     "X-API-Key": "wa_sec_9941a87e2b",
@@ -162,7 +162,7 @@ requests.post(url, json=payload, headers=headers)`,
 });`,
     python: `import requests
 
-res = requests.post("https://wa-server.app/api/ai/playground", 
+res = requests.post("https://wa-server.app/api/automation/playground", 
     headers={"X-API-Key": "wa_sec_9941a87e2b"},
     json={
         "provider": "gemini",
@@ -239,7 +239,7 @@ export function TerminalPlayground3D() {
             Execute 86+ REST API Endpoints Instantly
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-normal">
-            Test message dispatches, broadcast runs, and autonomous AI prompts with full OpenAPI 3.1 compliance.
+            Test message dispatches, broadcast runs, and automated prompts with full OpenAPI 3.1 compliance.
           </p>
         </div>
 

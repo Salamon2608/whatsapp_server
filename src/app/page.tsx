@@ -27,11 +27,11 @@ import { Navbar3D } from "@/components/landing/3d-navbar";
 import { FadeReveal } from "@/components/landing/fade-reveal";
 
 export const metadata = {
-  title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
+  title: "WHATSAPP SERVER | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
   description:
     "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
   openGraph: {
-    title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
+    title: "WHATSAPP SERVER | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
     description:
       "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
     type: "website",
@@ -39,7 +39,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "whatsapp_Server | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
+    title: "WHATSAPP SERVER | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
     description:
       "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
   },
@@ -370,14 +370,14 @@ export default function Home() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-1.5 shadow-xs border border-slate-200">
                   <Image
                     src="/logo.png"
-                    alt="whatsapp_Server Logo"
+                    alt="WHATSAPP SERVER Logo"
                     width={48}
                     height={48}
                     className="h-full w-full object-contain filter drop-shadow-[0_2px_8px_rgba(37,211,102,0.3)]"
                   />
                 </div>
                 <span className="text-xl font-bold text-slate-900 tracking-tight font-triakis">
-                  whatsapp_Server Gateway
+                  WHATSAPP SERVER Gateway
                 </span>
               </div>
               <p className="text-xs text-slate-600 max-w-sm leading-relaxed font-normal">
@@ -451,11 +451,11 @@ export default function Home() {
           </div>
 
           <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
-            <p>© 2026 whatsapp_Server. All rights reserved.</p>
+            <p>© 2026 WHATSAPP SERVER. All rights reserved.</p>
             <p className="flex items-center gap-2">
               <span>Next.js 16 • Three.js 3D WebGL Core</span>
               <span>•</span>
-              <span className="text-emerald-700 font-semibold">Powered by whatsapp_Server</span>
+              <span className="text-emerald-700 font-semibold">Powered by WHATSAPP SERVER</span>
             </p>
           </div>
         </div>

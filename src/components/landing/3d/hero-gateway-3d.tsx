@@ -87,7 +87,7 @@ const ALL_NODES: NodeData[] = [
   },
   {
     id: "ai",
-    name: "Autonomous AI Agents",
+    name: "Premium Quality Agents",
     role: "Vector RAG Intelligence",
     badge: "MULTI-LLM",
     color: "#06B6D4",
@@ -672,8 +672,7 @@ export function HeroGateway3D() {
                 Telemetry Diagnostics
               </span>
               <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                ONLINE
+                ACTIVE
               </span>
             </div>
 

@@ -48,7 +48,7 @@ export const viewport: Viewport = {
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  let appName = "whatsapp_Server";
+  let appName = "WHATSAPP SERVER";
   try {
     // @ts-ignore
     const config = await prisma.systemConfig.findUnique({ where: { id: "default" } });

@@ -75,7 +75,7 @@ function LoginForm() {
             <Image src="/logo.png" alt="Logo" width={48} height={48} className="h-full w-full object-contain" priority />
           </div>
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome Back</h1>
-          <p className="text-muted-foreground mt-2">Sign in to your whatsapp_Server account</p>
+          <p className="text-muted-foreground mt-2">Sign in to your WHATSAPP SERVER account</p>
         </div>
 
         <div className="glass-panel rounded-3xl p-8 shadow-2xl shadow-black/5 dark:shadow-black/40">

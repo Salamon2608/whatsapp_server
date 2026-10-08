@@ -87,7 +87,7 @@ export function AntiBanRadar3D() {
     mainLight.position.set(0, 2, 4);
     scene.add(mainLight);
 
-    // 3. Central Protective Shield Dome (whatsapp_Server Safety Sphere)
+    // 3. Central Protective Shield Dome (WHATSAPP SERVER Safety Sphere)
     const domeGeo = new THREE.SphereGeometry(1.8, 32, 24, 0, Math.PI * 2, 0, Math.PI / 1.7);
     const domeMat = new THREE.MeshStandardMaterial({
       color: 0x25d366,
@@ -367,7 +367,7 @@ export function AntiBanRadar3D() {
               }`}
             >
               <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="truncate">whatsapp_Server Shield</span>
+              <span className="truncate">WHATSAPP SERVER Shield</span>
             </button>
             <button
               onClick={() => setMode("unprotected")}
