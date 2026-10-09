@@ -34,7 +34,12 @@ export const authConfig = {
     },
     providers: [], // Configured in auth.ts
     session: {
-        strategy: 'jwt'
+        strategy: 'jwt',
+        maxAge: 3 * 24 * 60 * 60, // 3 days session expiration (259,200 seconds)
+        updateAge: 24 * 60 * 60, // Refresh session token if active within 24 hours
+    },
+    jwt: {
+        maxAge: 3 * 24 * 60 * 60, // 3 days JWT expiration
     },
     trustHost: true,
 } satisfies NextAuthConfig;
