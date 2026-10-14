@@ -46,6 +46,13 @@ export async function POST(
     } catch (error: any) {
         console.error("Send message error:", error);
         const errorMsg = error?.message || "Failed to send message";
-        return NextResponse.json({ status: false, message: errorMsg, error: errorMsg }, { status: 500 });
+        const isNotReady = errorMsg.includes("not authenticated") ||
+                           errorMsg.includes("not connected") ||
+                           errorMsg.includes("disconnected") ||
+                           errorMsg.includes("still initializing");
+        return NextResponse.json(
+            { status: false, message: errorMsg, error: errorMsg },
+            { status: isNotReady ? 503 : 500 }
+        );
     }
 }

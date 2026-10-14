@@ -204,6 +204,10 @@ export class ChatService {
             throw new Error("WhatsApp session is disconnected or not found");
         }
 
+        if (instance.status !== "CONNECTED" || !instance.socket.user?.id) {
+            throw new Error("WhatsApp session is still initializing or not authenticated. Please wait a few seconds and try again.");
+        }
+
         let targetJid = jid;
         if (!targetJid.includes('@')) {
             const clean = targetJid.replace(/\D/g, '');
