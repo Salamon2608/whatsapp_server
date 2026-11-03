@@ -321,7 +321,6 @@ export default function Home() {
         <section className="py-14 sm:py-24 relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/50 to-slate-50 border-t border-slate-200">
           {/* Animated floating glow aura */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[18rem] bg-emerald-400/10 rounded-full blur-[160px] pointer-events-none -z-10 animate-float-slow" />
-
           <FadeReveal direction="up" delayMs={100}>
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 sm:space-y-6">
               <h2 className="text-2xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">

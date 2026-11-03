@@ -10,6 +10,7 @@ import { generateOpenAi } from './providers/openai'
 import { generateAnthropic } from './providers/anthropic'
 import { generateOllama } from './providers/ollama'
 import { generateGroq } from './providers/groq'
+import { generateNvidia } from './providers/nvidia'
 
 export interface GenerateArgs {
   config: AiConfigData
@@ -50,6 +51,9 @@ export async function generateReply(args: GenerateArgs): Promise<GenerateResult>
       break
     case 'groq':
       result = await generateGroq(providerArgs)
+      break
+    case 'nvidia':
+      result = await generateNvidia(providerArgs)
       break
     default:
       throw new AiError(`Unsupported AI provider: ${config.provider}`, {

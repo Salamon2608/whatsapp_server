@@ -5,6 +5,7 @@ export const AI_PROVIDER_DEFAULT_MODEL: Record<AiProvider, string> = {
   anthropic: 'claude-3-5-haiku-20241022',
   ollama: 'gemma3:270m',
   groq: 'qwen/qwen3.8-27b',
+  nvidia: 'minimaxai/minimax-m3.1-flash',
 }
 
 export const HANDOFF_SENTINEL = '[[HANDOFF]]'

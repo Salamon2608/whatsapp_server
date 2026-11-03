@@ -34,7 +34,7 @@ export function AiConfigForm() {
   const currentSession = sessions.find((s) => s.sessionId === sessionId);
   const isLoggedOut = currentSession?.status === "LOGGED_OUT" || (sessions.length > 0 && sessions.every(s => s.status === "LOGGED_OUT"));
 
-  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'ollama' | 'groq'>('openai')
+  const [provider, setProvider] = useState<'openai' | 'anthropic' | 'ollama' | 'groq' | 'nvidia'>('openai')
   const [model, setModel] = useState(AI_PROVIDER_DEFAULT_MODEL.openai)
   const [apiKey, setApiKey] = useState('')
   const [systemPrompt, setSystemPrompt] = useState('')
@@ -72,7 +72,7 @@ export function AiConfigForm() {
     load()
   }, [])
 
-  const handleProviderChange = (p: 'openai' | 'anthropic' | 'ollama' | 'groq') => {
+  const handleProviderChange = (p: 'openai' | 'anthropic' | 'ollama' | 'groq' | 'nvidia') => {
     setProvider(p)
     setModel(AI_PROVIDER_DEFAULT_MODEL[p])
   }
@@ -204,6 +204,7 @@ export function AiConfigForm() {
                   <SelectItem value="anthropic">Anthropic (Claude 3.5)</SelectItem>
                   <SelectItem value="groq">Groq Cloud (100% Free, Ultra-Fast 500 T/s)</SelectItem>
                   <SelectItem value="ollama">Ollama (Local EC2 - Gemma 3)</SelectItem>
+                  <SelectItem value="nvidia">NVIDIA NIM (MiniMax M3.1 Flash — Multimodal)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -249,6 +250,19 @@ export function AiConfigForm() {
             </div>
           )}
 
+          {provider === 'nvidia' && (
+            <div className="rounded-md bg-green-500/10 border border-green-500/20 p-2.5 text-xs text-green-700 dark:text-green-400 space-y-1">
+              <div className="font-semibold flex items-center gap-1.5">
+                <Bot className="h-3.5 w-3.5" />
+                NVIDIA NIM — Multimodal Inference Active
+              </div>
+              <p className="text-[11px] opacity-90">
+                Powered by <code className="font-mono bg-green-500/20 px-1 py-0.5 rounded font-semibold">{model || 'minimaxai/minimax-m3.1-flash'}</code> via the NVIDIA Inference Microservices (NIM) API.
+                Supports text and image inputs. Any NIM-compatible model ID can be entered above. Your <code className="font-mono bg-green-500/20 px-1 py-0.5 rounded">nvapi-...</code> key is required.
+              </p>
+            </div>
+          )}
+
           <div className="space-y-1.5">
             <Label className="text-xs">
               {provider === 'ollama' ? 'API Key (Optional for Local Ollama)' : 'API Key'}
@@ -266,7 +280,9 @@ export function AiConfigForm() {
                       ? 'gsk_...'
                       : provider === 'openai'
                         ? 'sk-...'
-                        : 'sk-ant-...'
+                        : provider === 'nvidia'
+                          ? 'nvapi-...'
+                          : 'sk-ant-...'
                 }
               />
               <Button

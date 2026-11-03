@@ -1,0 +1,17 @@
+name: Keep InstaBox Server Awake
+
+on:
+  schedule:
+    # Runs every 15 minutes to keep the InstaBox server awake
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions dashboard
+
+jobs:
+  ping-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping InstaBox Server
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://3000-agqz7rh6ki3vl7acl4otox5yfy.instabox.tech/)
+          echo "Pinged InstaBox server. HTTP Status Code: $STATUS"
+
