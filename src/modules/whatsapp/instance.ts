@@ -17,7 +17,7 @@ import { bindPpGuard } from "./store/ppguard";
 import { antispam } from "./antispam";
 import { logger } from "@/lib/logger";
 
-const MAX_RECONNECT_ATTEMPTS = 3;
+const MAX_RECONNECT_ATTEMPTS = 15;
 
 export class WhatsAppInstance {
     socket: WASocket | null = null;
@@ -190,11 +190,11 @@ export class WhatsAppInstance {
                     }).catch(() => {});
 
                     logger.warn("Instance",
-                        `Session ${this.sessionId} disconnected. Reconnecting (${this.reconnectCount}/${MAX_RECONNECT_ATTEMPTS})...`
+                        `Session ${this.sessionId} disconnected. Retrying connection (${this.reconnectCount}/${MAX_RECONNECT_ATTEMPTS})...`
                     );
                     setTimeout(() => {
                         if (!this.isStopped) this.init();
-                    }, 3000);
+                    }, Math.min(3000 * Math.pow(1.3, this.reconnectCount - 1), 30000));
                 } else {
                     // Max retries exceeded — auto-stop
                     this.status = "STOPPED";
