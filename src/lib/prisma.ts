@@ -8,4 +8,5 @@ export const prisma =
     log: process.env.DEBUG_PRISMA === "true" ? ["warn", "error"] : ["warn"],
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Always attach to global to prevent connection leaks across hot-reloads or multiple imports
+globalForPrisma.prisma = prisma;

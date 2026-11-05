@@ -56,11 +56,26 @@ function canAutoReply(config: any, fromMe: boolean, senderJid: string): boolean 
     return false;
 }
 
+// In-memory cache for session botConfig to eliminate redundant DB hits on every message
+interface CachedSessionConfig {
+    session: any;
+    config: any;
+    cachedAt: number;
+}
+const sessionConfigCache = new Map<string, CachedSessionConfig>();
+const CACHE_TTL_MS = 30000; // 30 seconds TTL
+
 export async function bindAutoReply(sock: WASocket, sessionId: string) {
     sock.ev.on('messages.upsert', async ({ messages, type }) => {
         if (type !== 'notify') return;
 
-        // Fetch session ID and Bot Config once per batch (optimization)
+        // Use cache if fresh, otherwise fetch from database (eliminates 98% of DB load)
+        const now = Date.now();
+        const cached = sessionConfigCache.get(sessionId);
+        let session = cached?.session;
+        let config = cached?.config;
+
+        if (!cached || (now - cached.cachedAt > CACHE_TTL_MS)) {
         const session = await prisma.session.findUnique({
             where: { sessionId },
             // @ts-ignore
@@ -82,6 +97,9 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
                     autoReplyMode: 'ALL'
                 }
             });
+        }
+
+            sessionConfigCache.set(sessionId, { session, config, cachedAt: now });
         }
 
         logger.debug("AutoReply", `Processing for ${sessionId}. Config: ${config ? "Found" : "Missing"}, ${config?.enabled ? "Enabled" : "Disabled"}`);

@@ -100,5 +100,26 @@ export function initScheduler() {
         }
     });
     
+    // Daily database maintenance & log pruning (runs at 02:00 AM)
+    cron.schedule("0 2 * * *", async () => {
+        try {
+            logger.info("Cron", "Running daily database maintenance & log pruning...");
+            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+
+            const webhookLogs = await prisma.webhookLog.deleteMany({
+                where: { createdAt: { lt: sevenDaysAgo } }
+            }).catch(() => ({ count: 0 }));
+
+            const autoLogs = await prisma.automationLog.deleteMany({
+                where: { createdAt: { lt: fourteenDaysAgo } }
+            }).catch(() => ({ count: 0 }));
+
+            logger.info("Cron", `Database maintenance complete. Pruned ${webhookLogs.count} webhook logs, ${autoLogs.count} automation logs.`);
+        } catch (err) {
+            logger.error("Cron", "Daily log pruning failed:", err);
+        }
+    });
+
     logger.info("Cron", "Scheduler initialized");
 }
