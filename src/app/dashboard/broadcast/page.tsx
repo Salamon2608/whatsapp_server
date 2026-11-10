@@ -3,12 +3,18 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
-import { RefreshCw, Send, CheckCircle2, XCircle, Radio, Clock, AlertTriangle, History, Eye, Calendar, Shuffle, Sparkles, ShieldCheck } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { 
+    RefreshCw, Send, CheckCircle2, XCircle, Radio, Clock, AlertTriangle, History, Eye, Calendar, 
+    Shuffle, Sparkles, ShieldCheck, Users, UserPlus, Search, Plus, Trash2, Phone, Check, ChevronLeft, ChevronRight
+} from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/components/dashboard/session-provider";
 import { SessionGuard } from "@/components/dashboard/session-guard";
@@ -49,6 +55,16 @@ interface BroadcastRecipient {
     status: string;
     error: string | null;
     sentAt: string | null;
+}
+
+interface ContactItem {
+    id: string;
+    jid: string;
+    name: string | null;
+    notify: string | null;
+    verifiedName: string | null;
+    remoteJidAlt?: string | null;
+    imgUrl?: string | null;
 }
 
 export default function BroadcastPage() {
@@ -203,6 +219,242 @@ export default function BroadcastPage() {
         return d.toLocaleDateString() + " " + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
+    // Contact Picker State
+    const [isPickerOpen, setIsPickerOpen] = useState(false);
+    const [pickerContacts, setPickerContacts] = useState<ContactItem[]>([]);
+    const [pickerLoading, setPickerLoading] = useState(false);
+    const [pickerSearch, setPickerSearch] = useState("");
+    const [pickerPage, setPickerPage] = useState(1);
+    const [pickerLimit] = useState(20);
+    const [pickerTotal, setPickerTotal] = useState(0);
+    const [pickerTotalPages, setPickerTotalPages] = useState(1);
+    const [selectedContactsMap, setSelectedContactsMap] = useState<Record<string, ContactItem>>({});
+    const [addAllLoading, setAddAllLoading] = useState(false);
+
+    // Add Contact State
+    const [isAddContactOpen, setIsAddContactOpen] = useState(false);
+    const [newContactName, setNewContactName] = useState("");
+    const [newContactPhone, setNewContactPhone] = useState("");
+    const [autoAddToBroadcast, setAutoAddToBroadcast] = useState(true);
+    const [addContactLoading, setAddContactLoading] = useState(false);
+
+    const getContactRecipient = useCallback((c: ContactItem) => {
+        if (c.remoteJidAlt && c.remoteJidAlt.includes("@s.whatsapp.net")) {
+            return c.remoteJidAlt.replace("@s.whatsapp.net", "");
+        }
+        if (c.jid && c.jid.includes("@s.whatsapp.net")) {
+            return c.jid.replace("@s.whatsapp.net", "");
+        }
+        if (c.remoteJidAlt) {
+            return c.remoteJidAlt.replace(/[^0-9]/g, "");
+        }
+        return c.jid.replace(/@s\.whatsapp\.net$/, "");
+    }, []);
+
+    const getContactDisplayName = useCallback((c: ContactItem) => {
+        return c.name || c.notify || c.verifiedName || formatJid(c.jid);
+    }, []);
+
+    const fetchPickerContacts = useCallback(async (page = 1, search = "") => {
+        if (!sessionId) return;
+        setPickerLoading(true);
+        try {
+            const query = new URLSearchParams({
+                page: String(page),
+                limit: String(pickerLimit),
+                search: search.trim()
+            });
+            const res = await fetch(`/api/contacts/${sessionId}?${query.toString()}`);
+            if (res.ok) {
+                const data = await res.json();
+                setPickerContacts(data.data || []);
+                setPickerTotal(data.meta?.total || 0);
+                setPickerTotalPages(data.meta?.totalPages || 1);
+                setPickerPage(data.meta?.page || 1);
+            } else {
+                toast.error("Failed to load contacts");
+            }
+        } catch (e) {
+            console.error("Error loading contacts", e);
+            toast.error("Error loading contacts");
+        } finally {
+            setPickerLoading(false);
+        }
+    }, [sessionId, pickerLimit]);
+
+    useEffect(() => {
+        if (isPickerOpen && sessionId) {
+            fetchPickerContacts(pickerPage, pickerSearch);
+        }
+    }, [isPickerOpen, pickerPage, fetchPickerContacts]);
+
+    const handleSearchSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        setPickerPage(1);
+        fetchPickerContacts(1, pickerSearch);
+    };
+
+    const toggleSelectContact = (contact: ContactItem) => {
+        const key = contact.jid;
+        setSelectedContactsMap(prev => {
+            const next = { ...prev };
+            if (next[key]) {
+                delete next[key];
+            } else {
+                next[key] = contact;
+            }
+            return next;
+        });
+    };
+
+    const isAllPageSelected = pickerContacts.length > 0 && pickerContacts.every(c => !!selectedContactsMap[c.jid]);
+
+    const toggleSelectAllOnPage = () => {
+        if (isAllPageSelected) {
+            setSelectedContactsMap(prev => {
+                const next = { ...prev };
+                pickerContacts.forEach(c => {
+                    delete next[c.jid];
+                });
+                return next;
+            });
+        } else {
+            setSelectedContactsMap(prev => {
+                const next = { ...prev };
+                pickerContacts.forEach(c => {
+                    next[c.jid] = c;
+                });
+                return next;
+            });
+        }
+    };
+
+    const handleAddSelectedToBroadcast = () => {
+        const selectedList = Object.values(selectedContactsMap);
+        if (selectedList.length === 0) {
+            toast.warning("No contacts selected");
+            return;
+        }
+
+        const existing = new Set(
+            contacts.split(/[\n,]+/).map(s => s.trim().replace("@s.whatsapp.net", "")).filter(Boolean)
+        );
+
+        let addedCount = 0;
+        const newNumbers: string[] = [];
+
+        selectedList.forEach(c => {
+            const target = getContactRecipient(c);
+            if (target && !existing.has(target)) {
+                existing.add(target);
+                newNumbers.push(target);
+                addedCount++;
+            }
+        });
+
+        if (newNumbers.length > 0) {
+            const updated = contacts.trim() 
+                ? `${contacts.trim()}\n${newNumbers.join("\n")}`
+                : newNumbers.join("\n");
+            setContacts(updated);
+            toast.success(`Added ${addedCount} contact(s) to broadcast list`);
+        } else {
+            toast.info("All selected contacts are already in the list");
+        }
+
+        setIsPickerOpen(false);
+        setSelectedContactsMap({});
+    };
+
+    const handleAddAllContacts = async () => {
+        if (!sessionId) return;
+        if (!confirm(`Are you sure you want to add all ${pickerTotal.toLocaleString()} contacts to the broadcast list?`)) return;
+        setAddAllLoading(true);
+        try {
+            const res = await fetch(`/api/contacts/${sessionId}?limit=all`);
+            if (res.ok) {
+                const json = await res.json();
+                const all = (json.data || []) as ContactItem[];
+                const existing = new Set(
+                    contacts.split(/[\n,]+/).map(s => s.trim().replace("@s.whatsapp.net", "")).filter(Boolean)
+                );
+                const toAdd: string[] = [];
+                all.forEach(c => {
+                    const target = getContactRecipient(c);
+                    if (target && !existing.has(target)) {
+                        existing.add(target);
+                        toAdd.push(target);
+                    }
+                });
+                if (toAdd.length > 0) {
+                    const updated = contacts.trim() 
+                        ? `${contacts.trim()}\n${toAdd.join("\n")}`
+                        : toAdd.join("\n");
+                    setContacts(updated);
+                    toast.success(`Imported ${toAdd.length} contact(s)!`);
+                } else {
+                    toast.info("All contacts are already in the list");
+                }
+                setIsPickerOpen(false);
+            } else {
+                toast.error("Failed to load all contacts");
+            }
+        } catch (e) {
+            console.error(e);
+            toast.error("Error importing all contacts");
+        } finally {
+            setAddAllLoading(false);
+        }
+    };
+
+    const handleSaveNewContact = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!sessionId) return toast.error("No active session");
+        if (!newContactPhone.trim()) return toast.error("Phone number is required");
+
+        setAddContactLoading(true);
+        try {
+            const res = await fetch(`/api/contacts/${sessionId}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    name: newContactName.trim() || undefined,
+                    phone: newContactPhone.trim()
+                })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.status) {
+                toast.success("Contact saved successfully");
+                
+                const cleanPhone = newContactPhone.replace(/[^0-9]/g, "");
+                if (autoAddToBroadcast && cleanPhone) {
+                    const existing = new Set(
+                        contacts.split(/[\n,]+/).map(s => s.trim().replace("@s.whatsapp.net", "")).filter(Boolean)
+                    );
+                    if (!existing.has(cleanPhone)) {
+                        const updated = contacts.trim() ? `${contacts.trim()}\n${cleanPhone}` : cleanPhone;
+                        setContacts(updated);
+                    }
+                }
+
+                setNewContactName("");
+                setNewContactPhone("");
+                setIsAddContactOpen(false);
+                if (isPickerOpen) {
+                    fetchPickerContacts(pickerPage, pickerSearch);
+                }
+            } else {
+                toast.error(data.message || "Failed to save contact");
+            }
+        } catch (err: any) {
+            console.error("Error creating contact:", err);
+            toast.error("Error creating contact");
+        } finally {
+            setAddContactLoading(false);
+        }
+    };
+
     const tabs = [
         { id: "new" as const, label: "New Broadcast", icon: Send },
         { id: "history" as const, label: "History", icon: History },
@@ -239,21 +491,74 @@ export default function BroadcastPage() {
                         <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
                             {/* Recipients Card */}
                             <Card>
-                                <CardHeader>
-                                    <CardTitle>Recipients</CardTitle>
-                                    <CardDescription>Enter phone numbers separated by comma or new line.</CardDescription>
+                                <CardHeader className="pb-3">
+                                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                        <div>
+                                            <CardTitle className="flex items-center gap-2">
+                                                <Users className="h-5 w-5 text-primary" />
+                                                Recipients
+                                            </CardTitle>
+                                            <CardDescription>
+                                                Enter numbers or choose from synced contacts.
+                                            </CardDescription>
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 gap-1.5 text-xs font-medium cursor-pointer"
+                                                onClick={() => {
+                                                    setIsPickerOpen(true);
+                                                    fetchPickerContacts(1, pickerSearch);
+                                                }}
+                                                disabled={loading || !sessionId}
+                                            >
+                                                <Users className="h-3.5 w-3.5 text-primary" />
+                                                Select Contacts
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 gap-1.5 text-xs font-medium cursor-pointer"
+                                                onClick={() => setIsAddContactOpen(true)}
+                                                disabled={loading || !sessionId}
+                                            >
+                                                <UserPlus className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                                                Add Contact
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label>Target Numbers (e.g., 628123456789)</Label>
+                                        <div className="flex items-center justify-between">
+                                            <Label>Target Numbers (one per line or comma-separated)</Label>
+                                            {recipientCount > 0 && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setContacts("")}
+                                                    className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors cursor-pointer"
+                                                    disabled={loading}
+                                                >
+                                                    <Trash2 className="h-3 w-3" /> Clear list
+                                                </button>
+                                            )}
+                                        </div>
                                         <Textarea
-                                            placeholder={"628123456789\n628987654321"}
-                                            className="min-h-[200px] font-mono text-sm"
+                                            placeholder={"919524972260\n628123456789\n628987654321"}
+                                            className="min-h-[200px] font-mono text-sm leading-relaxed"
                                             value={contacts}
                                             onChange={e => setContacts(e.target.value)}
                                             disabled={loading}
                                         />
-                                        <p className="text-xs text-muted-foreground">{recipientCount} numbers identified</p>
+                                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                            <span className="font-medium text-foreground">
+                                                {recipientCount} {recipientCount === 1 ? "recipient" : "recipients"} identified
+                                            </span>
+                                            <span>Format: country code + phone</span>
+                                        </div>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -555,6 +860,308 @@ export default function BroadcastPage() {
                                 )}
                             </div>
                         ) : null}
+                    </DialogContent>
+                </Dialog>
+
+                {/* Contact Picker Dialog */}
+                <Dialog open={isPickerOpen} onOpenChange={setIsPickerOpen}>
+                    <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
+                        <DialogHeader className="p-5 pb-3 border-b">
+                            <div className="flex items-center justify-between">
+                                <DialogTitle className="flex items-center gap-2 text-lg">
+                                    <Users className="h-5 w-5 text-primary" />
+                                    Select Contacts for Broadcast
+                                </DialogTitle>
+                            </div>
+                            <DialogDescription>
+                                Choose from your synced WhatsApp address book ({pickerTotal.toLocaleString()} contacts available).
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        {/* Search & Actions Bar */}
+                        <div className="px-5 py-3 border-b bg-muted/20 space-y-3">
+                            <form onSubmit={handleSearchSubmit} className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        placeholder="Search contact name or phone number..."
+                                        value={pickerSearch}
+                                        onChange={e => setPickerSearch(e.target.value)}
+                                        className="pl-9 h-9"
+                                    />
+                                </div>
+                                <Button type="submit" size="sm" variant="secondary" className="h-9 px-3">
+                                    Search
+                                </Button>
+                                {pickerSearch && (
+                                    <Button 
+                                        type="button" 
+                                        size="sm" 
+                                        variant="ghost" 
+                                        className="h-9 px-2 text-xs"
+                                        onClick={() => {
+                                            setPickerSearch("");
+                                            fetchPickerContacts(1, "");
+                                        }}
+                                    >
+                                        Reset
+                                    </Button>
+                                )}
+                            </form>
+
+                            <div className="flex items-center justify-between text-xs flex-wrap gap-2">
+                                <div className="flex items-center gap-2">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-7 text-xs px-2 cursor-pointer"
+                                        onClick={toggleSelectAllOnPage}
+                                        disabled={pickerContacts.length === 0}
+                                    >
+                                        {isAllPageSelected ? "Deselect Page" : "Select Current Page"}
+                                    </Button>
+                                    {Object.keys(selectedContactsMap).length > 0 && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 text-xs text-muted-foreground hover:text-destructive px-2 cursor-pointer"
+                                            onClick={() => setSelectedContactsMap({})}
+                                        >
+                                            Clear Selection
+                                        </Button>
+                                    )}
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <Badge variant={Object.keys(selectedContactsMap).length > 0 ? "default" : "secondary"}>
+                                        {Object.keys(selectedContactsMap).length} selected
+                                    </Badge>
+                                    {pickerTotal > 0 && (
+                                        <Button
+                                            type="button"
+                                            variant="secondary"
+                                            size="sm"
+                                            className="h-7 text-xs px-2.5 font-medium cursor-pointer"
+                                            onClick={handleAddAllContacts}
+                                            disabled={addAllLoading}
+                                        >
+                                            {addAllLoading ? (
+                                                <RefreshCw className="h-3 w-3 animate-spin mr-1" />
+                                            ) : (
+                                                <Plus className="h-3 w-3 mr-1" />
+                                            )}
+                                            Import All ({pickerTotal.toLocaleString()})
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contacts List Body */}
+                        <div className="flex-1 overflow-y-auto p-3 min-h-[280px]">
+                            {pickerLoading ? (
+                                <div className="flex flex-col items-center justify-center py-12 gap-2 text-muted-foreground">
+                                    <RefreshCw className="h-6 w-6 animate-spin text-primary" />
+                                    <p className="text-sm">Loading contacts...</p>
+                                </div>
+                            ) : pickerContacts.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+                                    <Users className="h-10 w-10 stroke-1 mb-2 opacity-50" />
+                                    <p className="text-sm font-medium">No contacts found</p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        {pickerSearch ? "Try searching with a different term" : "No synced contacts available yet for this session"}
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="space-y-1">
+                                    {pickerContacts.map(contact => {
+                                        const isSelected = !!selectedContactsMap[contact.jid];
+                                        const phone = getContactRecipient(contact);
+                                        const displayName = getContactDisplayName(contact);
+                                        const isAlreadyInBroadcast = contacts.includes(phone);
+
+                                        return (
+                                            <div
+                                                key={contact.jid}
+                                                onClick={() => toggleSelectContact(contact)}
+                                                className={`flex items-center gap-3 p-2.5 rounded-lg border transition-all cursor-pointer select-none ${
+                                                    isSelected
+                                                        ? "border-primary/50 bg-primary/5 dark:bg-primary/10 shadow-xs"
+                                                        : "border-transparent hover:border-border hover:bg-muted/40"
+                                                }`}
+                                            >
+                                                <Checkbox
+                                                    checked={isSelected}
+                                                    onCheckedChange={() => toggleSelectContact(contact)}
+                                                    className="data-[state=checked]:bg-primary"
+                                                    onClick={e => e.stopPropagation()}
+                                                />
+                                                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs shrink-0">
+                                                    {(displayName[0] || "?").toUpperCase()}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <p className="text-sm font-medium text-foreground truncate">
+                                                            {displayName}
+                                                        </p>
+                                                        {isAlreadyInBroadcast && (
+                                                            <Badge variant="outline" className="text-[10px] py-0 px-1 font-normal text-muted-foreground border-dashed">
+                                                                In list
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground font-mono truncate">
+                                                        {phone}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer with Pagination and Submit */}
+                        <DialogFooter className="p-4 border-t bg-muted/10 sm:justify-between items-center gap-2">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <span>
+                                    Page {pickerPage} of {pickerTotalPages || 1}
+                                </span>
+                                <div className="flex items-center gap-1">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        disabled={pickerPage <= 1 || pickerLoading}
+                                        onClick={() => {
+                                            const newPage = pickerPage - 1;
+                                            setPickerPage(newPage);
+                                            fetchPickerContacts(newPage, pickerSearch);
+                                        }}
+                                    >
+                                        <ChevronLeft className="h-3.5 w-3.5" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="icon"
+                                        className="h-7 w-7"
+                                        disabled={pickerPage >= pickerTotalPages || pickerLoading}
+                                        onClick={() => {
+                                            const newPage = pickerPage + 1;
+                                            setPickerPage(newPage);
+                                            fetchPickerContacts(newPage, pickerSearch);
+                                        }}
+                                    >
+                                        <ChevronRight className="h-3.5 w-3.5" />
+                                    </Button>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setIsPickerOpen(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="button"
+                                    size="sm"
+                                    onClick={handleAddSelectedToBroadcast}
+                                    disabled={Object.keys(selectedContactsMap).length === 0}
+                                    className="gap-1.5 cursor-pointer"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add Selected ({Object.keys(selectedContactsMap).length})
+                                </Button>
+                            </div>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Quick Add Contact Dialog */}
+                <Dialog open={isAddContactOpen} onOpenChange={setIsAddContactOpen}>
+                    <DialogContent className="max-w-md">
+                        <DialogHeader>
+                            <DialogTitle className="flex items-center gap-2">
+                                <UserPlus className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                                Add New Contact
+                            </DialogTitle>
+                            <DialogDescription>
+                                Save a new contact to your session address book and optionally add it directly to this broadcast.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <form onSubmit={handleSaveNewContact} className="space-y-4 pt-2">
+                            <div className="space-y-2">
+                                <Label htmlFor="contact-name">Contact Name</Label>
+                                <Input
+                                    id="contact-name"
+                                    placeholder="e.g. Alex Johnson"
+                                    value={newContactName}
+                                    onChange={e => setNewContactName(e.target.value)}
+                                    disabled={addContactLoading}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="contact-phone">
+                                    Phone Number <span className="text-red-500">*</span>
+                                </Label>
+                                <div className="relative">
+                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="contact-phone"
+                                        type="tel"
+                                        placeholder="e.g. 919524972260 or 628123456789"
+                                        value={newContactPhone}
+                                        onChange={e => setNewContactPhone(e.target.value)}
+                                        className="pl-9 font-mono"
+                                        required
+                                        disabled={addContactLoading}
+                                    />
+                                </div>
+                                <p className="text-[11px] text-muted-foreground">
+                                    Include country code without special characters (e.g., 91 for India, 62 for Indonesia).
+                                </p>
+                            </div>
+
+                            <div className="flex items-center space-x-2 pt-2">
+                                <Checkbox
+                                    id="auto-add"
+                                    checked={autoAddToBroadcast}
+                                    onCheckedChange={checked => setAutoAddToBroadcast(!!checked)}
+                                />
+                                <Label htmlFor="auto-add" className="text-xs font-normal cursor-pointer select-none">
+                                    Automatically add this number to current broadcast list
+                                </Label>
+                            </div>
+
+                            <DialogFooter className="pt-4">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={() => setIsAddContactOpen(false)}
+                                    disabled={addContactLoading}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button type="submit" disabled={addContactLoading || !newContactPhone.trim()} className="gap-1.5 cursor-pointer">
+                                    {addContactLoading ? (
+                                        <RefreshCw className="h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Check className="h-4 w-4" />
+                                    )}
+                                    {addContactLoading ? "Saving..." : "Save Contact"}
+                                </Button>
+                            </DialogFooter>
+                        </form>
                     </DialogContent>
                 </Dialog>
             </div>
