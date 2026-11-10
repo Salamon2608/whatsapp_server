@@ -76,28 +76,28 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
         let config = cached?.config;
 
         if (!cached || (now - cached.cachedAt > CACHE_TTL_MS)) {
-        const session = await prisma.session.findUnique({
-            where: { sessionId },
-            // @ts-ignore
-            include: { botConfig: true }
-        });
-
-        if (!session) return;
-
-        // @ts-ignore
-        let config = (session as any).botConfig;
-
-        if (!config) {
-            logger.warn("AutoReply", "No config found, creating default...");
-            config = await prisma.botConfig.create({
-                data: {
-                    sessionId: session.id,
-                    enabled: true,
-                    botMode: 'OWNER',
-                    autoReplyMode: 'ALL'
-                }
+            const session = await prisma.session.findUnique({
+                where: { sessionId },
+                // @ts-ignore
+                include: { botConfig: true }
             });
-        }
+
+            if (!session) return;
+
+            // @ts-ignore
+            let config = (session as any).botConfig;
+
+            if (!config) {
+                logger.warn("AutoReply", "No config found, creating default...");
+                config = await prisma.botConfig.create({
+                    data: {
+                        sessionId: session.id,
+                        enabled: true,
+                        botMode: 'OWNER',
+                        autoReplyMode: 'ALL'
+                    }
+                });
+            }
 
             sessionConfigCache.set(sessionId, { session, config, cachedAt: now });
         }
@@ -141,7 +141,7 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
             }
 
             const content = normalizeMessageContent(msg.message);
-            const text = content?.conversation || content?.extendedTextMessage?.text || ""; 
+            const text = content?.conversation || content?.extendedTextMessage?.text || "";
             const buttonReplyId = (content as any)?.buttonsResponseMessage?.selectedButtonId || (content as any)?.templateButtonReplyMessage?.selectedId;
             const buttonReplyTitle = (content as any)?.buttonsResponseMessage?.selectedDisplayText;
             const listReplyId = (content as any)?.listResponseMessage?.singleSelectReply?.selectedRowId;
@@ -169,7 +169,7 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
                 const autoTrigger = interactiveReplyId
                     ? 'interactive_reply'
                     : 'keyword_match';
-                
+
                 const autoHandled = await runAutomationsForTrigger({
                     sock,
                     sessionId,
@@ -252,7 +252,7 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
                         if (rule.isMedia && rule.mediaUrl) {
                             const url = rule.mediaUrl;
                             const type = (rule as any).mediaType || "document";
-                            
+
                             let payload: any = {};
                             if (rule.response) {
                                 payload.caption = rule.response;
@@ -269,7 +269,7 @@ export async function bindAutoReply(sock: WASocket, sessionId: string) {
                                 payload.mimetype = 'application/octet-stream';
                                 payload.fileName = url.split('/').pop() || 'document';
                             }
-                            
+
                             try {
                                 await smartSendWithHumanBehavior(sock, remoteJid, payload, { quoted: msg });
                             } catch (err: any) {
