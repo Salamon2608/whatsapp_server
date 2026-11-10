@@ -10,7 +10,7 @@ RUN npm ci --legacy-peer-deps && npm cache clean --force
 
 # Source & build
 COPY . .
-RUN npx prisma generate && npm run build
+RUN npx prisma generate && npm run build && rm -rf .next/cache
 
 # Strip devDeps from node_modules after build
 # tsx needed at runtime, kept explicitly
