@@ -32,6 +32,8 @@ export async function GET(
 
         const sessionConfig = (session.config && typeof session.config === 'object') ? (session.config as any) : {};
         const ignoreGroups = sessionConfig.ignoreGroups !== false;
+        const enableStorage = (sessionConfig.enableStorage ?? (session.botConfig as any)?.enableStorage) !== false;
+        const enablePerformance = (sessionConfig.enablePerformance ?? (session.botConfig as any)?.enablePerformance) !== false;
 
         // Return config or default if null
         const botConfigData = session.botConfig || {
@@ -45,6 +47,8 @@ export async function GET(
             enableSticker: false,
             enablePing: true,
             enableUptime: true,
+            enableStorage: true,
+            enablePerformance: true,
             botName: "WA-AKG Bot",
             removeBgApiKey: null,
             enableVideoSticker: false,
@@ -73,7 +77,7 @@ export async function GET(
         return NextResponse.json({
             status: true,
             message: "Bot config fetched successfully",
-            data: { ...botConfigData, ignoreGroups },
+            data: { ...botConfigData, ignoreGroups, enableStorage, enablePerformance },
             safetyMetrics
         });
     } catch (error) {
@@ -106,6 +110,8 @@ export async function POST(
         if (!session) return NextResponse.json({ status: false, message: "Session not found", error: "Session not found" }, { status: 404 });
 
         const ignoreGroups = body.ignoreGroups !== false;
+        const enableStorage = body.enableStorage !== false;
+        const enablePerformance = body.enablePerformance !== false;
         const existingSessionConfig = (session.config && typeof session.config === 'object') ? (session.config as any) : {};
 
         await prisma.session.update({
@@ -113,7 +119,9 @@ export async function POST(
             data: {
                 config: {
                     ...existingSessionConfig,
-                    ignoreGroups
+                    ignoreGroups,
+                    enableStorage,
+                    enablePerformance
                 }
             }
         });

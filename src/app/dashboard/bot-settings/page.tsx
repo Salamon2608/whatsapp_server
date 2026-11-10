@@ -36,6 +36,8 @@ export default function BotSettingsPage() {
         maxStickerDuration: 10,
         enablePing: true,
         enableUptime: true,
+        enableStorage: true,
+        enablePerformance: true,
         removeBgApiKey: "",
         botMode: "OWNER",
         autoReplyMode: "ALL",
@@ -95,6 +97,8 @@ export default function BotSettingsPage() {
                         ignoreGroups: data.ignoreGroups ?? true,
                         removeBgApiKey: data.removeBgApiKey || "",
                         prefix: data.prefix || "#",
+                        enableStorage: data.enableStorage ?? true,
+                        enablePerformance: data.enablePerformance ?? true,
                         welcomeMessage: data.welcomeMessage || "",
                         botAllowedJids: data.botAllowedJids || [],
                         botBlockedJids: data.botBlockedJids || [],
@@ -336,6 +340,22 @@ export default function BotSettingsPage() {
                                     </Label>
                                     <Switch id="enable-uptime" checked={botConfig.enableUptime}
                                         onCheckedChange={c => setBotConfig(prev => ({ ...prev, enableUptime: c }))} />
+                                </div>
+                                <div className="flex items-center justify-between space-x-2 border p-3 rounded-lg">
+                                    <Label htmlFor="enable-storage" className="flex flex-col space-y-1 cursor-pointer">
+                                        <span className="font-medium">Storage Command</span>
+                                        <span className="font-normal text-[10px] text-muted-foreground">Respond to {botConfig.prefix}storage / {botConfig.prefix}disk</span>
+                                    </Label>
+                                    <Switch id="enable-storage" checked={botConfig.enableStorage}
+                                        onCheckedChange={c => setBotConfig(prev => ({ ...prev, enableStorage: c }))} />
+                                </div>
+                                <div className="flex items-center justify-between space-x-2 border p-3 rounded-lg">
+                                    <Label htmlFor="enable-performance" className="flex flex-col space-y-1 cursor-pointer">
+                                        <span className="font-medium">Performance Command</span>
+                                        <span className="font-normal text-[10px] text-muted-foreground">Respond to {botConfig.prefix}performance / {botConfig.prefix}perf</span>
+                                    </Label>
+                                    <Switch id="enable-performance" checked={botConfig.enablePerformance}
+                                        onCheckedChange={c => setBotConfig(prev => ({ ...prev, enablePerformance: c }))} />
                                 </div>
                             </div>
 

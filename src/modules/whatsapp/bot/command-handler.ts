@@ -1,3 +1,5 @@
+import os from "os";
+import si from "systeminformation";
 import { prisma } from "@/lib/prisma";
 import type { WASocket, WAMessage } from "@whiskeysockets/baileys";
 import { logger } from "@/lib/logger";
@@ -17,6 +19,8 @@ const DEFAULT_CONFIG = {
     maxStickerDuration: 10,
     enablePing: true,
     enableUptime: true,
+    enableStorage: true,
+    enablePerformance: true,
     botName: "WA-AKG Bot",
     prefix: "#",
     removeBgApiKey: null as string | null
@@ -133,6 +137,9 @@ export async function handleBotCommand(
     const [command, ...args] = text.trim().split(" ");
     const cmd = command.toLowerCase().slice(prefix.length); // remove prefix
 
+    const enableStorage = ((config as any).enableStorage ?? sessionConfig?.enableStorage) !== false;
+    const enablePerformance = ((config as any).enablePerformance ?? sessionConfig?.enablePerformance) !== false;
+
     try {
         switch (cmd) {
             case "ping": {
@@ -163,20 +170,127 @@ export async function handleBotCommand(
                 break;
             }
 
+            case "storage":
+            case "disk":
+            case "space": {
+                if (!enableStorage) return;
+
+                const fsSize = await si.fsSize().catch(() => []);
+                const rootDisk = fsSize.find(d => d.mount === "/") || fsSize[0];
+
+                let totalGb = "0";
+                let usedGb = "0";
+                let availGb = "0";
+                let usePercent = 0;
+
+                if (rootDisk && rootDisk.size > 0) {
+                    totalGb = (rootDisk.size / (1024 ** 3)).toFixed(1);
+                    usedGb = (rootDisk.used / (1024 ** 3)).toFixed(1);
+                    availGb = ((rootDisk.size - rootDisk.used) / (1024 ** 3)).toFixed(1);
+                    usePercent = Math.round(rootDisk.use || ((rootDisk.used / rootDisk.size) * 100));
+                }
+
+                const statusEmoji = usePercent < 70 ? "🟢 Optimal" : usePercent < 85 ? "🟡 Moderate" : "🔴 Low Storage";
+                const filledBlocks = Math.min(10, Math.max(0, Math.round(usePercent / 10)));
+                const progressBar = "█".repeat(filledBlocks) + "░".repeat(10 - filledBlocks);
+
+                const replyText = `💾 *Server Storage Status*
+
+📁 *Root Filesystem:* \`${rootDisk?.fs || "overlay"}\`
+• *Total Disk:* ${totalGb} GB
+• *Used Space:* ${usedGb} GB (${usePercent}%)
+• *Available:* ${availGb} GB (${100 - usePercent}%)
+
+📊 *Usage:* [${progressBar}] ${usePercent}%
+🚦 *Health:* ${statusEmoji}
+
+_WA-AKG Bot • Prefix: ${prefix}_`;
+
+                await sock.sendMessage(remoteJid, { text: replyText }, { quoted: msg });
+                break;
+            }
+
+            case "performance":
+            case "perf":
+            case "ram":
+            case "sys":
+            case "system":
+            case "status": {
+                if (!enablePerformance) return;
+
+                const [mem, currentLoad] = await Promise.all([
+                    si.mem().catch(() => null),
+                    si.currentLoad().catch(() => null)
+                ]);
+
+                const cpus = os.cpus();
+                const cpuCount = cpus.length;
+                const cpuModel = cpus[0]?.model || "vCPU";
+                const loadAvg = os.loadavg().map(l => l.toFixed(2)).join(", ");
+
+                const totalMemGb = mem ? (mem.total / (1024 ** 3)).toFixed(1) : (os.totalmem() / (1024 ** 3)).toFixed(1);
+                const availMemGb = mem ? (mem.available / (1024 ** 3)).toFixed(1) : (os.freemem() / (1024 ** 3)).toFixed(1);
+                const usedMemGb = (parseFloat(totalMemGb) - parseFloat(availMemGb)).toFixed(1);
+                const memPercent = Math.round((parseFloat(usedMemGb) / parseFloat(totalMemGb)) * 100);
+
+                const procMem = process.memoryUsage();
+                const nodeRssMb = Math.round(procMem.rss / (1024 * 1024));
+                const nodeHeapMb = Math.round(procMem.heapUsed / (1024 * 1024));
+
+                const start = startTimes.get(sessionId) || Date.now();
+                const uptimeMs = Date.now() - start;
+                const hours = Math.floor(uptimeMs / 3600000);
+                const minutes = Math.floor((uptimeMs % 3600000) / 60000);
+                const seconds = Math.floor((uptimeMs % 60000) / 1000);
+
+                const cpuUsage = currentLoad ? `${Math.round(currentLoad.currentLoad)}%` : "Normal";
+                const ramStatus = memPercent < 75 ? "🟢 Normal" : memPercent < 90 ? "🟡 High" : "🔴 Critical";
+
+                const filledMemBlocks = Math.min(10, Math.max(0, Math.round(memPercent / 10)));
+                const memBar = "█".repeat(filledMemBlocks) + "░".repeat(10 - filledMemBlocks);
+
+                const replyText = `⚡ *Server Performance & Health*
+
+🖥️ *CPU & Load:*
+• *Cores:* ${cpuCount} vCPU (${cpuModel})
+• *Current Load:* ${cpuUsage}
+• *Load Avg:* ${loadAvg} (1m, 5m, 15m)
+
+🧠 *RAM Memory:*
+• *Total:* ${totalMemGb} GB
+• *Used:* ${usedMemGb} GB (${memPercent}%)
+• *Available:* ${availMemGb} GB (${100 - memPercent}%)
+• *Memory Bar:* [${memBar}]
+• *Status:* ${ramStatus}
+
+⚙️ *Runtime & Uptime:*
+• *Node App Memory:* ${nodeRssMb} MB (Heap: ${nodeHeapMb} MB)
+• *Session Uptime:* ${hours}h ${minutes}m ${seconds}s
+
+_WA-AKG Bot • Prefix: ${prefix}_`;
+
+                await sock.sendMessage(remoteJid, { text: replyText }, { quoted: msg });
+                break;
+            }
+
             case "menu":
             case "help": {
                 const botName = (config as any).botName || "WA-AKG Bot";
                 const menu = `
 🤖 *${botName} Menu* 🤖
 
-📌 *Commands:*
-• *${prefix}ping*: Check Bot Status
+📌 *General Commands:*
+• *${prefix}ping*: Check Bot Responsiveness
 • *${prefix}uptime*: Check Session Uptime
 • *${prefix}id*: Get Chat ID
 
-_Made with ❤️_
+⚙️ *System & Diagnostics:*
+• *${prefix}storage*: Check Server Disk & Free Space
+• *${prefix}performance*: Check CPU, RAM & Server Health
+
+_WA-AKG Automated Assistant_
 `;
-                await sock.sendMessage(remoteJid, { text: menu }, { quoted: msg });
+                await sock.sendMessage(remoteJid, { text: menu.trim() }, { quoted: msg });
                 break;
             }
 
