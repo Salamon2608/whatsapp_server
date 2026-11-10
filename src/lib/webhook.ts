@@ -371,6 +371,12 @@ export async function testWebhook(webhookId: string, url: string, secret?: strin
  * Helper to download and save media
  */
 export async function downloadAndSaveMedia(message: WAMessage, sessionId: string): Promise<string | null> {
+    // Disabled by default to protect server disk storage and prevent filling up the filesystem
+    // To enable, explicitly set AUTO_DOWNLOAD_MEDIA=true in your environment variables
+    if (process.env.AUTO_DOWNLOAD_MEDIA !== "true") {
+        return null;
+    }
+
     try {
         const messageContent = normalizeMessageContent(message.message);
         if (!messageContent) {
