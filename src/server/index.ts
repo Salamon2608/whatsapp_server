@@ -99,5 +99,32 @@ app.prepare().then(() => {
     // Interval ping
     setInterval(sendHeartbeat, 30000);
     // --------------------------------
+
+    // --- Internal Keep-Alive Self-Pinger ---
+    // Automatically pings the server's external public URL every 5 minutes
+    // to reset cloud idle timers (InstaBox 30-min auto-suspend) without any external dependency.
+    const keepAliveUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.BASE_URL;
+    if (keepAliveUrl && keepAliveUrl.startsWith("http")) {
+      const pingUrl = keepAliveUrl.replace(/\/$/, "");
+      logger.info("KeepAlive", `Autonomous self-ping initialized for ${pingUrl} (every 5 min)`);
+      const sendKeepAlivePing = async () => {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 10000);
+          const res = await fetch(pingUrl, {
+            headers: { "User-Agent": "WhatsAppServer-KeepAlive/1.0" },
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          logger.info("KeepAlive", `Self-ping refreshed cloud edge session (status: ${res.status})`);
+        } catch (e: any) {
+          logger.warn("KeepAlive", `Self-ping attempt: ${e.message}`);
+        }
+      };
+
+      // Initial ping after 15 seconds, then repeat every 5 minutes (300,000 ms)
+      setTimeout(sendKeepAlivePing, 15 * 1000);
+      setInterval(sendKeepAlivePing, 5 * 60 * 1000);
+    }
   });
 });
