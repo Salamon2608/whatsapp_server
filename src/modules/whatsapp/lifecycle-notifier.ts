@@ -3,8 +3,9 @@ import { jidNormalizedUser } from "@whiskeysockets/baileys";
 import { logger } from "@/lib/logger";
 
 const MAX_FREE_RUNTIME_MS = 8 * 60 * 60 * 1000; // 8 hours (InstaBox Free Tier limit)
-const WARNING_7H_MS = 7 * 60 * 60 * 1000;       // 7 hours
-const WARNING_7H45M_MS = 7.75 * 60 * 60 * 1000;  // 7 hours 45 minutes (15 min warning)
+const WARNING_7H_MS = 7 * 60 * 60 * 1000;       // 7 hours (60 min notice)
+const WARNING_7H45M_MS = 7.75 * 60 * 60 * 1000;  // 7 hours 45 minutes (15 min notice)
+const WARNING_5M_MS = (8 * 60 - 5) * 60 * 1000;  // 7 hours 55 minutes (5 min warning before freeze)
 const ESTIMATED_COOLDOWN_MS = 2 * 60 * 60 * 1000; // ~2 hours
 
 export class LifecycleNotifier {
@@ -14,9 +15,11 @@ export class LifecycleNotifier {
     private onlineNotifiedSessions: Set<string> = new Set();
     private timer7h: NodeJS.Timeout | null = null;
     private timer7h45m: NodeJS.Timeout | null = null;
+    private timer5m: NodeJS.Timeout | null = null;
     private watchdogInterval: NodeJS.Timeout | null = null;
     private hasSent7hWarning: boolean = false;
     private hasSent15mWarning: boolean = false;
+    private hasSent5mWarning: boolean = false;
     private isShuttingDown: boolean = false;
 
     private constructor() {
@@ -84,17 +87,18 @@ export class LifecycleNotifier {
             const now = new Date();
             const timeStr = this.formatTimestamp(now);
             const expectedFreezeTime = this.formatTimestamp(new Date(this.serverStartTime + MAX_FREE_RUNTIME_MS));
+            const fiveMinNoticeTime = this.formatTimestamp(new Date(this.serverStartTime + WARNING_5M_MS));
 
-            const msg = `🟢 *WhatsApp Server is LIVE* 🚀
+            const msg = `🟢 *WhatsApp Server is BACK ONLINE!* 🚀
 
 • *Status:* Online & Active
 • *Session:* ${sessionName || "Personal"} (\`${sessionId}\`)
 • *Server Started At:* ${timeStr}
-• *Server Will Freeze At:* ${expectedFreezeTime}
-• *Active Window:* 8 Hours Max
+• *Server Will Freeze At:* ${expectedFreezeTime} (8h Limit)
+• *Advance 5-Min Warning:* Will arrive at ${fiveMinNoticeTime}
 • *Auto-Wake:* Cloudflare Sentinel Active ⚡
 
-_💡 Tip: Send #uptime or #storage anytime to monitor server health._`;
+_💡 Tip: Send #uptime or #cooldown anytime to view real-time countdown._`;
 
             for (const jid of recipients) {
                 try {
@@ -180,9 +184,30 @@ _Your Cloudflare Worker will automatically wake the server up once the cooldown 
             );
         };
 
+        const trigger5m = async () => {
+            if (this.hasSent5mWarning) return;
+            this.hasSent5mWarning = true;
+            const nowStr = this.formatTimestamp(new Date());
+            const freezeTime = this.formatTimestamp(new Date(this.serverStartTime + MAX_FREE_RUNTIME_MS));
+            const expectedWake = this.formatTimestamp(new Date(this.serverStartTime + MAX_FREE_RUNTIME_MS + ESTIMATED_COOLDOWN_MS));
+
+            await this.broadcastWarning(
+                `⚠️ *Server Going Offline in 5 Minutes!* ⏳
+
+• *Current Time:* ${nowStr}
+• *Server Freezes At:* ${freezeTime} (in 5 minutes!)
+• *Cooldown Duration:* ~2 Hours
+• *Server Will Start Back At:* ~${expectedWake}
+• *Auto-Wake:* Cloudflare Worker will wake the server automatically!
+
+_Your sessions, database, and credentials are completely safe._`
+            );
+        };
+
         // Scheduled Timers
         this.timer7h = setTimeout(trigger7h, WARNING_7H_MS);
         this.timer7h45m = setTimeout(trigger15m, WARNING_7H45M_MS);
+        this.timer5m = setTimeout(trigger5m, WARNING_5M_MS);
 
         // Periodic Watchdog (checks every 30 seconds as a fail-safe)
         this.watchdogInterval = setInterval(() => {
@@ -192,6 +217,9 @@ _Your Cloudflare Worker will automatically wake the server up once the cooldown 
             }
             if (uptime >= WARNING_7H45M_MS && !this.hasSent15mWarning && this.activeSockets.size > 0) {
                 trigger15m();
+            }
+            if (uptime >= WARNING_5M_MS && !this.hasSent5mWarning && this.activeSockets.size > 0) {
+                trigger5m();
             }
         }, 30 * 1000);
     }
