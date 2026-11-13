@@ -104,6 +104,9 @@ _💡 Tip: Send #uptime or #storage anytime to monitor server health._`;
                     logger.warn("LifecycleNotifier", `Failed to send Online alert to ${jid}: ${err.message}`);
                 }
             }
+
+            // Also dispatch via CallMeBot so user receives an incoming notification with sound/banner
+            await this.sendViaCallMeBot(msg);
         }, 3000);
     }
 
@@ -204,6 +207,30 @@ _Your Cloudflare Worker will automatically wake the server up once the cooldown 
                 }
             }
         }
+        await this.sendViaCallMeBot(text);
+    }
+
+    /**
+     * Sends message via CallMeBot external WhatsApp gateway so the user receives
+     * a real incoming notification with ring and banner from an outside phone number.
+     */
+    private async sendViaCallMeBot(text: string) {
+        const phone = process.env.CALLMEBOT_PHONE || "918098502859";
+        const apiKey = process.env.CALLMEBOT_API_KEY;
+        if (!apiKey) return;
+
+        try {
+            const cleanPhone = phone.replace(/[^0-9]/g, "");
+            const encodedText = encodeURIComponent(text);
+            const url = `https://api.callmebot.com/whatsapp.php?phone=+${cleanPhone}&text=${encodedText}&apikey=${apiKey}`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            logger.info("LifecycleNotifier", `CallMeBot external WhatsApp alert dispatched (status: ${res.status})`);
+        } catch (e: any) {
+            logger.warn("LifecycleNotifier", `CallMeBot dispatch attempt: ${e.message}`);
+        }
     }
 
     /**
@@ -225,7 +252,7 @@ _Your Cloudflare Worker will automatically wake the server up once the cooldown 
 
 _Cloudflare Worker will automatically wake the server back up._`;
 
-            const sendPromises: Promise<any>[] = [];
+            const sendPromises: Promise<any>[] = [this.sendViaCallMeBot(sleepMsg)];
             for (const [, item] of this.activeSockets) {
                 const recipients = this.getRecipients(item.socket);
                 for (const jid of recipients) {
