@@ -212,12 +212,40 @@ _Your Cloudflare Worker will automatically wake the server up once the cooldown 
         await this.sendViaTelegram(text);
     }
 
+    private getTelegramConfig() {
+        let botToken = process.env.TELEGRAM_BOT_TOKEN;
+        let chatId = process.env.TELEGRAM_CHAT_ID;
+
+        if (!botToken || !chatId) {
+            try {
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                const fs = require("fs");
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+                const path = require("path");
+                const envPath = path.resolve(process.cwd(), ".env");
+                if (fs.existsSync(envPath)) {
+                    const content = fs.readFileSync(envPath, "utf8");
+                    for (const line of content.split("\n")) {
+                        const trimmed = line.trim();
+                        if (trimmed.startsWith("TELEGRAM_BOT_TOKEN=")) {
+                            botToken = botToken || trimmed.substring("TELEGRAM_BOT_TOKEN=".length).replace(/["']/g, "").trim();
+                        }
+                        if (trimmed.startsWith("TELEGRAM_CHAT_ID=")) {
+                            chatId = chatId || trimmed.substring("TELEGRAM_CHAT_ID=".length).replace(/["']/g, "").trim();
+                        }
+                    }
+                }
+            } catch {}
+        }
+
+        return { botToken, chatId };
+    }
+
     /**
      * Sends message via Telegram Bot so user's phone rings with an instant push notification banner.
      */
     public async sendViaTelegram(text: string) {
-        const botToken = process.env.TELEGRAM_BOT_TOKEN;
-        const chatId = process.env.TELEGRAM_CHAT_ID;
+        const { botToken, chatId } = this.getTelegramConfig();
         if (!botToken || !chatId) return;
 
         try {
