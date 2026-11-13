@@ -3,6 +3,7 @@ import si from "systeminformation";
 import { prisma } from "@/lib/prisma";
 import type { WASocket, WAMessage } from "@whiskeysockets/baileys";
 import { logger } from "@/lib/logger";
+import { lifecycleNotifier } from "../lifecycle-notifier";
 
 // Map to track start times for uptime
 const startTimes = new Map<string, number>();
@@ -155,18 +156,31 @@ export async function handleBotCommand(
                 break;
             }
 
-            case "uptime": {
+            case "uptime":
+            case "cooldown":
+            case "runtime": {
                 if (!config.enableUptime) return;
 
-                const start = startTimes.get(sessionId) || Date.now();
-                const uptimeMs = Date.now() - start;
-                const hours = Math.floor(uptimeMs / 3600000);
-                const minutes = Math.floor((uptimeMs % 3600000) / 60000);
-                const seconds = Math.floor((uptimeMs % 60000) / 1000);
+                const info = lifecycleNotifier.getCooldownInfo();
+                const progressFilled = Math.min(10, Math.max(0, Math.round(info.percent / 10)));
+                const progressBar = "█".repeat(progressFilled) + "░".repeat(10 - progressFilled);
+                const healthEmoji = info.percent < 75 ? "🟢 Active & Healthy" : info.percent < 90 ? "🟡 Approaching Cooldown" : "🔴 Sleep Soon";
 
-                await sock.sendMessage(remoteJid, {
-                    text: `*Session Uptime:* ${hours}h ${minutes}m ${seconds}s`
-                }, { quoted: msg });
+                const uptimeText = `⏱️ *Server Uptime & Cooldown Status*
+
+• *Continuous Runtime:* ${info.uptimeFormatted}
+• *Max Free Window:* 8h 00m 00s
+• *Remaining Active:* ${info.remainingFormatted}
+• *Window Usage:* [${progressBar}] ${info.percent}%
+• *Current Phase:* ${healthEmoji}
+
+• *Started At:* ${info.startTimeFormatted}
+• *Expected Sleep:* ~${info.expectedSleepFormatted}
+• *Auto-Wake:* ⚡ Cloudflare Worker Active
+
+_WA-AKG Bot • Prefix: ${prefix}_`;
+
+                await sock.sendMessage(remoteJid, { text: uptimeText }, { quoted: msg });
                 break;
             }
 
@@ -281,7 +295,7 @@ _WA-AKG Bot • Prefix: ${prefix}_`;
 
 📌 *General Commands:*
 • *${prefix}ping*: Check Bot Responsiveness
-• *${prefix}uptime*: Check Session Uptime
+• *${prefix}uptime* / *${prefix}cooldown*: Check Uptime & Sleep Countdown
 • *${prefix}id*: Get Chat ID
 
 ⚙️ *System & Diagnostics:*

@@ -16,6 +16,7 @@ import { bindAutoReply } from "./store/autoreply";
 import { bindPpGuard } from "./store/ppguard";
 import { antispam } from "./antispam";
 import { logger } from "@/lib/logger";
+import { lifecycleNotifier } from "./lifecycle-notifier";
 
 const MAX_RECONNECT_ATTEMPTS = 15;
 
@@ -241,6 +242,7 @@ export class WhatsAppInstance {
                 });
 
                 logger.success("Instance", `Session ${this.sessionId} connected and synced successfully`);
+                lifecycleNotifier.notifyServerOnline(this.socket as WASocket, this.sessionId);
             }
         } catch (error: any) {
             if (error.code === 'P2025') {
@@ -282,6 +284,7 @@ export class WhatsAppInstance {
     /** Clean shutdown without triggering reconnect */
     async shutdown() {
         this.isStopped = true;
+        lifecycleNotifier.removeSession(this.sessionId);
         this.socket?.end(undefined);
         this.socket = null;
         this.reconnectCount = 0;
