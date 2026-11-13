@@ -83,16 +83,16 @@ export class LifecycleNotifier {
 
             const now = new Date();
             const timeStr = this.formatTimestamp(now);
-            const expectedSleepTime = this.formatTimestamp(new Date(this.serverStartTime + MAX_FREE_RUNTIME_MS));
+            const expectedFreezeTime = this.formatTimestamp(new Date(this.serverStartTime + MAX_FREE_RUNTIME_MS));
 
             const msg = `🟢 *WhatsApp Server is LIVE* 🚀
 
 • *Status:* Online & Active
 • *Session:* ${sessionName || "Personal"} (\`${sessionId}\`)
-• *Wake Time:* ${timeStr}
-• *Continuous Window:* Up to 8 Hours
-• *Next Cooldown:* Around ${expectedSleepTime}
-• *Auto-Wake:* Cloudflare Worker Active ⚡
+• *Server Started At:* ${timeStr}
+• *Server Will Freeze At:* ${expectedFreezeTime}
+• *Active Window:* 8 Hours Max
+• *Auto-Wake:* Cloudflare Sentinel Active ⚡
 
 _💡 Tip: Send #uptime or #storage anytime to monitor server health._`;
 
