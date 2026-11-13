@@ -105,8 +105,9 @@ _💡 Tip: Send #uptime or #storage anytime to monitor server health._`;
                 }
             }
 
-            // Also dispatch via CallMeBot so user receives an incoming notification with sound/banner
+            // Also dispatch via CallMeBot and Telegram so user receives an incoming notification with sound/banner
             await this.sendViaCallMeBot(msg);
+            await this.sendViaTelegram(msg);
         }, 3000);
     }
 
@@ -208,6 +209,36 @@ _Your Cloudflare Worker will automatically wake the server up once the cooldown 
             }
         }
         await this.sendViaCallMeBot(text);
+        await this.sendViaTelegram(text);
+    }
+
+    /**
+     * Sends message via Telegram Bot so user's phone rings with an instant push notification banner.
+     */
+    public async sendViaTelegram(text: string) {
+        const botToken = process.env.TELEGRAM_BOT_TOKEN;
+        const chatId = process.env.TELEGRAM_CHAT_ID;
+        if (!botToken || !chatId) return;
+
+        try {
+            const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    chat_id: chatId,
+                    text: text,
+                    parse_mode: "Markdown"
+                }),
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            logger.info("LifecycleNotifier", `Telegram push alert dispatched (status: ${res.status})`);
+        } catch (e: any) {
+            logger.warn("LifecycleNotifier", `Telegram dispatch failed: ${e.message}`);
+        }
     }
 
     /**
@@ -252,7 +283,10 @@ _Your Cloudflare Worker will automatically wake the server up once the cooldown 
 
 _Cloudflare Worker will automatically wake the server back up._`;
 
-            const sendPromises: Promise<any>[] = [this.sendViaCallMeBot(sleepMsg)];
+            const sendPromises: Promise<any>[] = [
+                this.sendViaCallMeBot(sleepMsg),
+                this.sendViaTelegram(sleepMsg)
+            ];
             for (const [, item] of this.activeSockets) {
                 const recipients = this.getRecipients(item.socket);
                 for (const jid of recipients) {
