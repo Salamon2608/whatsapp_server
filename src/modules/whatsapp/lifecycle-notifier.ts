@@ -14,6 +14,9 @@ export class LifecycleNotifier {
     private onlineNotifiedSessions: Set<string> = new Set();
     private timer7h: NodeJS.Timeout | null = null;
     private timer7h45m: NodeJS.Timeout | null = null;
+    private watchdogInterval: NodeJS.Timeout | null = null;
+    private hasSent7hWarning: boolean = false;
+    private hasSent15mWarning: boolean = false;
     private isShuttingDown: boolean = false;
 
     private constructor() {
@@ -136,23 +139,30 @@ _💡 Tip: Send #uptime or #storage anytime to monitor server health._`;
     }
 
     /**
-     * Schedules automated proactive cooldown warnings at 7h and 7h45m.
+     * Schedules automated proactive cooldown warnings at 7h (04:55 PM IST) and 7h45m (05:40 PM IST).
+     * Uses both timers and a periodic watchdog to ensure 100% reliable delivery.
      */
     private scheduleCooldownWarnings() {
-        // 7-hour notice (60 minutes before cooldown)
-        this.timer7h = setTimeout(async () => {
+        const trigger7h = async () => {
+            if (this.hasSent7hWarning) return;
+            this.hasSent7hWarning = true;
+            const expectedSleep = this.formatTimestamp(new Date(this.serverStartTime + MAX_FREE_RUNTIME_MS));
             await this.broadcastWarning(
                 `⏳ *Server Runtime Notice (7 Hours Active)*
 
 The WhatsApp server has been running continuously for *7 hours*.
 • *InstaBox Free Tier Cap:* 8 Hours
 • *Remaining Active Time:* ~60 minutes
-• *Action:* Server will enter cooldown soon.`
-            );
-        }, WARNING_7H_MS);
+• *Sleep Starts Around:* ${expectedSleep}
+• *Action:* Server will enter cooldown soon.
 
-        // 7h 45m notice (15 minutes before cooldown)
-        this.timer7h45m = setTimeout(async () => {
+_All your database and session data are 100% safe._`
+            );
+        };
+
+        const trigger15m = async () => {
+            if (this.hasSent15mWarning) return;
+            this.hasSent15mWarning = true;
             const expectedWake = this.formatTimestamp(new Date(Date.now() + 15 * 60 * 1000 + ESTIMATED_COOLDOWN_MS));
             await this.broadcastWarning(
                 `⚠️ *Server Going to Sleep Soon (15 Min Warning)*
@@ -164,7 +174,22 @@ The WhatsApp server has been running continuously for *7 hours*.
 
 _Your Cloudflare Worker will automatically wake the server up once the cooldown ends!_`
             );
-        }, WARNING_7H45M_MS);
+        };
+
+        // Scheduled Timers
+        this.timer7h = setTimeout(trigger7h, WARNING_7H_MS);
+        this.timer7h45m = setTimeout(trigger15m, WARNING_7H45M_MS);
+
+        // Periodic Watchdog (checks every 30 seconds as a fail-safe)
+        this.watchdogInterval = setInterval(() => {
+            const uptime = Date.now() - this.serverStartTime;
+            if (uptime >= WARNING_7H_MS && !this.hasSent7hWarning && this.activeSockets.size > 0) {
+                trigger7h();
+            }
+            if (uptime >= WARNING_7H45M_MS && !this.hasSent15mWarning && this.activeSockets.size > 0) {
+                trigger15m();
+            }
+        }, 30 * 1000);
     }
 
     private async broadcastWarning(text: string) {
