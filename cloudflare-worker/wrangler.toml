@@ -1,0 +1,16 @@
+name = "whatsappofficial"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+[vars]
+INSTABOX_MACHINE_ID = "m_agqz7rh6ki3vl7acl4otox5yfy"
+SERVER_URL = "https://3000-agqz7rh6ki3vl7acl4otox5yfy.instabox.tech"
+
+# Secrets (set via: wrangler secret put VARNAME)
+# INSTABOX_API_KEY
+# TELEGRAM_BOT_TOKEN
+# TELEGRAM_CHAT_ID
+# WEBHOOK_SECRET
+
+[triggers]
+crons = ["*/5 * * * *"]
