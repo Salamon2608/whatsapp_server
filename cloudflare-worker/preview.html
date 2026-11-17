@@ -3,48 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>System Maintenance — WhatsApp Gateway</title>
+  <title>WhatsApp Server — Service Rest</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090a0f;
-      --card-bg: rgba(15, 17, 23, 0.72);
-      --card-border: rgba(255, 255, 255, 0.08);
-      --card-border-hover: rgba(255, 255, 255, 0.16);
-      --text-main: #f1f5f9;
-      --text-muted: #94a3b8;
-      --text-sub: #64748b;
       --accent: #25d366;
-      --accent-subtle: rgba(37, 211, 102, 0.12);
-      --status-amber: #f59e0b;
-      --status-amber-bg: rgba(245, 158, 11, 0.1);
-      --status-amber-border: rgba(245, 158, 11, 0.25);
+      --accent-glow: rgba(37, 211, 102, 0.35);
+      --amber: #fbbf24;
+      --glass-bg: rgba(13, 17, 23, 0.42);
+      --glass-border: rgba(255, 255, 255, 0.18);
+      --glass-border-light: rgba(255, 255, 255, 0.08);
+      --text: #ffffff;
+      --text-sub: rgba(255, 255, 255, 0.75);
+      --text-dim: rgba(255, 255, 255, 0.5);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text-main);
-      min-height: 100vh;
-      width: 100vw;
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
+      background: #000;
+      color: var(--text);
       -webkit-font-smoothing: antialiased;
     }
 
-    /* ── Cinematic Video Background with Multi-layer Vignette ── */
-    .media-layer {
+    /* ── Fullscreen Video (Vibrant & Fully Visible) ── */
+    .video-viewport {
       position: fixed;
       inset: 0;
-      z-index: 0;
+      width: 100vw;
+      height: 100vh;
       overflow: hidden;
-      pointer-events: none;
+      z-index: 0;
     }
 
     #bg-video {
@@ -52,469 +47,440 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      min-width: 100vw;
-      min-height: 100vh;
+      min-width: 100%;
+      min-height: 100%;
       width: auto;
       height: auto;
       object-fit: cover;
-      opacity: 0.32;
-      filter: saturate(0.8) contrast(1.1) brightness(0.65);
+      /* Full clarity: clear, vibrant, visible */
+      opacity: 0.95;
+      filter: contrast(1.05) saturate(1.1);
     }
 
-    .vignette-overlay {
+    /* Subtle cinematic glass ambient overlay (doesn't wash out video) */
+    .cinema-overlay {
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(circle at center, rgba(9, 10, 15, 0.45) 0%, rgba(9, 10, 15, 0.88) 75%, #090a0f 100%),
-        linear-gradient(180deg, rgba(9, 10, 15, 0.8) 0%, rgba(9, 10, 15, 0.2) 35%, rgba(9, 10, 15, 0.75) 75%, #090a0f 100%);
+      background: radial-gradient(circle at center, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.5) 85%, rgba(0, 0, 0, 0.8) 100%);
+      pointer-events: none;
     }
 
-    /* ── Main Layout Frame ── */
-    .app-frame {
+    /* ── Floating Interface Layer ── */
+    .app-canvas {
       position: relative;
       z-index: 2;
+      height: 100vh;
+      width: 100vw;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem;
       justify-content: space-between;
-    }
-
-    /* ── Header ── */
-    header {
-      display: flex;
       align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding-bottom: 1.5rem;
+      padding: 2.25rem 2rem;
     }
 
-    .brand {
+    /* ── Minimalist Top Navigation ── */
+    header {
+      width: 100%;
+      max-width: 900px;
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-pill {
+      display: inline-flex;
       align-items: center;
       gap: 0.75rem;
-      text-decoration: none;
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      background: rgba(10, 15, 22, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
     }
 
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--card-border);
+    .brand-icon {
+      width: 22px;
+      height: 22px;
+      color: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent);
     }
 
-    .brand-info {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .brand-name {
-      font-size: 0.95rem;
-      font-weight: 700;
+    .brand-title {
+      font-size: 0.88rem;
+      font-weight: 600;
       letter-spacing: -0.01em;
       color: #fff;
     }
 
-    .brand-sub {
-      font-size: 0.7rem;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-sub);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .status-badge {
+    .status-pill {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.4rem 0.85rem;
-      border-radius: 6px;
-      background: var(--status-amber-bg);
-      border: 1px solid var(--status-amber-border);
-      color: var(--status-amber);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
+      gap: 0.55rem;
+      padding: 0.55rem 1.1rem;
+      border-radius: 999px;
+      background: rgba(10, 15, 22, 0.55);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
       font-family: 'JetBrains Mono', monospace;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: var(--amber);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
-    .status-dot {
-      width: 7px;
-      height: 7px;
+    .pulsing-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
-      background: var(--status-amber);
-      box-shadow: 0 0 8px var(--status-amber);
-      animation: pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      background: var(--amber);
+      box-shadow: 0 0 10px var(--amber);
+      animation: pulse 1.8s ease-in-out infinite;
     }
 
-    @keyframes pulse-dot {
+    @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
+      50% { opacity: 0.45; transform: scale(0.85); }
     }
 
-    /* ── Center Content Box ── */
+    /* ── Centered Glassmorphic Hero HUD ── */
     main {
+      width: 100%;
+      max-width: 580px;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      margin: 2.5rem 0;
-      width: 100%;
     }
 
-    .hero-pretitle {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--accent);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 0.75rem;
+    .glass-card {
+      width: 100%;
+      background: var(--glass-bg);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 2.5rem 2.25rem;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Ambient card glow reflecting the background */
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .badge-sub {
       display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.4rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.85rem;
+      text-shadow: 0 0 12px var(--accent-glow);
     }
 
-    .hero-title {
-      font-size: clamp(2rem, 5vw, 3.25rem);
+    .headline {
+      font-size: clamp(1.75rem, 4vw, 2.35rem);
       font-weight: 700;
-      line-height: 1.15;
       letter-spacing: -0.03em;
+      line-height: 1.2;
       color: #ffffff;
-      max-width: 720px;
-      margin-bottom: 1rem;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
     }
 
-    .hero-desc {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: var(--text-muted);
-      max-width: 540px;
-      margin-bottom: 2.5rem;
+    .desc {
+      font-size: 0.92rem;
+      line-height: 1.55;
+      color: var(--text-sub);
+      margin-bottom: 2rem;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
     }
 
-    /* ── Professional Segmented Countdown Panel ── */
-    .timer-panel {
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 1.75rem 2rem;
-      max-width: 600px;
-      width: 100%;
-      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
-      transition: border-color 0.2s ease;
-    }
-
-    .timer-panel:hover {
-      border-color: var(--card-border-hover);
-    }
-
-    .timer-grid {
+    /* ── Split Countdown Digit Tiles ── */
+    .countdown-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      gap: 0.85rem;
+      margin-bottom: 1.75rem;
     }
 
-    .time-slot {
+    .digit-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border-light);
+      border-radius: 14px;
+      padding: 1.15rem 0.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1rem 0.5rem;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      border-radius: 10px;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s ease, border-color 0.2s ease;
     }
 
-    .time-num {
+    .digit-box:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .digit-val {
       font-family: 'JetBrains Mono', monospace;
-      font-size: clamp(2.25rem, 5vw, 3.25rem);
-      font-weight: 600;
+      font-size: clamp(2rem, 5vw, 2.85rem);
+      font-weight: 700;
       line-height: 1;
       color: #ffffff;
       font-variant-numeric: tabular-nums;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.35rem;
+      text-shadow: 0 0 24px rgba(255, 255, 255, 0.35);
     }
 
-    .time-label {
-      font-size: 0.68rem;
+    .digit-tag {
+      font-size: 0.65rem;
       font-weight: 600;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--text-sub);
+      color: var(--text-dim);
     }
 
-    /* ── Subtle Progress ── */
-    .progress-section {
+    /* ── Progress Bar ── */
+    .progress-wrapper {
       width: 100%;
       text-align: left;
     }
 
-    .progress-meta {
+    .progress-labels {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-bottom: 0.6rem;
-    }
-
-    .progress-meta span:last-child {
+      font-size: 0.76rem;
+      color: var(--text-sub);
+      margin-bottom: 0.55rem;
       font-family: 'JetBrains Mono', monospace;
-      font-weight: 600;
-      color: var(--accent);
     }
 
-    .progress-track {
+    .progress-labels span:last-child {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .progress-bar-track {
       width: 100%;
-      height: 6px;
-      background: rgba(255, 255, 255, 0.06);
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 999px;
       overflow: hidden;
-      position: relative;
     }
 
-    .progress-fill {
+    .progress-bar-fill {
       height: 100%;
-      width: 35%;
+      width: 45%;
       background: linear-gradient(90deg, #10b981, #25d366);
       border-radius: 999px;
-      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 12px var(--accent-glow);
+      transition: width 0.8s ease;
     }
 
-    /* ── Action and System Info Bar ── */
-    .system-status-ribbon {
+    /* ── Quick Status Badges ── */
+    .meta-pills {
       margin-top: 1.5rem;
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
-      gap: 0.75rem 1.5rem;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.74rem;
-      color: var(--text-sub);
-    }
-
-    .system-status-item {
-      display: flex;
       align-items: center;
-      gap: 0.45rem;
+      gap: 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
     }
 
-    .system-status-item strong {
-      color: var(--text-muted);
+    .meta-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .meta-item span {
+      color: #fff;
       font-weight: 500;
     }
 
-    .actions-group {
-      margin-top: 2rem;
+    /* ── Floating Footer ── */
+    footer {
+      width: 100%;
+      max-width: 900px;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 1rem;
+      font-size: 0.74rem;
+      color: var(--text-dim);
+      padding: 0.75rem 1.25rem;
+      border-radius: 999px;
+      background: rgba(10, 15, 22, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border-light);
     }
 
-    .btn {
-      display: inline-flex;
+    .footer-edge {
+      display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.65rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      font-family: inherit;
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.04);
-      color: var(--text-main);
-      border: 1px solid var(--card-border);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.08);
-      border-color: var(--card-border-hover);
-    }
-
-    /* ── Footer ── */
-    footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 0.75rem;
       color: var(--text-sub);
-      flex-wrap: wrap;
-      gap: 1rem;
     }
 
-    .footer-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .footer-right {
+    .footer-auto {
       font-family: 'JetBrains Mono', monospace;
-      color: var(--text-sub);
+      color: var(--text-dim);
     }
 
-    @media (max-width: 640px) {
-      .app-frame { padding: 1.25rem 1rem; }
-      .timer-panel { padding: 1.25rem 1rem; }
-      .timer-grid { gap: 0.5rem; }
-      .time-slot { padding: 0.75rem 0.25rem; }
-      footer { justify-content: center; text-align: center; }
+    @media (max-width: 600px) {
+      .app-canvas { padding: 1.25rem 1rem; }
+      .glass-card { padding: 1.75rem 1.25rem; }
+      .headline { font-size: 1.5rem; }
+      footer { flex-direction: column; gap: 0.35rem; border-radius: 16px; text-align: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Background Video with Clean Dark Film Grain / Gradient -->
-  <div class="media-layer">
-    <video id="bg-video" autoplay loop muted playsinline>
+  <!-- Background Video Element (Dual local + CDN source for 100% playback reliability) -->
+  <div class="video-viewport">
+    <video id="bg-video" autoplay loop muted playsinline preload="auto">
+      <source src="bg-video.mp4" type="video/mp4" />
       <source src="https://pub-86dc5b5484314368ac5436a674b0d919.r2.dev/cloudinarry%20to%20cloudflare/202606021731-e_hqa6sn.mp4" type="video/mp4" />
     </video>
-    <div class="vignette-overlay"></div>
+    <div class="cinema-overlay"></div>
   </div>
 
-  <div class="app-frame">
-    <!-- Top Header -->
+  <div class="app-canvas">
+    <!-- Header -->
     <header>
-      <div class="brand">
-        <div class="brand-logo">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="20" height="8" x="2" y="2" rx="2" ry="2"/>
-            <rect width="20" height="8" x="2" y="14" rx="2" ry="2"/>
-            <line x1="6" x2="6.01" y1="6" y2="6"/>
-            <line x1="6" x2="6.01" y1="18" y2="18"/>
+      <div class="brand-pill">
+        <div class="brand-icon">
+          <!-- WhatsApp / Messaging Clean Vector -->
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
           </svg>
         </div>
-        <div class="brand-info">
-          <span class="brand-name">WhatsApp Gateway</span>
-          <span class="brand-sub">Production Cluster</span>
-        </div>
+        <span class="brand-title">WhatsApp Server Gateway</span>
       </div>
 
-      <div class="status-badge">
-        <span class="status-dot"></span>
-        <span id="badge-label">Cooldown Active</span>
+      <div class="status-pill">
+        <span class="pulsing-dot"></span>
+        <span id="badge-status">Cooldown Active</span>
       </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Center Floating Glass HUD -->
     <main>
-      <div class="hero-pretitle">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <polyline points="12 6 12 12 16 14"/>
-        </svg>
-        Automated Lifecycle Rest
-      </div>
-
-      <h1 class="hero-title">Service Rest in Progress</h1>
-      <p class="hero-desc">
-        The instance is completing its scheduled runtime rest cycle. The gateway will automatically spin up and reconnect when the cooldown finishes.
-      </p>
-
-      <!-- Segmented Countdown Card -->
-      <div class="timer-panel">
-        <div class="timer-grid">
-          <div class="time-slot">
-            <span class="time-num" id="hours">00</span>
-            <span class="time-label">Hours</span>
-          </div>
-          <div class="time-slot">
-            <span class="time-num" id="minutes">48</span>
-            <span class="time-label">Minutes</span>
-          </div>
-          <div class="time-slot">
-            <span class="time-num" id="seconds">20</span>
-            <span class="time-label">Seconds</span>
-          </div>
-        </div>
-
-        <div class="progress-section">
-          <div class="progress-meta">
-            <span id="cycle-state">Cycle Progress</span>
-            <span id="progress-pct">45%</span>
-          </div>
-          <div class="progress-track">
-            <div class="progress-fill" id="progress-bar" style="width: 45%;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Infrastructure status ribbon -->
-      <div class="system-status-ribbon">
-        <div class="system-status-item">
-          <span>Target:</span>
-          <strong>InstaBox Edge Node</strong>
-        </div>
-        <div class="system-status-item">
-          <span>State:</span>
-          <strong id="system-state-text">Suspended (Resting)</strong>
-        </div>
-        <div class="system-status-item">
-          <span>Protocol:</span>
-          <strong>Auto-Resume Enabled</strong>
-        </div>
-      </div>
-
-      <div class="actions-group">
-        <button class="btn btn-secondary" onclick="checkNow()">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-            <path d="M3 3v5h5"/>
-            <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
-            <path d="M16 16h5v5"/>
+      <div class="glass-card">
+        <div class="badge-sub">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
           </svg>
-          Check Connectivity
-        </button>
+          Automated Resource Rest
+        </div>
+
+        <h1 class="headline">Rest Cycle in Progress</h1>
+        <p class="desc">
+          The node is in its scheduled cooldown. The gateway will automatically reconnect the moment runtime resumes.
+        </p>
+
+        <!-- Segmented Countdown Grid -->
+        <div class="countdown-grid">
+          <div class="digit-box">
+            <span class="digit-val" id="hours">00</span>
+            <span class="digit-tag">Hours</span>
+          </div>
+          <div class="digit-box">
+            <span class="digit-val" id="minutes">48</span>
+            <span class="digit-tag">Minutes</span>
+          </div>
+          <div class="digit-box">
+            <span class="digit-val" id="seconds">20</span>
+            <span class="digit-tag">Seconds</span>
+          </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="progress-wrapper">
+          <div class="progress-labels">
+            <span>Cycle Progress</span>
+            <span id="progress-percent">45%</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="progress-fill" style="width: 45%;"></div>
+          </div>
+        </div>
+
+        <!-- System Meta Pills -->
+        <div class="meta-pills">
+          <div class="meta-item">
+            Cluster: <span>InstaBox Edge</span>
+          </div>
+          <div class="meta-item">•</div>
+          <div class="meta-item">
+            Recovery: <span>Automatic</span>
+          </div>
+        </div>
       </div>
     </main>
 
-    <!-- Footer -->
+    <!-- Bottom Bar -->
     <footer>
-      <div class="footer-left">
+      <div class="footer-edge">
         <span>Cloudflare Sentinel Edge</span>
         <span>•</span>
-        <span>HTTP 503 Service Maintenance</span>
+        <span>HTTP 503 Maintenance</span>
       </div>
-      <div class="footer-right">
-        Auto-reloads when operational
+      <div class="footer-auto">
+        Auto-refreshes when operational
       </div>
     </footer>
   </div>
 
   <script>
-    let remaining = 48 * 60 + 20; // 48m 20s test
-    const initialCycleSeconds = 120 * 60; // 2 hours total cycle
+    // Force video play on load
+    const videoEl = document.getElementById('bg-video');
+    if (videoEl) {
+      videoEl.muted = true;
+      videoEl.play().catch(() => {
+        // User gesture fallback
+        window.addEventListener('click', () => videoEl.play(), { once: true });
+      });
+    }
 
-    function updateDisplay() {
+    // Countdown Logic
+    let remaining = 48 * 60 + 20; // 48 mins 20 secs test
+    const cycleTotal = 120 * 60; // 2 hour max cycle
+
+    function update() {
       if (remaining <= 0) {
         document.getElementById('hours').textContent = '00';
         document.getElementById('minutes').textContent = '00';
         document.getElementById('seconds').textContent = '00';
-        document.getElementById('progress-pct').textContent = '100%';
-        document.getElementById('progress-bar').style.width = '100%';
-        document.getElementById('badge-label').textContent = 'Reconnecting';
-        document.getElementById('cycle-state').textContent = 'Ready to launch';
-        setTimeout(() => location.reload(), 3000);
+        document.getElementById('progress-percent').textContent = '100%';
+        document.getElementById('progress-fill').style.width = '100%';
+        document.getElementById('badge-status').textContent = 'Starting Server';
+        setTimeout(() => location.reload(), 2500);
         return;
       }
 
@@ -526,25 +492,16 @@
       document.getElementById('minutes').textContent = String(m).padStart(2, '0');
       document.getElementById('seconds').textContent = String(s).padStart(2, '0');
 
-      const elapsed = initialCycleSeconds - remaining;
-      const pct = Math.min(100, Math.max(0, Math.round((elapsed / initialCycleSeconds) * 100)));
-      document.getElementById('progress-pct').textContent = pct + '%';
-      document.getElementById('progress-bar').style.width = pct + '%';
+      const elapsed = Math.max(0, cycleTotal - remaining);
+      const pct = Math.min(100, Math.round((elapsed / cycleTotal) * 100));
+      document.getElementById('progress-percent').textContent = pct + '%';
+      document.getElementById('progress-fill').style.width = pct + '%';
 
       remaining--;
-      setTimeout(updateDisplay, 1000);
+      setTimeout(update, 1000);
     }
 
-    function checkNow() {
-      const btn = event.currentTarget;
-      btn.textContent = 'Checking...';
-      btn.style.opacity = '0.7';
-      setTimeout(() => {
-        location.reload();
-      }, 800);
-    }
-
-    updateDisplay();
+    update();
   </script>
 </body>
 </html>
