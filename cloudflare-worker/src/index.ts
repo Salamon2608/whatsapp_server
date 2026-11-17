@@ -23,11 +23,18 @@ interface InstaboxMachine {
   retryAfterSeconds?: number;
 }
 
+function cleanSecret(val?: string): string {
+  return (val || "").replace(/^\uFEFF/, "").trim().replace(/^["']|["']$/g, "");
+}
+
 async function getMachineState(env: Env): Promise<InstaboxMachine | null> {
   try {
+    const rawKey = cleanSecret(env.INSTABOX_API_KEY);
     const res = await fetch("https://api.instabox.sh/v1/machines", {
-      headers: { Authorization: `Bearer ${env.INSTABOX_API_KEY}` },
-      cf: { cacheTtl: 0 },
+      headers: {
+        Authorization: `Bearer ${rawKey}`,
+        "User-Agent": "Cloudflare-Worker",
+      },
     });
     if (!res.ok) return null;
     const data: { machines: InstaboxMachine[] } = await res.json();
@@ -39,11 +46,15 @@ async function getMachineState(env: Env): Promise<InstaboxMachine | null> {
 
 async function wakeServer(env: Env): Promise<boolean> {
   try {
+    const rawKey = cleanSecret(env.INSTABOX_API_KEY);
     const res = await fetch(
       `https://api.instabox.sh/v1/machines/${env.INSTABOX_MACHINE_ID}/start`,
       {
         method: "POST",
-        headers: { Authorization: `Bearer ${env.INSTABOX_API_KEY}` },
+        headers: {
+          Authorization: `Bearer ${rawKey}`,
+          "User-Agent": "Cloudflare-Worker",
+        },
       }
     );
     return res.ok;
@@ -55,13 +66,15 @@ async function wakeServer(env: Env): Promise<boolean> {
 // ─── Telegram ────────────────────────────────────────────────
 
 async function sendTelegram(env: Env, text: string): Promise<void> {
+  const token = cleanSecret(env.TELEGRAM_BOT_TOKEN);
+  const chatId = cleanSecret(env.TELEGRAM_CHAT_ID);
   await fetch(
-    `https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`,
+    `https://api.telegram.org/bot${token}/sendMessage`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        chat_id: env.TELEGRAM_CHAT_ID,
+        chat_id: chatId,
         text,
         parse_mode: "HTML",
       }),
@@ -81,9 +94,10 @@ async function verifyWebhookSignature(
   const msgId = request.headers.get("svix-id") ?? "";
 
   const toSign = `${msgId}.${tsHeader}.${body}`;
+  const clean = cleanSecret(secret);
   const key = await crypto.subtle.importKey(
     "raw",
-    new TextEncoder().encode(secret.replace(/^whsec_/, "")),
+    new TextEncoder().encode(clean.replace(/^whsec_/, "")),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
@@ -692,10 +706,43 @@ export default {
 
     // GET /status — raw JSON status (for debugging)
     if (url.pathname === "/status") {
-      const machine = await getMachineState(env);
-      return new Response(JSON.stringify(machine, null, 2), {
-        headers: { "Content-Type": "application/json" },
-      });
+      try {
+        const rawKey = (env.INSTABOX_API_KEY || "").trim().replace(/^["']|["']$/g, "");
+        const res = await fetch("https://api.instabox.sh/v1/machines", {
+          headers: {
+            Authorization: `Bearer ${rawKey}`,
+            "User-Agent": "Cloudflare-Worker",
+          },
+        });
+        const text = await res.text();
+        return new Response(
+          JSON.stringify(
+            {
+              api_status: res.status,
+              machine_id_sought: env.INSTABOX_MACHINE_ID,
+              key_len: env.INSTABOX_API_KEY?.length,
+              key_preview: env.INSTABOX_API_KEY ? `${env.INSTABOX_API_KEY.slice(0, 7)}...${env.INSTABOX_API_KEY.slice(-4)}` : null,
+              key_char_codes: env.INSTABOX_API_KEY ? Array.from(env.INSTABOX_API_KEY.slice(0, 10)).map(c => c.charCodeAt(0)) : [],
+              api_response: JSON.parse(text),
+            },
+            null,
+            2
+          ),
+          { headers: { "Content-Type": "application/json" } }
+        );
+      } catch (err: any) {
+        return new Response(
+          JSON.stringify(
+            {
+              error: err?.message || String(err),
+              has_api_key: Boolean(env.INSTABOX_API_KEY),
+            },
+            null,
+            2
+          ),
+          { headers: { "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // GET /wake — manually trigger wake (for debugging)
