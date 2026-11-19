@@ -284,57 +284,50 @@ export function AntiBanRadar3D() {
   }, []);
 
   return (
-    <div className="relative w-full rounded-3xl bg-white border border-slate-200/90 p-4 sm:p-8 shadow-xl shadow-slate-200/50 overflow-hidden font-manrope">
-      {/* Background radial glow */}
-      <div
-        className={`absolute -top-32 -left-32 w-80 h-80 rounded-full blur-[140px] pointer-events-none transition-colors duration-700 ${
-          mode === "protected" ? "bg-emerald-500/10" : "bg-rose-500/15"
-        }`}
-      />
-
+    <div className="relative w-full rounded-xl bg-white border border-slate-200 p-4 sm:p-7 shadow-xs font-sans">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
         {/* Left Column: Interactive 3D Canvas Visualizer */}
-        <div className="lg:col-span-7 relative h-[300px] xs:h-[340px] sm:h-[440px] rounded-2xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center shadow-lg">
+        <div className="lg:col-span-7 relative h-[300px] xs:h-[340px] sm:h-[420px] rounded-lg bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center">
           <div ref={mountRef} className="absolute inset-0 w-full h-full z-10" />
 
           {/* Top Overlay Badge */}
-          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-900/90 border border-slate-700 text-[10px] sm:text-xs font-mono">
+          <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-20 flex items-center gap-1.5 sm:gap-2 px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-700 text-[10px] sm:text-xs font-mono">
             {mode === "protected" ? (
-              <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+              <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
                 <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span>HEURISTIC SHIELD ACTIVE: 100% HEALTHY</span>
+                <span>Adaptive throttling active</span>
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 text-rose-400 font-semibold animate-pulse">
+              <span className="flex items-center gap-1.5 text-rose-400 font-medium">
                 <ShieldAlert className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                <span>BAN RISK LEVEL: CRITICAL ({banRiskScore}%)</span>
+                <span>Unthrottled dispatch (Risk: {banRiskScore}%)</span>
               </span>
             )}
           </div>
 
           {/* Top Right Live Speed Overlay */}
-          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/90 border border-slate-700 text-[10px] sm:text-xs font-mono text-slate-300">
-            <Activity className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
-            <span>{(burstRate / 60).toFixed(2)} msg/sec</span>
+          <div className="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-700 text-[10px] sm:text-xs font-mono text-slate-300">
+            <Activity className="h-3.5 w-3.5 text-emerald-400" />
+            <span>{(burstRate / 60).toFixed(2)} msg/s</span>
           </div>
 
-          {/* Bottom Telemetry HUD (Live calculations dynamically driven by burst rate slider) */}
-          <div className="absolute bottom-2.5 left-2.5 right-2.5 z-20 grid grid-cols-3 gap-1.5 px-2.5 py-2 rounded-xl bg-slate-900/90 backdrop-blur-md border border-slate-800 text-[10px] sm:text-[11px] font-mono text-slate-300">
+          {/* Bottom Telemetry HUD */}
+          <div className="absolute bottom-2.5 left-2.5 right-2.5 z-20 grid grid-cols-3 gap-1.5 px-2.5 py-2 rounded-md bg-slate-900/90 backdrop-blur-md border border-slate-800 text-[10px] sm:text-[11px] font-mono text-slate-300">
             <div className="truncate text-center sm:text-left">
               <span className="text-slate-500 block sm:inline">Pacing: </span>
-              <strong className={mode === "protected" ? "text-emerald-400" : "text-rose-400"}>
-                {mode === "protected" ? `${delayMs}ms` : "0ms Flood"}
+              <strong className={mode === "protected" ? "text-emerald-400 font-medium" : "text-rose-400 font-medium"}>
+                {mode === "protected" ? `${delayMs}ms` : "0ms burst"}
               </strong>
             </div>
             <div className="truncate text-center">
-              <span className="text-slate-500 block sm:inline">Typing WPM: </span>
-              <strong className={mode === "protected" ? "text-cyan-400" : "text-rose-400"}>
-                {mode === "protected" ? `${effectiveWpm} WPM` : "Robot Blast"}
+              <span className="text-slate-500 block sm:inline">Typing rate: </span>
+              <strong className={mode === "protected" ? "text-cyan-400 font-medium" : "text-rose-400 font-medium"}>
+                {mode === "protected" ? `${effectiveWpm} WPM` : "Unregulated"}
               </strong>
             </div>
             <div className="truncate text-center sm:text-right">
-              <span className="text-slate-500 block sm:inline">Gaze Pause: </span>
-              <strong className={mode === "protected" ? "text-amber-400" : "text-rose-400"}>
+              <span className="text-slate-500 block sm:inline">Gaze pause: </span>
+              <strong className={mode === "protected" ? "text-amber-400 font-medium" : "text-rose-400 font-medium"}>
                 {gazePauseSec}s
               </strong>
             </div>
@@ -342,55 +335,55 @@ export function AntiBanRadar3D() {
         </div>
 
         {/* Right Column: Interactive Simulator Controls */}
-        <div className="lg:col-span-5 space-y-4 sm:space-y-6">
+        <div className="lg:col-span-5 space-y-4 sm:space-y-5">
           <div>
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] sm:text-xs font-semibold mb-2 sm:mb-3">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono font-medium mb-2.5">
               <Activity className="h-3.5 w-3.5 text-emerald-600" />
-              <span>LIVE HEURISTIC SIMULATOR</span>
+              <span>Throttle simulator</span>
             </div>
-            <h3 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Test WhatsApp Bot Detection In Real-Time
+            <h3 className="text-xl sm:text-2xl font-semibold text-slate-950 tracking-tight leading-tight">
+              Simulate dispatch pacing and detection avoidance
             </h3>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 sm:mt-2 leading-relaxed font-normal">
-              Slide the dispatch burst intensity or toggle modes to see how WhatsApp heuristic filters analyze packet spacing in real time.
+            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed font-normal">
+              Adjust burst volume to see how adaptive leaky-bucket throttling paces packet spacing to avoid automated account flagging.
             </p>
           </div>
 
           {/* Mode Selector Toggle */}
-          <div className="grid grid-cols-2 gap-2 p-1 sm:p-1.5 rounded-2xl bg-slate-100 border border-slate-200">
+          <div className="grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-slate-100 border border-slate-200">
             <button
               onClick={() => setMode("protected")}
-              className={`py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-semibold transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 ${
+              className={`py-2 px-3 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
                 mode === "protected"
-                  ? "bg-[#25D366] text-slate-950 shadow-md shadow-[#25D366]/25 font-bold"
+                  ? "bg-emerald-600 text-white shadow-xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <ShieldCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="truncate">WHATSAPP SERVER Shield</span>
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span className="truncate">Adaptive Throttling</span>
             </button>
             <button
               onClick={() => setMode("unprotected")}
-              className={`py-2 sm:py-2.5 px-2 sm:px-4 rounded-xl text-[11px] sm:text-xs font-semibold transition-all flex items-center justify-center gap-1.5 sm:gap-2 active:scale-95 ${
+              className={`py-2 px-3 rounded-md text-xs font-medium transition-colors flex items-center justify-center gap-1.5 ${
                 mode === "unprotected"
-                  ? "bg-rose-500 text-white shadow-md shadow-rose-500/25 font-bold"
+                  ? "bg-rose-600 text-white shadow-xs"
                   : "text-slate-600 hover:text-slate-900"
               }`}
             >
-              <ShieldAlert className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              <span className="truncate">Generic Bot Script</span>
+              <ShieldAlert className="h-3.5 w-3.5" />
+              <span className="truncate">Unthrottled Script</span>
             </button>
           </div>
 
-          {/* Burst Volume Slider (Fully responsive & live reactive) */}
-          <div className="space-y-3 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+          {/* Burst Volume Slider */}
+          <div className="space-y-3 p-4 rounded-lg bg-slate-50 border border-slate-200">
             <div className="flex items-center justify-between">
-              <span className="text-slate-800 flex items-center gap-1.5 text-xs font-bold">
+              <span className="text-slate-800 flex items-center gap-1.5 text-xs font-medium">
                 <Sliders className="h-3.5 w-3.5 text-emerald-600" />
-                Dispatch Burst Intensity
+                Dispatch burst intensity
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-emerald-800 shadow-2xs">
+                <span className="text-xs font-mono font-medium px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-800">
                   {burstRate} msgs / min
                 </span>
               </div>
@@ -404,44 +397,44 @@ export function AntiBanRadar3D() {
               step="1"
               value={burstRate}
               onChange={(e) => setBurstRate(Number(e.target.value))}
-              className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-[#25D366]"
+              className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600"
             />
 
             {/* Live Slider Status Badge */}
             <div className="flex items-center justify-between text-[11px] font-mono pt-1">
               <span className="text-slate-500">Warmup (10)</span>
-              <span className={`px-2 py-0.5 rounded-md font-semibold text-[10px] border ${currentTier.color}`}>
+              <span className={`px-2 py-0.5 rounded text-[10px] border ${currentTier.color}`}>
                 {currentTier.label}
               </span>
-              <span className="text-slate-500">Blast (100)</span>
+              <span className="text-slate-500">Burst (100)</span>
             </div>
 
             {/* Live Calculation Cards */}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200/80 text-[11px] font-mono">
-              <div className="p-2 rounded-xl bg-white border border-slate-200/70">
-                <div className="text-slate-400 text-[10px] uppercase">Message Interval</div>
-                <div className="text-slate-900 font-bold mt-0.5">{delayMs}ms <span className="text-slate-500 font-normal">±{jitterMs}ms</span></div>
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 text-xs font-mono">
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                <div className="text-slate-500 text-[10px]">Message interval</div>
+                <div className="text-slate-900 font-semibold mt-0.5">{delayMs}ms <span className="text-slate-500 font-normal">±{jitterMs}ms</span></div>
               </div>
-              <div className="p-2 rounded-xl bg-white border border-slate-200/70">
-                <div className="text-slate-400 text-[10px] uppercase">Humanizer Jitter</div>
-                <div className="text-emerald-700 font-bold mt-0.5">{effectiveWpm} WPM <span className="text-slate-500 font-normal">Adaptive</span></div>
+              <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                <div className="text-slate-500 text-[10px]">Humanizer jitter</div>
+                <div className="text-emerald-700 font-semibold mt-0.5">{effectiveWpm} WPM <span className="text-slate-500 font-normal">Adaptive</span></div>
               </div>
             </div>
           </div>
 
           {/* Key Advantages Summary */}
-          <div className="space-y-1.5 sm:space-y-2 text-[11px] sm:text-xs font-medium">
+          <div className="space-y-2 text-xs font-normal">
             <div className="flex items-center gap-2 text-slate-700">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>Leaky-Bucket Jitter Algorithm prevents automated spam flags</span>
+              <span>Leaky-bucket jitter algorithm prevents automated spam flagging</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>Emulates real human typing (`composing` & `paused`) presence states</span>
+              <span>Simulates realistic composing and paused presence states</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <span>Automatic token bucket cools down throughput when rates spike</span>
+              <span>Token bucket automatically cools down throughput during traffic spikes</span>
             </div>
           </div>
         </div>

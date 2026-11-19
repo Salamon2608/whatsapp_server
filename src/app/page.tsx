@@ -27,21 +27,21 @@ import { Navbar3D } from "@/components/landing/3d-navbar";
 import { FadeReveal } from "@/components/landing/fade-reveal";
 
 export const metadata = {
-  title: "WHATSAPP SERVER | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
+  title: "WhatsApp Server | Self-Hosted WhatsApp API Gateway & Automation",
   description:
-    "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
+    "Self-hosted WhatsApp API gateway with multi-device Baileys engine, anti-ban throttling, autonomous agents, visual flow builder, and 86+ REST endpoints.",
   openGraph: {
-    title: "WHATSAPP SERVER | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
+    title: "WhatsApp Server | Self-Hosted WhatsApp API Gateway & Automation",
     description:
-      "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
+      "Self-hosted WhatsApp API gateway with multi-device Baileys engine, anti-ban throttling, autonomous agents, visual flow builder, and 86+ REST endpoints.",
     type: "website",
     url: process.env.NEXT_PUBLIC_APP_URL || "https://wa-server.app",
   },
   twitter: {
     card: "summary_large_image",
-    title: "WHATSAPP SERVER | Mission-Critical WhatsApp Gateway & 3D AI Infrastructure",
+    title: "WhatsApp Server | Self-Hosted WhatsApp API Gateway & Automation",
     description:
-      "Next-generation self-hosted 3D WhatsApp Gateway with Multi-device Baileys engine, Smart Humanizer Anti-Ban, Autonomous AI Agents, Visual Flow Canvas, and 86+ REST endpoints.",
+      "Self-hosted WhatsApp API gateway with multi-device Baileys engine, anti-ban throttling, autonomous agents, visual flow builder, and 86+ REST endpoints.",
   },
 };
 
@@ -60,154 +60,107 @@ export default function Home() {
   const telemetryStats = [
     {
       value: "< 42ms",
-      title: "P99 Binary Dispatch",
+      title: "P99 binary dispatch",
       description: "Direct Baileys binary socket pipeline with zero gateway proxy overhead.",
       color: "text-slate-900",
       accent: "text-emerald-700",
     },
     {
-      value: "0.00%",
-      title: "Account Ban Rate",
-      description: "Heuristic human typing jitter, reading gaze delay, and spintax randomization.",
-      color: "text-emerald-600",
+      value: "Adaptive",
+      title: "Anti-ban throttling",
+      description: "Heuristic typing simulation, reading gaze pacing, and queue jitter.",
+      color: "text-emerald-700",
       accent: "text-emerald-700",
     },
     {
       value: "86+",
-      title: "REST API Endpoints",
-      description: "Complete OpenAPI 3.1 spec covering messages, media, stickers, and polls.",
+      title: "REST API endpoints",
+      description: "OpenAPI specification covering messages, media, stickers, and polls.",
       color: "text-slate-900",
-      accent: "text-cyan-700",
+      accent: "text-slate-700",
     },
     {
       value: "100%",
-      title: "Data Sovereignty",
-      description: "Your encryption keys, your database, your server. Zero third-party telemetry.",
+      title: "Data sovereignty",
+      description: "Your encryption keys, your database, your server. Zero external telemetry.",
       color: "text-slate-900",
       accent: "text-emerald-700",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 selection:bg-[#25D366]/30 selection:text-slate-950 relative overflow-x-hidden font-manrope">
-      {/* Background Luminous Mesh Grid */}
+    <div className="min-h-screen bg-white text-slate-900 selection:bg-emerald-500/20 selection:text-slate-950 relative overflow-x-hidden font-sans">
+      {/* Background Grid */}
       <div
         className="fixed inset-0 pointer-events-none opacity-40 -z-10"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.12) 0%, transparent 60%),
-            radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.05) 0%, transparent 50%),
-            linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px)
+            linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px)
           `,
-          backgroundSize: "100% 100%, 100% 100%, 56px 56px, 56px 56px",
+          backgroundSize: "48px 48px",
         }}
       />
 
-      {/* Modern Enterprise Navigation Bar */}
+      {/* Navigation Bar */}
       <Navbar3D version={version} />
 
-      <main className="pt-2 sm:pt-6 space-y-16 sm:space-y-32">
+      <main className="pt-4 sm:pt-10 space-y-20 sm:space-y-32">
         {/* ========================================================
-            HERO SECTION WITH 3D WEBGL GATEWAY
+            HERO SECTION
            ======================================================== */}
-        <section className="relative pt-6 sm:pt-14 pb-4 sm:pb-8 overflow-hidden">
-          {/* Floating Soft Ambient Glow Orbs */}
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[55rem] h-[32rem] bg-emerald-500/10 rounded-full blur-[180px] pointer-events-none -z-10 animate-float-slow" />
-          <div className="absolute top-12 left-1/4 w-[28rem] h-[28rem] bg-cyan-400/5 rounded-full blur-[140px] pointer-events-none -z-10 animate-float-slow" />
-
+        <section className="relative pt-6 sm:pt-14 pb-4 sm:pb-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center max-w-4xl mx-auto space-y-4 sm:space-y-6">
-              {/* Modern Enterprise Announcement Pill (Two-tone design, no online dot) */}
+            <div className="text-center max-w-3xl mx-auto space-y-6">
+              {/* Quiet Version / Context Badge */}
               <FadeReveal direction="up" delayMs={50}>
                 <Link
                   href="#architecture"
-                  className="inline-flex items-center gap-2.5 p-1 pr-3.5 rounded-full bg-white hover:bg-slate-50/90 border border-slate-200/90 hover:border-emerald-300/80 shadow-xs hover:shadow-md transition-all duration-300 group relative overflow-hidden cursor-pointer"
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-slate-50 border border-slate-200 text-xs text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors"
                 >
-                  {/* Subtle specular sheen sweep */}
-                  <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-emerald-100/30 to-transparent transition-transform duration-700 ease-in-out pointer-events-none" />
-
-                  {/* Contrast Tag Chip */}
-                  <span className="px-2.5 py-0.5 rounded-full bg-slate-950 text-white font-mono text-[10px] font-bold tracking-wide flex items-center gap-1 shadow-xs">
-                    <Sparkles className="h-3 w-3 text-amber-400" />
-                    <span>{version}</span>
-                  </span>
-
-                  {/* Feature & Version Subtext */}
-                  <span className="text-[11px] sm:text-xs font-semibold text-slate-700 group-hover:text-slate-950 transition-colors flex items-center gap-1.5">
-                    <span>Baileys v7 Multi-Device Core</span>
-                    <span className="hidden xs:inline text-slate-300">•</span>
-                    <span className="hidden xs:inline text-emerald-700 font-medium">Enterprise Engine</span>
-                  </span>
-
-                  <ChevronRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-700 transition-transform duration-200 group-hover:translate-x-0.5" />
+                  <span className="font-mono text-slate-500">{version}</span>
+                  <span className="text-slate-300">•</span>
+                  <span>Baileys v7 Multi-Device Core</span>
+                  <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
                 </Link>
               </FadeReveal>
 
-              {/* Headline with Flowing Gradient Animation */}
-              <FadeReveal direction="up" delayMs={120}>
-                <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-[66px] font-extrabold text-slate-900 tracking-[-0.04em] leading-[1.15]">
-                  Next-Gen 3D WhatsApp Gateway &{" "}
-                  <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 via-[#25D366] to-teal-600 animate-gradient-flow">
-                    Autonomous AI Server.
-                  </span>
+              {/* Exact Technical Headline */}
+              <FadeReveal direction="up" delayMs={100}>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-slate-950 tracking-[-0.03em] leading-[1.12]">
+                  Self-hosted WhatsApp API gateway and automation server
                 </h1>
               </FadeReveal>
 
-              {/* Subtitle */}
-              <FadeReveal direction="up" delayMs={200}>
-                <p className="max-w-2xl mx-auto text-sm sm:text-lg text-slate-600 leading-relaxed font-normal">
-                  Scale mission-critical WhatsApp communication effortlessly. Connect multiple numbers concurrently with Baileys binary sockets, deploy self-hosted AI agents with RAG memory, and execute high-volume campaigns with automated humanizer anti-ban protection.
+              {/* Specific Subtitle */}
+              <FadeReveal direction="up" delayMs={160}>
+                <p className="max-w-2xl mx-auto text-base sm:text-lg text-slate-600 leading-relaxed font-normal">
+                  Connect multiple WhatsApp numbers concurrently through Baileys binary sockets. Handle high-volume inbound media, configure automated workflows, and dispatch messages through 86+ REST endpoints.
                 </p>
               </FadeReveal>
 
-              {/* Dual CTA Buttons with Shimmer & Elevation */}
-              <FadeReveal direction="up" delayMs={280}>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-2">
+              {/* Two Actions */}
+              <FadeReveal direction="up" delayMs={220}>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                   <Link href="/dashboard" className="w-full sm:w-auto">
-                    <button className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl bg-[#25D366] hover:bg-[#1ebd5d] text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-[#25D366]/25 hover:shadow-xl hover:shadow-[#25D366]/35 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group active:scale-95 relative overflow-hidden">
-                      {/* Light shine beam sweep */}
-                      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-in-out pointer-events-none" />
-
-                      <span>Deploy Gateway Console</span>
-                      <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5" />
+                    <button className="w-full sm:w-auto h-11 px-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2">
+                      <span>Open dashboard</span>
+                      <ArrowRight className="h-4 w-4" />
                     </button>
                   </Link>
 
                   <Link href="#sandbox" className="w-full sm:w-auto">
-                    <button className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm sm:text-base border border-slate-200 hover:border-emerald-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 group">
-                      <Code className="h-4 w-4 text-emerald-600 transition-transform duration-200 group-hover:rotate-12" />
-                      <span>Explore 86+ REST Endpoints</span>
+                    <button className="w-full sm:w-auto h-11 px-6 rounded-lg bg-white hover:bg-slate-50 text-slate-800 font-medium text-sm border border-slate-200 hover:border-slate-300 transition-colors flex items-center justify-center gap-2">
+                      <Code className="h-4 w-4 text-slate-600" />
+                      <span>API playground</span>
                     </button>
                   </Link>
                 </div>
               </FadeReveal>
-
-              {/* Trust Indicators with Micro-Hover Bounces */}
-              <FadeReveal direction="up" delayMs={360}>
-                <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-2.5 sm:gap-6 pt-2 text-[11px] sm:text-xs font-semibold text-slate-500">
-                  <span className="flex items-center gap-1.5 hover:text-slate-900 transition-colors duration-200 cursor-default group">
-                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#25D366] transition-transform duration-200 group-hover:scale-125 shrink-0" />
-                    <span>100% Self-Hosted</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 hover:text-slate-900 transition-colors duration-200 cursor-default group">
-                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#25D366] transition-transform duration-200 group-hover:scale-125 shrink-0" />
-                    <span>0.00% Ban Rate</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 hover:text-slate-900 transition-colors duration-200 cursor-default group">
-                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#25D366] transition-transform duration-200 group-hover:scale-125 shrink-0" />
-                    <span>Multi-Tenant Baileys</span>
-                  </span>
-                  <span className="flex items-center gap-1.5 hover:text-slate-900 transition-colors duration-200 cursor-default group">
-                    <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#25D366] transition-transform duration-200 group-hover:scale-125 shrink-0" />
-                    <span>AI Native</span>
-                  </span>
-                </div>
-              </FadeReveal>
             </div>
 
-            {/* Interactive 3D WebGL Gateway Canvas */}
-            <FadeReveal direction="up" delayMs={420} className="mt-8 sm:mt-16">
+            {/* Interactive Gateway Canvas */}
+            <FadeReveal direction="up" delayMs={300} className="mt-12 sm:mt-16">
               <HeroGateway3D />
             </FadeReveal>
           </div>
@@ -219,35 +172,33 @@ export default function Home() {
         <MarqueeTicker />
 
         {/* ========================================================
-            TELEMETRY & PERFORMANCE BENCHMARK HUD
+            TELEMETRY & PERFORMANCE BENCHMARK
            ======================================================== */}
-        <section className="py-10 sm:py-14 bg-slate-50/80 border-y border-slate-200/90 relative">
+        <section className="py-10 sm:py-14 bg-slate-50 border-y border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               {telemetryStats.map((stat, idx) => (
                 <FadeReveal
                   key={stat.title}
                   direction="up"
-                  delayMs={idx * 90}
+                  delayMs={idx * 80}
                 >
-                  <div className="p-4 sm:p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs hover:shadow-xl hover:border-emerald-400/80 hover:-translate-y-1.5 transition-all duration-300 group cursor-default h-full flex flex-col justify-between">
+                  <div className="p-5 rounded-xl bg-white border border-slate-200/80 h-full flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <div className={`text-2xl sm:text-4xl font-bold font-mono tracking-tight ${stat.color} transition-transform duration-300 group-hover:scale-105 origin-left`}>
-                          {stat.value}
-                        </div>
+                      <div className="text-2xl sm:text-3xl font-semibold font-mono tracking-tight text-slate-900">
+                        {stat.value}
                       </div>
 
-                      <div className={`text-[11px] sm:text-xs font-semibold uppercase tracking-wider mt-1 ${stat.accent}`}>
+                      <div className="text-xs font-medium text-slate-500 mt-1">
                         {stat.title}
                       </div>
 
-                      <p className="text-[11px] sm:text-xs text-slate-600 mt-1.5 sm:mt-2 font-normal leading-relaxed line-clamp-3 sm:line-clamp-none">
+                      <p className="text-xs text-slate-600 mt-2 leading-relaxed">
                         {stat.description}
                       </p>
                     </div>
 
-                    <div className="pt-2 sm:pt-3 mt-2 sm:mt-3 border-t border-slate-100 flex items-center justify-between text-[10px] sm:text-[11px] font-mono text-slate-400">
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-mono text-slate-400">
                       <span>Verified</span>
                     </div>
                   </div>
@@ -258,7 +209,7 @@ export default function Home() {
         </section>
 
         {/* ========================================================
-            INTERACTIVE 3D ANTI-BAN RADAR SIMULATOR
+            ANTI-BAN RADAR SIMULATOR
            ======================================================== */}
         <section id="anti-ban" className="py-6 sm:py-8 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -269,20 +220,20 @@ export default function Home() {
         </section>
 
         {/* ========================================================
-            3D ARCHITECTURE & 6 CORE PILLARS MATRIX
+            ARCHITECTURE & CAPABILITIES
            ======================================================== */}
         <section id="architecture" className="py-8 sm:py-12 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <FadeReveal direction="up" delayMs={50}>
-              <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
-                <span className="text-xs font-semibold tracking-widest text-emerald-800 uppercase px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 inline-block mb-3 shadow-xs">
-                  SYSTEM CAPABILITIES
+              <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+                <span className="text-xs font-mono text-emerald-700 tracking-wide uppercase">
+                  Capabilities
                 </span>
-                <h2 className="text-2xl sm:text-4xl lg:text-[44px] font-extrabold text-slate-900 tracking-tight">
-                  Engineered for High-Scale Enterprise WhatsApp Automation
+                <h2 className="text-2xl sm:text-3xl font-semibold text-slate-950 tracking-tight mt-1">
+                  Engineered for high-volume WhatsApp automation
                 </h2>
-                <p className="text-slate-600 text-xs sm:text-base mt-2 sm:mt-3 font-normal">
-                  Every component is built from the ground up for strict reliability, instant event processing, and seamless developer workflows.
+                <p className="text-slate-600 text-xs sm:text-sm mt-2 leading-relaxed">
+                  Every component is built for strict socket reliability, instant event dispatch, and direct API integration.
                 </p>
               </div>
             </FadeReveal>
@@ -294,7 +245,7 @@ export default function Home() {
         </section>
 
         {/* ========================================================
-            VISUAL CONVERSATIONAL FLOW BUILDER 3D
+            VISUAL FLOW BUILDER
            ======================================================== */}
         <section id="flows" className="py-6 sm:py-8 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -305,7 +256,7 @@ export default function Home() {
         </section>
 
         {/* ========================================================
-            INTERACTIVE DEVELOPER SANDBOX & TERMINAL
+            DEVELOPER SANDBOX & TERMINAL
            ======================================================== */}
         <section id="sandbox" className="py-8 sm:py-12 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -316,32 +267,29 @@ export default function Home() {
         </section>
 
         {/* ========================================================
-            HIGH-IMPACT 3D CALL TO ACTION
+            CALL TO ACTION
            ======================================================== */}
-        <section className="py-14 sm:py-24 relative overflow-hidden bg-gradient-to-b from-white via-emerald-50/50 to-slate-50 border-t border-slate-200">
-          {/* Animated floating glow aura */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[36rem] h-[18rem] bg-emerald-400/10 rounded-full blur-[160px] pointer-events-none -z-10 animate-float-slow" />
+        <section className="py-16 sm:py-20 bg-slate-50 border-t border-slate-200">
           <FadeReveal direction="up" delayMs={100}>
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 sm:space-y-6">
-              <h2 className="text-2xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Ready to automate your WhatsApp communication safely?
+            <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 sm:space-y-6">
+              <h2 className="text-2xl sm:text-4xl font-semibold text-slate-950 tracking-tight">
+                Ready to deploy your private WhatsApp gateway?
               </h2>
-              <p className="text-xs sm:text-base text-slate-600 max-w-2xl mx-auto font-normal">
-                Deploy your private gateway today. Manage sessions, build conversational AI agents, and send millions of messages with complete peace of mind.
+              <p className="text-sm sm:text-base text-slate-600 max-w-xl mx-auto font-normal leading-relaxed">
+                Deploy on your own infrastructure. Manage sessions, build conversational workflows, and dispatch messages with complete data privacy.
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-3 sm:pt-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
                 <Link href="/dashboard" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl bg-[#25D366] hover:bg-[#1ebd5d] text-slate-950 font-bold text-sm sm:text-base shadow-lg shadow-[#25D366]/25 hover:shadow-xl hover:shadow-[#25D366]/35 hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 group active:scale-95 relative overflow-hidden">
-                    <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-700 ease-in-out pointer-events-none" />
-                    <span>Enter Gateway Console</span>
-                    <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1.5" />
+                  <button className="w-full sm:w-auto h-11 px-6 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm transition-colors flex items-center justify-center gap-2">
+                    <span>Enter dashboard</span>
+                    <ArrowRight className="h-4 w-4" />
                   </button>
                 </Link>
                 <Link href="/docs" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto h-12 sm:h-13 px-6 sm:px-8 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-sm sm:text-base border border-slate-200 hover:border-emerald-300 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95 group">
-                    <span>Read Full 86+ API Reference</span>
-                    <ExternalLink className="h-4 w-4 text-emerald-600 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  <button className="w-full sm:w-auto h-11 px-6 rounded-lg bg-white hover:bg-slate-50 text-slate-800 font-medium text-sm border border-slate-200 hover:border-slate-300 transition-colors flex items-center justify-center gap-2">
+                    <span>API reference</span>
+                    <ExternalLink className="h-4 w-4 text-slate-500" />
                   </button>
                 </Link>
               </div>
@@ -353,64 +301,64 @@ export default function Home() {
       {/* ========================================================
           CLEAN ENTERPRISE FOOTER
          ======================================================== */}
-      <footer className="border-t border-slate-200 bg-slate-50/90 py-14 relative z-10">
+      <footer className="border-t border-slate-200 bg-slate-50/90 py-12 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-10">
             {/* Brand column */}
-            <div className="md:col-span-2 space-y-4">
-              <div className="flex items-center gap-3.5">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-1.5 shadow-xs border border-slate-200">
+            <div className="md:col-span-2 space-y-3.5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1 shadow-xs border border-slate-200">
                   <Image
                     src="/logo.png"
-                    alt="WHATSAPP SERVER Logo"
-                    width={48}
-                    height={48}
-                    className="h-full w-full object-contain filter drop-shadow-[0_2px_8px_rgba(37,211,102,0.3)]"
+                    alt="WhatsApp Server Logo"
+                    width={40}
+                    height={40}
+                    className="h-full w-full object-contain"
                   />
                 </div>
-                <span className="text-xl font-bold text-slate-900 tracking-tight font-triakis">
-                  WHATSAPP SERVER Gateway
+                <span className="text-base sm:text-lg font-semibold text-slate-900 tracking-tight">
+                  WhatsApp Server Gateway
                 </span>
               </div>
               <p className="text-xs text-slate-600 max-w-sm leading-relaxed font-normal">
-                Mission-critical enterprise WhatsApp gateway and AI automation server.
-                Designed for high throughput, absolute account safety, and complete
-                self-hosted data privacy.
+                Self-hosted WhatsApp API gateway and automation server.
+                Designed for high throughput, reliable socket lifecycle, and complete data privacy.
               </p>
-              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700">
+              <div className="flex items-center gap-2 text-xs font-medium text-emerald-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
                 <span>All gateway clusters operational</span>
               </div>
             </div>
 
             {/* Links column 1 */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3">
+              <h4 className="text-xs font-semibold text-slate-900 mb-3">
                 Platform
               </h4>
-              <ul className="space-y-2 text-xs font-medium text-slate-600">
+              <ul className="space-y-2 text-xs font-normal text-slate-600">
                 <li>
-                  <Link href="/dashboard" className="hover:text-emerald-700 transition-colors">
-                    Dashboard Console
+                  <Link href="/dashboard" className="hover:text-slate-950 transition-colors">
+                    Dashboard console
                   </Link>
                 </li>
                 <li>
-                  <Link href="#anti-ban" className="hover:text-emerald-700 transition-colors">
-                    Anti-Ban Engine
+                  <Link href="#anti-ban" className="hover:text-slate-950 transition-colors">
+                    Anti-ban engine
                   </Link>
                 </li>
                 <li>
-                  <Link href="#architecture" className="hover:text-emerald-700 transition-colors">
-                    Baileys Multi-Device
+                  <Link href="#architecture" className="hover:text-slate-950 transition-colors">
+                    Baileys multi-device
                   </Link>
                 </li>
                 <li>
-                  <Link href="#flows" className="hover:text-emerald-700 transition-colors">
-                    Visual Flow Builder
+                  <Link href="#flows" className="hover:text-slate-950 transition-colors">
+                    Visual flow builder
                   </Link>
                 </li>
                 <li>
-                  <Link href="#sandbox" className="hover:text-emerald-700 transition-colors">
-                    REST API Sandbox
+                  <Link href="#sandbox" className="hover:text-slate-950 transition-colors">
+                    REST API sandbox
                   </Link>
                 </li>
               </ul>
@@ -418,35 +366,35 @@ export default function Home() {
 
             {/* Links column 2 */}
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 mb-3">
+              <h4 className="text-xs font-semibold text-slate-900 mb-3">
                 Resources
               </h4>
-              <ul className="space-y-2 text-xs font-medium text-slate-600">
+              <ul className="space-y-2 text-xs font-normal text-slate-600">
                 <li>
-                  <Link href="/docs" className="hover:text-emerald-700 transition-colors">
-                    Swagger API Reference
+                  <Link href="/docs" className="hover:text-slate-950 transition-colors">
+                    API reference
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="hover:text-emerald-700 transition-colors">
-                    Privacy Policy
+                  <Link href="/privacy" className="hover:text-slate-950 transition-colors">
+                    Privacy policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="hover:text-emerald-700 transition-colors">
-                    Terms of Service
+                  <Link href="/terms" className="hover:text-slate-950 transition-colors">
+                    Terms of service
                   </Link>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-medium">
-            <p>© 2026 WHATSAPP SERVER. All rights reserved.</p>
+          <div className="pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-normal">
+            <p>© 2026 WhatsApp Server. All rights reserved.</p>
             <p className="flex items-center gap-2">
-              <span>Next.js 16 • Three.js 3D WebGL Core</span>
+              <span>Baileys v7 Multi-Device Core</span>
               <span>•</span>
-              <span className="text-emerald-700 font-semibold">Powered by WHATSAPP SERVER</span>
+              <span className="text-emerald-700 font-medium">Self-hosted Gateway</span>
             </p>
           </div>
         </div>

@@ -32,14 +32,14 @@ export function MarqueeTicker() {
       <div className="absolute top-0 bottom-0 right-0 w-24 sm:w-48 bg-gradient-to-l from-slate-50 to-transparent z-10 pointer-events-none" />
 
       {/* Marquee Row 1 */}
-      <div className="flex whitespace-nowrap overflow-hidden mb-4">
-        <div className="animate-marquee flex items-center gap-6">
+      <div className="flex whitespace-nowrap overflow-hidden mb-3">
+        <div className="animate-marquee flex items-center gap-4">
           {[...LANE_1, ...LANE_1].map((item, index) => (
             <div
               key={index}
-              className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-mono text-slate-700 hover:text-slate-950 hover:border-[#25D366] shadow-xs transition-all"
+              className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-mono text-slate-700 hover:text-slate-950 hover:border-slate-300 shadow-xs transition-colors"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-[#25D366] shadow-[0_0_8px_#25D366]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               <span>{item}</span>
             </div>
           ))}
@@ -48,13 +48,13 @@ export function MarqueeTicker() {
 
       {/* Marquee Row 2 (Reverse) */}
       <div className="flex whitespace-nowrap overflow-hidden">
-        <div className="animate-marquee-reverse flex items-center gap-6">
+        <div className="animate-marquee-reverse flex items-center gap-4">
           {[...LANE_2, ...LANE_2].map((item, index) => (
             <div
               key={index}
-              className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white border border-slate-200 text-sm font-mono text-emerald-700 hover:text-emerald-950 hover:border-[#25D366] shadow-xs transition-all"
+              className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-mono text-slate-700 hover:text-slate-950 hover:border-slate-300 shadow-xs transition-colors"
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#25D366]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
               <span>{item}</span>
             </div>
           ))}

@@ -28,15 +28,15 @@ export function InteractiveCard3D({
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotX = -((y - centerY) / centerY) * 10;
-    const rotY = ((x - centerX) / centerX) * 10;
+    const rotX = -((y - centerY) / centerY) * 4;
+    const rotY = ((x - centerX) / centerX) * 4;
 
     setRotateX(rotX);
     setRotateY(rotY);
     setGlarePos({
       x: (x / rect.width) * 100,
       y: (y / rect.height) * 100,
-      opacity: 0.22,
+      opacity: 0.08,
     });
   };
 
@@ -63,25 +63,19 @@ export function InteractiveCard3D({
         ref={cardRef}
         style={{
           transform: isHovered
-            ? `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(8px) scale3d(1.02, 1.02, 1.02)`
+            ? `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(4px) scale3d(1.005, 1.005, 1.005)`
             : "rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)",
-          transition: isHovered ? "transform 0.1s ease-out" : "transform 0.5s ease-out",
+          transition: isHovered ? "transform 0.1s ease-out" : "transform 0.4s ease-out",
         }}
-        className={`relative h-full rounded-3xl overflow-hidden transition-shadow duration-300 will-change-transform ${className}`}
+        className={`relative h-full rounded-xl overflow-hidden transition-shadow duration-200 will-change-transform ${className}`}
       >
-        {/* Dynamic Specular Glare Layer */}
+        {/* Subtle Specular Glare Layer */}
         <div
-          className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-300"
+          className="pointer-events-none absolute inset-0 z-30 transition-opacity duration-200"
           style={{
             opacity: glarePos.opacity,
-            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.4) 0%, transparent 65%)`,
+            background: `radial-gradient(circle at ${glarePos.x}% ${glarePos.y}%, rgba(255, 255, 255, 0.2) 0%, transparent 60%)`,
           }}
-        />
-
-        {/* Ambient Corner Glow */}
-        <div
-          className="pointer-events-none absolute -top-20 -right-20 w-44 h-44 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"
-          style={{ backgroundColor: glowColor }}
         />
 
         {/* Card Content with 3D Depth */}

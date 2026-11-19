@@ -768,9 +768,9 @@ export default {
 
   // ── Cron trigger ──
   async scheduled(
-    _event: ScheduledEvent,
+    _event: any,
     env: Env,
-    _ctx: ExecutionContext
+    _ctx: any
   ): Promise<void> {
     await handleCron(env);
   },

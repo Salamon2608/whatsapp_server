@@ -35,8 +35,8 @@ const ALL_NODES: NodeData[] = [
     id: "core",
     name: "Central WhatsApp Core",
     role: "Binary WebSocket MD Gateway",
-    badge: "GATEWAY ENGINE",
-    color: "#25D366",
+    badge: "Gateway core",
+    color: "#10B981",
     pos: [0, 0, 0],
     icon: Radio,
     metric: "<42ms Latency",
@@ -53,7 +53,7 @@ const ALL_NODES: NodeData[] = [
     id: "baileys",
     name: "Baileys MD v7 Core",
     role: "Multi-Session Driver",
-    badge: "PROTOCOL CORE",
+    badge: "Protocol driver",
     color: "#10B981",
     pos: [-3.2, 1.2, 0],
     icon: Cpu,
@@ -71,25 +71,25 @@ const ALL_NODES: NodeData[] = [
     id: "antiban",
     name: "Smart Anti-Ban Humanizer",
     role: "Heuristic Safety Suite",
-    badge: "0.00% BAN RATE",
-    color: "#22c55e",
+    badge: "Adaptive pacing",
+    color: "#10B981",
     pos: [3.2, 1.5, 0.5],
     icon: ShieldCheck,
-    metric: "100% Safety Score",
+    metric: "Adaptive jitter",
     description:
       "Advanced heuristic human typing emulation (32-48 WPM), reading gaze pause delays, and spintax phrase randomization to bypass WhatsApp's automated bot detection filters.",
     tags: ["Dynamic WPM Jitter", "Gaze Reading Delays", "Spintax Text Mutations"],
     telemetry: [
-      { label: "False-Positive Rate", value: "0.00%" },
+      { label: "Detection Avoidance", value: "Active" },
       { label: "Typing Cadence", value: "42 WPM (Jitter)" },
       { label: "Safety Shield", value: "Optimal" },
     ],
   },
   {
     id: "ai",
-    name: "Premium Quality Agents",
+    name: "Autonomous AI Agents",
     role: "Vector RAG Intelligence",
-    badge: "MULTI-LLM",
+    badge: "Multi-LLM",
     color: "#06B6D4",
     pos: [-2.6, -1.8, 1],
     icon: Bot,
@@ -107,7 +107,7 @@ const ALL_NODES: NodeData[] = [
     id: "webhooks",
     name: "Real-Time Webhook Pipeline",
     role: "Event Dispatch Stream",
-    badge: "ZERO DROPPED",
+    badge: "Guaranteed ack",
     color: "#F59E0B",
     pos: [2.8, -1.6, -0.5],
     icon: Zap,
@@ -528,9 +528,9 @@ export function HeroGateway3D() {
   const IconComponent = selectedNode.icon;
 
   return (
-    <div className="relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-slate-50 via-white to-emerald-50/30 border border-slate-200/90 shadow-2xl shadow-slate-200/60 font-manrope">
+    <div className="relative w-full rounded-xl overflow-hidden bg-white border border-slate-200 shadow-xs font-sans">
       {/* 3D WebGL Canvas Viewport */}
-      <div className="relative w-full h-[320px] xs:h-[360px] sm:h-[480px] lg:h-[540px]">
+      <div className="relative w-full h-[320px] xs:h-[360px] sm:h-[460px] lg:h-[500px]">
         <div ref={mountRef} className="absolute inset-0 w-full h-full z-10" />
 
         {/* Ambient Grid Overlay */}
@@ -547,52 +547,51 @@ export function HeroGateway3D() {
 
         {/* Top Left HUD Telemetry Badge */}
         <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-20 flex flex-col gap-1.5 sm:gap-2 pointer-events-none">
-          <div className="flex items-center gap-2 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 text-[11px] sm:text-xs font-mono text-slate-800 shadow-sm">
+          <div className="flex items-center gap-2 px-2.5 sm:px-3 py-1 rounded-md bg-white/95 backdrop-blur-md border border-slate-200 text-xs font-mono text-slate-800 shadow-xs">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
             </span>
-            <span className="font-bold uppercase tracking-wider text-[10px] sm:text-[11px] text-slate-900">
-              GATEWAY MATRIX
+            <span className="font-medium text-xs text-slate-900">
+              Gateway matrix
             </span>
             <span className="text-slate-300">|</span>
-            <span className="text-slate-600 font-semibold">{fps} FPS</span>
+            <span className="text-slate-600">{fps} FPS</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-3 px-3 py-1 rounded-lg bg-white/85 border border-slate-200/80 backdrop-blur-xs text-[11px] font-mono text-slate-600 shadow-xs">
+          <div className="hidden sm:flex items-center gap-3 px-3 py-1 rounded-md bg-white/85 border border-slate-200 backdrop-blur-xs text-xs font-mono text-slate-600 shadow-xs">
             <span>
-              Active Packets: <strong className="text-emerald-700">{activePackets}/s</strong>
+              Active packets: <strong className="text-emerald-700 font-medium">{activePackets}/s</strong>
             </span>
             <span>•</span>
             <span>
-              Binary Socket: <strong className="text-cyan-700">CONNECTED</strong>
+              Socket: <strong className="text-slate-900 font-medium">connected</strong>
             </span>
           </div>
         </div>
 
         {/* Top Right Cluster Health */}
-        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 text-xs font-mono text-slate-700 shadow-sm">
-          <Activity className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-20 hidden md:flex items-center gap-2 px-3 py-1 rounded-md bg-white/95 backdrop-blur-md border border-slate-200 text-xs font-mono text-slate-700 shadow-xs">
+          <Activity className="h-3.5 w-3.5 text-emerald-600" />
           <span>P99: &lt;42ms</span>
           <span className="text-slate-300">•</span>
-          <span className="text-emerald-700 font-bold">Zero Ban Active</span>
+          <span className="text-emerald-700 font-medium">Pacing active</span>
         </div>
 
         {/* Quick Hint Overlay */}
-        <div className="absolute top-18 right-4 z-20 hidden lg:flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/80 border border-slate-200/60 text-[10px] font-mono text-slate-500 shadow-xs">
+        <div className="absolute top-16 right-4 z-20 hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/80 border border-slate-200 text-xs font-mono text-slate-500 shadow-xs">
           <Info className="h-3 w-3 text-emerald-600" />
-          <span>Hover any 3D node or tap buttons below to inspect</span>
+          <span>Select nodes below to inspect subsystem</span>
         </div>
       </div>
 
-      {/* Interactive Subsystem Tabs Selector (Touch-friendly horizontal scroll on mobile) */}
-      <div className="relative z-20 px-3 sm:px-8 py-2.5 sm:py-3 bg-slate-50/90 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      {/* Interactive Subsystem Tabs Selector */}
+      <div className="relative z-20 px-3 sm:px-6 py-2.5 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center justify-between">
-          <span className="text-[11px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider font-mono">
-            Subsystem Nodes:
+          <span className="text-xs font-medium text-slate-500 font-mono">
+            Subsystems:
           </span>
-          <span className="sm:hidden text-[10px] font-mono text-slate-400">
-            Swipe ➔
+          <span className="sm:hidden text-xs font-mono text-slate-400">
+            Scroll ➔
           </span>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 -mx-1 px-1 sm:overflow-visible sm:pb-0 sm:mx-0 sm:px-0 sm:flex-wrap no-scrollbar">
@@ -603,15 +602,15 @@ export function HeroGateway3D() {
                 key={node.id}
                 onClick={() => setSelectedNode(node)}
                 onMouseEnter={() => setSelectedNode(node)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 flex items-center gap-1.5 border whitespace-nowrap shrink-0 active:scale-95 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 border whitespace-nowrap shrink-0 ${
                   isSelected
-                    ? "bg-[#25D366] text-slate-950 border-[#25D366] shadow-sm font-bold scale-[1.02]"
-                    : "bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:border-slate-300 shadow-xs"
+                    ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                    : "bg-white text-slate-700 border-slate-200 hover:text-slate-950 hover:border-slate-300 shadow-xs"
                 }`}
               >
                 <span
-                  className="h-2 w-2 rounded-full shrink-0"
-                  style={{ backgroundColor: node.color }}
+                  className="h-1.5 w-1.5 rounded-full shrink-0"
+                  style={{ backgroundColor: isSelected ? "#ffffff" : node.color }}
                 />
                 <span>{node.name}</span>
               </button>
@@ -620,28 +619,27 @@ export function HeroGateway3D() {
         </div>
       </div>
 
-      {/* Detailed Technical Dossier HUD Card (ALWAYS VISIBLE & DEEPLY INFORMATIVE) */}
-      <div className="relative z-20 p-4 sm:p-7 bg-white/95 border-t border-slate-200/80 backdrop-blur-md">
+      {/* Detailed Technical Dossier HUD Card */}
+      <div className="relative z-20 p-4 sm:p-6 bg-white border-t border-slate-200">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 items-center">
           {/* Left Column: Title, Role, and Detailed Explanation */}
-          <div className="lg:col-span-8 space-y-3">
+          <div className="lg:col-span-8 space-y-2.5">
             <div className="flex flex-wrap items-center gap-2.5">
               <div
-                className="p-2 sm:p-2.5 rounded-xl text-white shadow-sm shrink-0"
-                style={{ backgroundColor: selectedNode.color }}
+                className="p-2 rounded-lg text-slate-900 border border-slate-200 bg-slate-50 shrink-0"
               >
-                <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-slate-950" />
+                <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-700" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                  <h4 className="text-base sm:text-lg font-semibold text-slate-950 tracking-tight">
                     {selectedNode.name}
                   </h4>
-                  <span className="text-[9px] sm:text-[10px] font-mono font-bold px-1.5 sm:px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  <span className="text-[10px] font-mono font-medium px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
                     {selectedNode.badge}
                   </span>
                 </div>
-                <p className="text-[11px] sm:text-xs font-semibold text-slate-500 tracking-tight">
+                <p className="text-xs font-medium text-slate-500 tracking-tight">
                   {selectedNode.role} • <span className="text-emerald-700">{selectedNode.metric}</span>
                 </p>
               </div>
@@ -652,13 +650,13 @@ export function HeroGateway3D() {
             </p>
 
             {/* Feature Pills */}
-            <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
+            <div className="flex flex-wrap gap-1.5 pt-1">
               {selectedNode.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg bg-slate-100/80 border border-slate-200 text-[11px] sm:text-xs font-medium text-slate-700 shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-slate-50 border border-slate-200 text-xs font-normal text-slate-700"
                 >
-                  <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-emerald-600" />
+                  <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                   <span>{tag}</span>
                 </span>
               ))}
@@ -666,24 +664,24 @@ export function HeroGateway3D() {
           </div>
 
           {/* Right Column: Live Telemetry Metrics Box */}
-          <div className="lg:col-span-4 rounded-2xl bg-slate-50 border border-slate-200/90 p-3.5 sm:p-4 space-y-2.5 shadow-xs">
+          <div className="lg:col-span-4 rounded-lg bg-slate-50 border border-slate-200 p-3.5 space-y-2">
             <div className="flex items-center justify-between text-xs font-mono pb-2 border-b border-slate-200">
-              <span className="text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                Telemetry Diagnostics
+              <span className="text-slate-600 font-medium text-xs">
+                Telemetry diagnostics
               </span>
-              <span className="text-emerald-700 font-bold flex items-center gap-1 text-[11px]">
-                ACTIVE
+              <span className="text-emerald-700 font-medium flex items-center gap-1 text-xs">
+                Active
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-1 gap-2 sm:gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-1 gap-2">
               {selectedNode.telemetry.map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] sm:text-xs font-mono bg-white sm:bg-transparent p-2 sm:p-0 rounded-lg sm:rounded-none border border-slate-200/60 sm:border-0"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono bg-white sm:bg-transparent p-2 sm:p-0 rounded-md sm:rounded-none border border-slate-200 sm:border-0"
                 >
                   <span className="text-slate-500 truncate">{stat.label}:</span>
-                  <strong className="text-slate-900 font-semibold truncate">{stat.value}</strong>
+                  <strong className="text-slate-900 font-medium truncate">{stat.value}</strong>
                 </div>
               ))}
             </div>

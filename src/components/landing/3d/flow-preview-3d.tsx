@@ -94,7 +94,7 @@ export function FlowPreview3D() {
   };
 
   return (
-    <div className="relative w-full rounded-3xl bg-white border border-slate-200/90 p-4 sm:p-8 overflow-hidden shadow-xl shadow-slate-200/50 font-manrope">
+    <div className="relative w-full rounded-xl bg-white border border-slate-200 p-4 sm:p-7 overflow-hidden shadow-xs font-sans">
       {/* Background isometric grid */}
       <div
         className="absolute inset-0 pointer-events-none opacity-40"
@@ -108,45 +108,45 @@ export function FlowPreview3D() {
       />
 
       {/* Top Header & Simulation Trigger */}
-      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-7">
         <div>
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] sm:text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 border border-slate-200 text-slate-700 text-xs font-mono font-medium mb-2.5">
             <Layers className="h-3.5 w-3.5 text-emerald-600" />
-            <span>VISUAL CONVERSATIONAL CANVAS</span>
+            <span>Workflow engine</span>
           </div>
-          <h3 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Autonomous Flow Engine with Real-Time Branching
+          <h3 className="text-xl sm:text-2xl font-semibold text-slate-950 tracking-tight">
+            Automated conversational workflow execution
           </h3>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 font-normal">
-            Build drag-and-drop conversational logic that connects Baileys sockets with AI vector models.
+            Connect inbound Baileys socket messages directly to RAG knowledge retrieval and interactive dispatch.
           </p>
         </div>
 
         <button
           onClick={triggerSimulation}
           disabled={isSimulating}
-          className={`w-full sm:w-auto h-11 px-5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 shrink-0 ${
+          className={`w-full sm:w-auto h-10 px-4 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 shrink-0 ${
             isSimulating
               ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
-              : "bg-[#25D366] hover:bg-[#1ebd5d] text-slate-950 shadow-md shadow-[#25D366]/25 active:scale-95"
+              : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
           }`}
         >
           {isSimulating ? (
             <>
-              <Cpu className="h-4 w-4 animate-spin text-emerald-600" />
-              <span>Tracing Execution...</span>
+              <Cpu className="h-4 w-4 animate-spin text-white" />
+              <span>Tracing execution...</span>
             </>
           ) : (
             <>
-              <Play className="h-4 w-4 fill-current" />
-              <span>Simulate Live Event</span>
+              <Play className="h-3.5 w-3.5 fill-current" />
+              <span>Simulate workflow event</span>
             </>
           )}
         </button>
       </div>
 
       {/* 3D Isometric Workflow Track */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
         {FLOW_STEPS.map((step, idx) => {
           const Icon = step.icon;
           const isActive = activeStep === idx;
@@ -155,32 +155,32 @@ export function FlowPreview3D() {
             <div
               key={step.id}
               onClick={() => setActiveStep(idx)}
-              className={`cursor-pointer group relative p-4 sm:p-5 rounded-xl sm:rounded-2xl border transition-all duration-300 ${
+              className={`cursor-pointer group relative p-4 rounded-lg border transition-colors ${
                 isActive
-                  ? `border-emerald-500 bg-emerald-50/60 shadow-lg shadow-emerald-500/10 scale-[1.01] ring-2 ring-emerald-500/20`
-                  : "bg-slate-50/70 border-slate-200/80 hover:border-slate-300 hover:bg-white"
+                  ? `border-emerald-600 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-600/30`
+                  : "bg-slate-50/70 border-slate-200 hover:border-slate-300 hover:bg-white"
               }`}
             >
               {/* Step indicator pill */}
-              <div className="flex items-center justify-between mb-2.5 sm:mb-3">
-                <span className="text-[9px] sm:text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-white text-slate-700 border border-slate-200">
+              <div className="flex items-center justify-between mb-2.5">
+                <span className="text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-white text-slate-700 border border-slate-200">
                   {step.badge}
                 </span>
                 <div
-                  className={`p-1.5 sm:p-2 rounded-xl border ${
-                    isActive ? "border-emerald-300 bg-emerald-100/60 text-emerald-700" : "border-slate-200 bg-white text-slate-500"
+                  className={`p-1.5 rounded-md border ${
+                    isActive ? "border-emerald-300 bg-emerald-100 text-emerald-800" : "border-slate-200 bg-white text-slate-500"
                   }`}
                 >
-                  <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <Icon className="h-3.5 w-3.5" />
                 </div>
               </div>
 
-              <h4 className="text-sm sm:text-base font-bold text-slate-900 mb-1">{step.title}</h4>
+              <h4 className="text-sm font-semibold text-slate-900 mb-1">{step.title}</h4>
               <p className="text-xs text-slate-600 leading-relaxed font-normal">{step.details}</p>
 
               {/* Active indicator bar */}
               {isActive && (
-                <div className="absolute -bottom-1 left-4 right-4 h-1 bg-[#25D366] rounded-full" />
+                <div className="absolute -bottom-px left-3 right-3 h-0.5 bg-emerald-600 rounded-full" />
               )}
             </div>
           );
@@ -188,15 +188,15 @@ export function FlowPreview3D() {
       </div>
 
       {/* Active Step JSON Payload Inspector */}
-      <div className="relative z-10 rounded-2xl bg-slate-900 border border-slate-800 p-3.5 sm:p-4 shadow-md">
+      <div className="relative z-10 rounded-lg bg-slate-900 border border-slate-800 p-3 sm:p-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] sm:text-xs font-mono mb-2 text-slate-300">
           <span className="flex items-center gap-2 truncate">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
-            <span className="truncate">Payload: <strong className="text-white">{FLOW_STEPS[activeStep].title}</strong></span>
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
+            <span className="truncate">Payload: <strong className="text-white font-medium">{FLOW_STEPS[activeStep].title}</strong></span>
           </span>
-          <span className="text-emerald-400 font-semibold text-[11px]">Status: 200 OK</span>
+          <span className="text-emerald-400 font-medium text-[11px]">HTTP 200 OK</span>
         </div>
-        <pre className="text-[11px] sm:text-xs font-mono text-emerald-400/95 bg-black/60 p-2.5 sm:p-3 rounded-xl overflow-x-auto">
+        <pre className="text-[11px] sm:text-xs font-mono text-emerald-400/95 bg-black/60 p-2.5 rounded-md overflow-x-auto">
           <code>{FLOW_STEPS[activeStep].payload}</code>
         </pre>
       </div>
