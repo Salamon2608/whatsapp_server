@@ -21,6 +21,8 @@ interface InstaboxMachine {
   maxRunMinutes: number;
   autoSuspendAfterSeconds: number;
   retryAfterSeconds?: number;
+  cooldownUntil?: string | null;
+  autoSuspendedAt?: string | null;
 }
 
 function cleanSecret(val?: string): string {
@@ -124,7 +126,7 @@ function maintenancePage(secondsLeft: number, state: string): string {
       ? "Starting"
       : "Paused";
 
-  const totalCycle = 120 * 60; // 2 hour cycle
+  const totalCycle = Math.max(secondsLeft || 0, 1200);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -672,22 +674,41 @@ export default {
     // ── All other requests: check server state ──
     const machine = await getMachineState(env);
 
+    // Accurately calculate seconds left until cooldown ends
+    let secondsLeft = 0;
+    if (machine?.cooldownUntil) {
+      const cooldownEndMs = new Date(machine.cooldownUntil).getTime();
+      secondsLeft = Math.max(0, Math.ceil((cooldownEndMs - Date.now()) / 1000));
+    } else if (machine?.runStartedAt) {
+      const startMs = new Date(machine.runStartedAt).getTime();
+      const maxMs = (machine.maxRunMinutes || 120) * 60 * 1000;
+      const cooldownEndMs = startMs + maxMs * 2;
+      secondsLeft = Math.max(0, Math.ceil((cooldownEndMs - Date.now()) / 1000));
+    } else {
+      secondsLeft = 900;
+    }
+
     if (!machine) {
-      // API error — show maintenance page with unknown ETA
       return new Response(maintenancePage(300, "suspended"), {
         status: 503,
         headers: { "Content-Type": "text/html;charset=UTF-8" },
       });
     }
 
-    if (machine.state === "running") {
-      // Server is live — redirect to actual server
-      const targetUrl = env.SERVER_URL + url.pathname + url.search;
-      return Response.redirect(targetUrl, 302);
+    // If machine is suspended / cooldown / stopped -> immediately serve Maintenance UI
+    if (machine.state === "suspended" || machine.state === "stopped") {
+      wakeServer(env); // attempt resume
+      return new Response(maintenancePage(secondsLeft, "suspended"), {
+        status: 503,
+        headers: {
+          "Content-Type": "text/html;charset=UTF-8",
+          "Retry-After": String(Math.min(secondsLeft, 120)),
+        },
+      });
     }
 
     if (machine.state === "starting") {
-      return new Response(maintenancePage(60, "starting"), {
+      return new Response(maintenancePage(Math.max(secondsLeft, 30), "starting"), {
         status: 503,
         headers: {
           "Content-Type": "text/html;charset=UTF-8",
@@ -696,32 +717,53 @@ export default {
       });
     }
 
-    // Suspended / stopped — calculate seconds until cooldown ends
-    let secondsLeft = 0;
+    // Machine is running -> Reverse proxy the request (never 302 redirect, so user stays on worker domain)
+    const targetUrl = new URL(url.pathname + url.search, env.SERVER_URL);
+    const proxyHeaders = new Headers(request.headers);
+    proxyHeaders.set("Host", new URL(env.SERVER_URL).host);
+    proxyHeaders.set("X-Forwarded-Host", url.host);
+    proxyHeaders.set("X-Forwarded-Proto", url.protocol.replace(":", ""));
 
-    if (machine.runStartedAt) {
-      const startMs = new Date(machine.runStartedAt).getTime();
-      const ranForMs = Date.now() - startMs;
-      const maxMs = machine.maxRunMinutes * 60 * 1000;
-      // Cooldown ≈ same duration as max runtime (InstaBox rule)
-      const cooldownMs = maxMs;
-      const cooldownEndMs = startMs + maxMs + cooldownMs;
-      secondsLeft = Math.max(0, Math.ceil((cooldownEndMs - Date.now()) / 1000));
-    } else {
-      // Fallback: assume 2h cooldown
-      secondsLeft = 2 * 60 * 60;
+    try {
+      const upstream = await fetch(targetUrl.toString(), {
+        method: request.method,
+        headers: proxyHeaders,
+        body: ["GET", "HEAD"].includes(request.method) ? undefined : request.body,
+        redirect: "manual",
+      });
+
+      // If InstaBox returns an error or machine cooldown JSON even while API says running
+      if (upstream.status === 409 || upstream.status === 503 || upstream.status === 429) {
+        const text = await upstream.text();
+        if (text.includes("machine_cooldown") || text.includes("machine is cooling down")) {
+          let retrySec = secondsLeft || 900;
+          try {
+            const parsed = JSON.parse(text);
+            if (parsed?.error?.retryAfterSeconds) {
+              retrySec = parsed.error.retryAfterSeconds;
+            }
+          } catch {}
+          return new Response(maintenancePage(retrySec, "suspended"), {
+            status: 503,
+            headers: {
+              "Content-Type": "text/html;charset=UTF-8",
+              "Retry-After": String(retrySec),
+            },
+          });
+        }
+        return new Response(text, {
+          status: upstream.status,
+          headers: upstream.headers,
+        });
+      }
+
+      return upstream;
+    } catch {
+      return new Response(maintenancePage(secondsLeft || 300, "suspended"), {
+        status: 503,
+        headers: { "Content-Type": "text/html;charset=UTF-8" },
+      });
     }
-
-    // Also try to wake it
-    wakeServer(env); // fire-and-forget
-
-    return new Response(maintenancePage(secondsLeft, machine.state), {
-      status: 503,
-      headers: {
-        "Content-Type": "text/html;charset=UTF-8",
-        "Retry-After": String(Math.min(secondsLeft, 120)),
-      },
-    });
   },
 
   // ── Cron trigger ──
