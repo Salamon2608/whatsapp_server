@@ -125,11 +125,10 @@ export function FlowPreview3D() {
         <button
           onClick={triggerSimulation}
           disabled={isSimulating}
-          className={`w-full sm:w-auto h-10 px-4 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 shrink-0 ${
-            isSimulating
+          className={`w-full sm:w-auto h-10 px-4 rounded-lg text-xs font-medium transition-colors flex items-center justify-center gap-2 shrink-0 ${isSimulating
               ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
               : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs"
-          }`}
+            }`}
         >
           {isSimulating ? (
             <>
@@ -155,11 +154,10 @@ export function FlowPreview3D() {
             <div
               key={step.id}
               onClick={() => setActiveStep(idx)}
-              className={`cursor-pointer group relative p-4 rounded-lg border transition-colors ${
-                isActive
+              className={`cursor-pointer group relative p-4 rounded-lg border transition-colors ${isActive
                   ? `border-emerald-600 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-600/30`
                   : "bg-slate-50/70 border-slate-200 hover:border-slate-300 hover:bg-white"
-              }`}
+                }`}
             >
               {/* Step indicator pill */}
               <div className="flex items-center justify-between mb-2.5">
@@ -167,9 +165,8 @@ export function FlowPreview3D() {
                   {step.badge}
                 </span>
                 <div
-                  className={`p-1.5 rounded-md border ${
-                    isActive ? "border-emerald-300 bg-emerald-100 text-emerald-800" : "border-slate-200 bg-white text-slate-500"
-                  }`}
+                  className={`p-1.5 rounded-md border ${isActive ? "border-emerald-300 bg-emerald-100 text-emerald-800" : "border-slate-200 bg-white text-slate-500"
+                    }`}
                 >
                   <Icon className="h-3.5 w-3.5" />
                 </div>

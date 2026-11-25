@@ -24,14 +24,31 @@ export async function POST(
         }
 
         const body = await request.json();
-        const rawMessage = body.message ?? body.text;
+        const rawMessage = body.message ?? body.text ?? body.caption;
+        const mediaUrl = body.mediaUrl ?? body.imageUrl ?? (typeof body.image === "string" ? body.image : body.image?.url);
+        const videoUrl = body.videoUrl ?? (typeof body.video === "string" ? body.video : body.video?.url);
         const { mentions, quotedMessageId } = body;
 
-        if (!rawMessage) {
-            return NextResponse.json({ status: false, message: "message or text is required", error: "message or text is required" }, { status: 400 });
+        if (!rawMessage && !mediaUrl && !videoUrl) {
+            return NextResponse.json({ status: false, message: "message, text, mediaUrl, or image is required", error: "message or media is required" }, { status: 400 });
         }
 
-        const messagePayload = typeof rawMessage === "string" ? { text: rawMessage } : rawMessage;
+        let messagePayload: any;
+        if (mediaUrl) {
+            messagePayload = {
+                image: { url: mediaUrl },
+                caption: typeof rawMessage === "string" ? rawMessage : ""
+            };
+        } else if (videoUrl) {
+            messagePayload = {
+                video: { url: videoUrl },
+                caption: typeof rawMessage === "string" ? rawMessage : ""
+            };
+        } else if (typeof rawMessage === "string") {
+            messagePayload = { text: rawMessage };
+        } else {
+            messagePayload = rawMessage;
+        }
 
         // Check if user can access this session
         const canAccess = await canAccessSession(user.id, user.role, sessionId);
