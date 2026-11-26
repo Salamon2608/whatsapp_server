@@ -559,8 +559,8 @@ async function handleCron(env: Env): Promise<void> {
       }
     }
   } else if (machine.state === "suspended" || machine.state === "stopped") {
-    // Try to wake it up
-    await wakeServer(env);
+    // Do not auto-wake on background cron so manual pauses preserve demo runtime quota
+    // Server can be woken on-demand via /wake or when demo starts
   }
 }
 
